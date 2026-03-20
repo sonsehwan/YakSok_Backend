@@ -21,7 +21,6 @@ jobs:
       # 2. Gradle 빌드 (테스트 제외로 속도 향상)
       - name: Build with Gradle
         run: |
-          cd YakSok  # 프로젝트 폴더로 이동 (폴더 이름이 다르다면 그 이름으로 수정)
           chmod +x ./gradlew
           ./gradlew clean build -x test
 
