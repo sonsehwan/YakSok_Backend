@@ -42,5 +42,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # 1. 기존 8080 포트 프로세스 종료
             sudo fuser -k 8080/tcp || true
+            
+            # 2. 기존 실행 파일 및 로그 삭제 (용량 확보)
+            # 배포 전에 이전 파일을 지워줘야 용량 부족 에러를 방지할 수 있습니다.
+            rm -rf /home/ubuntu/app/*.jar
+            rm -f /home/ubuntu/app/nohup.out
+            
+            # 3. 새 jar 파일 실행 및 로그 기록
             nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/nohup.out 2>&1 &
