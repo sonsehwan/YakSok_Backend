@@ -4,7 +4,6 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # EC2 내부의 MySQL에 접속하므로 localhost(127.0.0.1)로 변경합니다.
     url: jdbc:mysql://localhost:3306/yaksok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: "@25Dldh25"
@@ -16,4 +15,4 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect # (선택사항) 사용할 DB 엔진 명시z
+        dialect: org.hibernate.dialect.MySQLDialect
