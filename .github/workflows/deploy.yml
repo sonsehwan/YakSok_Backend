@@ -1,54 +1,37 @@
-name: Java CI/CD with Gradle
+# 3. [SSH] 기존 서버 종료 및 파일 깔끔하게 삭제 (새 파일 올리기 전에 해야 함!)
+- name: Stop Old Server & Clean
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_KEY }}
+    script: |
+      # 확실하게 8080 포트를 점유 중인 프로세스를 죽입니다. (fuser 대신 더 확실한 lsof나 pkill 사용)
+      sudo kill -9 $(sudo lsof -t -i:8080) || true
+      sudo pkill -f 'java -jar' || true
+      
+      # 기존 jar 파일 및 로그 깨끗하게 삭제
+      rm -rf /home/ubuntu/app/*.jar
+      rm -f /home/ubuntu/app/nohup.out
 
-on:
-  push:
-    branches: [ "main" ] # main 브랜치에 push될 때 실행
+# 4. [SCP] 빌드된 새 jar 파일을 깨끗해진 EC2 폴더로 전송
+- name: Deploy to EC2
+  uses: appleboy/scp-action@master
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_KEY }}
+    source: "build/libs/*.jar"
+    target: "/home/ubuntu/app"
+    strip_components: 2
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # 1. JDK 설정
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      # 2. Gradle 빌드 (테스트 제외로 속도 향상)
-      - name: Build with Gradle
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean build -x test
-
-      # 3. 빌드된 jar 파일을 EC2로 전송 및 실행
-      - name: Deploy to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu # 또는 ec2-user
-          key: ${{ secrets.EC2_KEY }}
-          source: "build/libs/*.jar"
-          target: "/home/ubuntu/app"
-          strip_components: 2
-
-      - name: Execute Remote SSH Commands
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            # 1. 기존 8080 포트 프로세스 종료
-            sudo fuser -k 8080/tcp || true
-            
-            # 2. 기존 실행 파일 및 로그 삭제 (용량 확보)
-            # 배포 전에 이전 파일을 지워줘야 용량 부족 에러를 방지할 수 있습니다.
-            rm -rf /home/ubuntu/app/*.jar
-            rm -f /home/ubuntu/app/nohup.out
-            
-            # 3. 새 jar 파일 실행 및 로그 기록
-            nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/nohup.out 2>&1 &
+# 5. [SSH] 새로 전송된 최신 서버 실행
+- name: Start New Server
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_KEY }}
+    script: |
+      # 최신 jar 파일을 찾아 백그라운드에서 실행
+      nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/nohup.out 2>&1 &
