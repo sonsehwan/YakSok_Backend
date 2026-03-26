@@ -24,7 +24,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean build -x test
 
-      # 3. [SSH] 기존 서버 종료 및 파일 깔끔하게 삭제 (새 파일 올리기 전에 해야 함!)
+      # 3. [SSH] 기존 서버 종료 및 파일 깔끔하게 삭제 (안전한 방식 적용)
       - name: Stop Old Server & Clean
         uses: appleboy/ssh-action@master
         with:
@@ -32,11 +32,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 확실하게 8080 포트를 점유 중인 프로세스를 죽입니다. (fuser 대신 더 확실한 lsof나 pkill 사용)
-            sudo kill -9 $(sudo lsof -t -i:8080) || true
-            sudo pkill -f 'java -jar' || true
+            # 1. 8080 포트를 사용 중인 프로세스 ID(PID)를 찾습니다.
+            PID=$(sudo fuser 8080/tcp 2>/dev/null)
             
-            # 기존 jar 파일 및 로그 깨끗하게 삭제
+            # 2. 만약 프로세스가 존재한다면(서버가 켜져있다면) 안전하게 종료합니다.
+            if [ -n "$PID" ]; then
+              echo "기존 서버(PID: $PID)를 종료합니다."
+              sudo kill -9 $PID
+            else
+              echo "현재 실행 중인 8080 포트 서버가 없습니다."
+            fi
+            
+            # 3. 기존 jar 파일 및 로그 깨끗하게 삭제 (이전 파일이 남아있지 않도록)
             rm -rf /home/ubuntu/app/*.jar
             rm -f /home/ubuntu/app/nohup.out
 
