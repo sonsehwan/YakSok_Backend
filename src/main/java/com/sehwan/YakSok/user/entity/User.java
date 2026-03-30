@@ -21,8 +21,8 @@ public class User {
     @Column(length = 100)
     private String email;
 
-    // 3. 비밀번호: 필수, 중복 불가 (요청 사항 반영)
-    @Column(nullable = false, unique = true, length = 255)
+    // 3. 비밀번호: 필수
+    @Column(nullable = false, length = 255)
     private String password;
 
     // 4. 선택 입력 사항
