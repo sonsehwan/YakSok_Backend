@@ -19,9 +19,11 @@ jobs:
           distribution: 'temurin'
 
       # 2. Gradle 빌드 (테스트 제외로 속도 향상)
+      # chmod +x ./gradlew : 리눅스 환경에서 Gradle 실행 파일(gradlew)에 실행 권한을 부여합니다.
+      #
       - name: Build with Gradle
         run: |
-          chmod +x ./gradlew
+          chmod +x ./gradlew 
           ./gradlew clean build -x test
 
       # 3. [SSH] 기존 서버 종료 및 파일 물리적 삭제 강화
