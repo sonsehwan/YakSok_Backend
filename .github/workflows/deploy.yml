@@ -35,8 +35,8 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             echo "--- 기존 프로세스 종료 시작 ---"
-            # 8080 포트 프로세스 강제 종료 (없어도 에러 무시)
-            sudo fuser -k 8080/tcp || echo "실행 중인 프로세스 없음"
+            # 8081 포트 프로세스 강제 종료 (없어도 에러 무시)
+            sudo fuser -k 8081/tcp || echo "실행 중인 프로세스 없음"
             
             echo "--- 기존 파일 삭제 시작 ---"
             # 디렉토리 내의 모든 jar 파일을 강제로 삭제
@@ -66,4 +66,4 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 최신 jar 파일을 찾아 백그라운드에서 실행
-            nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/nohup.out 2>&1 &
+            nohup java -jar /home/ubuntu/app/*.jar --server.port=8081 > /home/ubuntu/app/nohup.out 2>&1 &
