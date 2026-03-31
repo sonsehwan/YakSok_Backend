@@ -2,6 +2,7 @@ package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.LoginRequestDto;
+import com.sehwan.YakSok.user.dto.ModifyInfoRequestDto;
 import com.sehwan.YakSok.user.dto.UserRequestDto;
 import com.sehwan.YakSok.user.dto.UserResponseDto;
 import com.sehwan.YakSok.user.service.UserService;
@@ -36,6 +37,7 @@ public class UserController {
         }
     }
 
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponseDto>> login(@RequestBody LoginRequestDto dto) {
         System.out.println("로그인 요청 도달!");
@@ -44,6 +46,17 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "LOGIN_FAIL", e.getMessage()));
+        }
+    }
+
+    //내 정보 수정
+    @PatchMapping("/modifyinfo")
+    public ResponseEntity<ApiResponse<UserResponseDto>> modifyInfo(@RequestBody ModifyInfoRequestDto dto) {
+        try{
+            UserResponseDto modifyUser = userService.modifyInfo(dto);
+            return ResponseEntity.ok(ApiResponse.success("수정 성공", modifyUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_FAIL", e.getMessage()));
         }
     }
 }

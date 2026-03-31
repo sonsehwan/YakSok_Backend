@@ -2,6 +2,7 @@ package com.sehwan.YakSok.user.service;
 
 
 import com.sehwan.YakSok.user.dto.LoginRequestDto;
+import com.sehwan.YakSok.user.dto.ModifyInfoRequestDto;
 import com.sehwan.YakSok.user.dto.UserRequestDto;
 import com.sehwan.YakSok.user.dto.UserResponseDto;
 import com.sehwan.YakSok.user.entity.User;
@@ -56,6 +57,20 @@ public class UserService {
         }
 
         return new  UserResponseDto(user);
+    }
+
+    @Transactional
+    public UserResponseDto modifyInfo(ModifyInfoRequestDto dto){
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(!user.getNickname().equals(dto.getNickname()) && userRepository.existsByNickname(dto.getNickname())){
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        }
+
+        user.setNickname(dto.getNickname());
+
+        return new   UserResponseDto(user);
     }
 
 }
