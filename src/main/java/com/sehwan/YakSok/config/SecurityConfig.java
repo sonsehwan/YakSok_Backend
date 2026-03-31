@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/signup").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/users/modifyinfo").permitAll()
 
                         // ⭐ 핵심 수정: 에러 발생 시 스프링이 내부적으로 호출하는 /error 경로를 허용합니다!
                         .requestMatchers("/error").permitAll()
