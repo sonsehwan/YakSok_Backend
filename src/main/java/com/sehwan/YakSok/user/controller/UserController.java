@@ -1,10 +1,7 @@
 package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
-import com.sehwan.YakSok.user.dto.LoginRequestDto;
-import com.sehwan.YakSok.user.dto.ModifyInfoRequestDto;
-import com.sehwan.YakSok.user.dto.UserRequestDto;
-import com.sehwan.YakSok.user.dto.UserResponseDto;
+import com.sehwan.YakSok.user.dto.*;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +30,7 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다."));
         } catch (RuntimeException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL", e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_FAIL", e.getMessage()));
         }
     }
 
@@ -56,7 +53,17 @@ public class UserController {
             UserResponseDto modifyUser = userService.modifyInfo(dto);
             return ResponseEntity.ok(ApiResponse.success("수정 성공", modifyUser));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_FAIL", e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_INFO_FAIL", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/modifyPassword")
+    public ResponseEntity<ApiResponse<Void>> modifyPassword(@RequestBody ModifyPasswordRequestDto dto) {
+        try{
+            userService.modifyPassword(dto);
+            return ResponseEntity.ok(ApiResponse.success("비밀번호 수정 성공"));
+        }catch(RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_PW_FAIL", e.getMessage()));
         }
     }
 }

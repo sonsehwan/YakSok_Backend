@@ -1,10 +1,7 @@
 package com.sehwan.YakSok.user.service;
 
 
-import com.sehwan.YakSok.user.dto.LoginRequestDto;
-import com.sehwan.YakSok.user.dto.ModifyInfoRequestDto;
-import com.sehwan.YakSok.user.dto.UserRequestDto;
-import com.sehwan.YakSok.user.dto.UserResponseDto;
+import com.sehwan.YakSok.user.dto.*;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +68,18 @@ public class UserService {
         user.setNickname(dto.getNickname());
 
         return new   UserResponseDto(user);
+    }
+
+    @Transactional
+    public void modifyPassword(ModifyPasswordRequestDto dto){
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(!user.getPassword().equals(dto.getCurrentPassword())){
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        user.setPassword(dto.getNewPassword());
     }
 
 }
