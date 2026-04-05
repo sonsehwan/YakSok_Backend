@@ -4,12 +4,12 @@ import com.sehwan.YakSok.user.entity.User;
 import lombok.Getter;
 
 @Getter
-public class UserResponseDto {
+public class UserResponse {
     private String email;
     private String password;
     private String nickname;
 
-    public UserResponseDto(User user) {
+    public UserResponse(User user) {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.nickname = user.getNickname();

@@ -27,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String signUp(UserRequestDto dto) {
+    public String signUp(UserRequest dto) {
         // 1. 이메일 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
@@ -44,7 +44,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto login(LoginRequestDto dto){
+    public UserResponse login(LoginRequest dto){
 
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
@@ -53,11 +53,11 @@ public class UserService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        return new  UserResponseDto(user);
+        return new UserResponse(user);
     }
 
     @Transactional
-    public UserResponseDto modifyInfo(ModifyInfoRequestDto dto){
+    public UserResponse modifyInfo(ModifyInfoRequest dto){
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -67,11 +67,11 @@ public class UserService {
 
         user.setNickname(dto.getNickname());
 
-        return new   UserResponseDto(user);
+        return new UserResponse(user);
     }
 
     @Transactional
-    public void modifyPassword(ModifyPasswordRequestDto dto){
+    public void modifyPassword(ModifyPasswordRequest dto){
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 

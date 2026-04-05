@@ -7,9 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * 안드로이드 앱의 HTTP 요청을 처리하는 컨트롤러
  */
@@ -22,7 +19,7 @@ public class UserController {
 
     //회원가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequestDto dto) {
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequest dto) {
 
         try {
             userService.signUp(dto);
@@ -36,10 +33,10 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponseDto>> login(@RequestBody LoginRequestDto dto) {
+    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest dto) {
         System.out.println("로그인 요청 도달!");
         try {
-            UserResponseDto loginUser = userService.login(dto);
+            UserResponse loginUser = userService.login(dto);
             return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "LOGIN_FAIL", e.getMessage()));
@@ -47,18 +44,18 @@ public class UserController {
     }
 
     //내 정보 수정
-    @PatchMapping("/modifyinfo")
-    public ResponseEntity<ApiResponse<UserResponseDto>> modifyInfo(@RequestBody ModifyInfoRequestDto dto) {
+    @PatchMapping("/info")
+    public ResponseEntity<ApiResponse<UserResponse>> modifyInfo(@RequestBody ModifyInfoRequest dto) {
         try{
-            UserResponseDto modifyUser = userService.modifyInfo(dto);
+            UserResponse modifyUser = userService.modifyInfo(dto);
             return ResponseEntity.ok(ApiResponse.success("수정 성공", modifyUser));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_INFO_FAIL", e.getMessage()));
         }
     }
 
-    @PatchMapping("/modifyPassword")
-    public ResponseEntity<ApiResponse<Void>> modifyPassword(@RequestBody ModifyPasswordRequestDto dto) {
+    @PatchMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> modifyPassword(@RequestBody ModifyPasswordRequest dto) {
         try{
             userService.modifyPassword(dto);
             return ResponseEntity.ok(ApiResponse.success("비밀번호 수정 성공"));
