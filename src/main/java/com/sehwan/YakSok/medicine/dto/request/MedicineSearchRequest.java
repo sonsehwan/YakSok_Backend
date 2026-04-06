@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.user.dto;
+package com.sehwan.YakSok.medicine.dto.request;
 
 public class MedicineSearchRequest {
     private String keyword;
