@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/medicine")
 public class MedicineController {
 
-    private MedicineService medicineService;
+    private final MedicineService medicineService;
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<SimpleMedicine>>> searchMedicine(@RequestParam String keyword, @RequestParam int pageNo) {
