@@ -24,7 +24,7 @@ public class MedicineController {
         try{
             List<SimpleMedicine> medicineList;
 
-            if(keyword != null || !keyword.isEmpty()){
+            if(keyword != null && !keyword.isEmpty()){
                 medicineList = medicineService.searchMedicineList(keyword, pageNo, 100);
                 System.out.println("통신 성공");
             }else{
