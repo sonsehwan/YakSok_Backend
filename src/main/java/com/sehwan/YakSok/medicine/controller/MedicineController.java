@@ -26,8 +26,10 @@ public class MedicineController {
 
             if(keyword != null || !keyword.isEmpty()){
                 medicineList = medicineService.searchMedicineList(keyword, pageNo, 100);
+                System.out.println("통신 성공");
             }else{
                 medicineList = medicineService.fetchAllMedicineList(pageNo, 100);
+                System.out.println("통신 성공");
             }
 
             if(medicineList.isEmpty()){
