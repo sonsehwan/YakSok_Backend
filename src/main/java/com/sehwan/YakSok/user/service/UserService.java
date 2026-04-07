@@ -52,6 +52,7 @@ public class UserService {
         if(!user.getPassword().equals(dto.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
+        System.out.println("로그인 성공");
 
         return new UserResponse(user);
     }
