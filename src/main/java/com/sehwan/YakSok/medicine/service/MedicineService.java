@@ -2,7 +2,6 @@ package com.sehwan.YakSok.medicine.service;
 
 import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MedicineService {
 
     private final WebClient webClient;
@@ -43,7 +41,7 @@ public class MedicineService {
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .queryParam("serviceKey", serviceKey)
-                                .queryParam("type", "json")
+                                .queryParam("type", "json") // json 형식 요청
                                 .queryParam("pageNo", pageNo)
                                 .queryParam("numOfRows", numOfRows);
 
@@ -58,15 +56,17 @@ public class MedicineService {
                     .block();
 
             if (response == null) {
-                log.info("공공데이터 API 응답이 null입니다.");
+                System.out.println("공공데이터 API 응답이 null입니다.");
                 return new ArrayList<>();
             }
 
             Map<String, Object> body = null;
 
-            if(response.containsKey("body")) {
+            // 2-1. 바로 body가 있는 경우 (일부 API)
+            if (response.containsKey("body")) {
                 body = (Map<String, Object>) response.get("body");
             }
+            // 2-2. "response" 안에 "body"가 있는 경우 (대부분의 공공데이터 API)
             else if (response.containsKey("response")) {
                 Map<String, Object> outerResponse = (Map<String, Object>) response.get("response");
                 if(outerResponse != null && outerResponse.containsKey("body")){
@@ -74,8 +74,8 @@ public class MedicineService {
                 }
             }
 
-            if(body == null){
-                log.error("응답에서 body 객체를 찾을 수가 없습니다.");
+            if (body == null) {
+                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다. 응답 형태: " + response.toString());
                 return new ArrayList<>();
             }
 
@@ -85,8 +85,8 @@ public class MedicineService {
                 items = (List<Map<String, Object>>) body.get("items");
             }
 
-            if(items==null || items.isEmpty()){
-                log.error("\"body 안에서 'items' 리스트를 찾을 수 없거나 데이터가 없습니다.");
+            if (items == null || items.isEmpty()) {
+                System.out.println("body 안에서 'items' 리스트를 찾을 수 없거나 데이터가 없습니다.");
                 return new ArrayList<>();
             }
 
@@ -98,7 +98,7 @@ public class MedicineService {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            log.error("공공데이터 API 통신 중 에러 발생");
+            System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }
