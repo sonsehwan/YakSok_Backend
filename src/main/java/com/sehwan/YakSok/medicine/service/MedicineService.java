@@ -2,6 +2,7 @@ package com.sehwan.YakSok.medicine.service;
 
 import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MedicineService {
 
     private final WebClient webClient;
@@ -55,12 +57,38 @@ public class MedicineService {
                     .bodyToMono(Map.class)
                     .block();
 
-            if (response == null || !response.containsKey("body")) return new ArrayList<>();
+            if (response == null) {
+                log.info("공공데이터 API 응답이 null입니다.");
+                return new ArrayList<>();
+            }
 
-            Map<String, Object> body = (Map<String, Object>) response.get("body");
-            List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
+            Map<String, Object> body = null;
 
-            if (items == null) return new ArrayList<>();
+            if(response.containsKey("body")) {
+                body = (Map<String, Object>) response.get("body");
+            }
+            else if (response.containsKey("response")) {
+                Map<String, Object> outerResponse = (Map<String, Object>) response.get("response");
+                if(outerResponse != null && outerResponse.containsKey("body")){
+                    body = (Map<String, Object>) outerResponse.get("body");
+                }
+            }
+
+            if(body == null){
+                log.error("응답에서 body 객체를 찾을 수가 없습니다.");
+                return new ArrayList<>();
+            }
+
+            List<Map<String, Object>> items = null;
+
+            if(body.get("items") instanceof List){
+                items = (List<Map<String, Object>>) body.get("items");
+            }
+
+            if(items==null || items.isEmpty()){
+                log.error("\"body 안에서 'items' 리스트를 찾을 수 없거나 데이터가 없습니다.");
+                return new ArrayList<>();
+            }
 
             return items.stream()
                     .map(item -> new SimpleMedicine(
@@ -70,6 +98,7 @@ public class MedicineService {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
+            log.error("공공데이터 API 통신 중 에러 발생");
             e.printStackTrace();
             return new ArrayList<>();
         }
