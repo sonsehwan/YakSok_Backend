@@ -56,6 +56,7 @@ public class MedicineService {
                     .bodyToMono(Map.class)
                     .block();
 
+            System.out.println("DEBUG: API 원본 응답 -> " + response);
 
             if (response == null) {
                 System.out.println("공공데이터 API 응답이 null입니다.");
