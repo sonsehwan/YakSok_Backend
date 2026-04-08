@@ -2,6 +2,7 @@ package com.sehwan.YakSok.medicine.service;
 
 import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MedicineService {
 
-    private final WebClient webClient;
+    // 빈이 여러개일 때 어떤 빈을 주입할 것이지 명시
+    @Qualifier("medicineWebClient")
+    private final WebClient medicineWebClient;
 
     @Value("${api.medicine.service-key}")
     private String serviceKey;
@@ -33,15 +36,13 @@ public class MedicineService {
     }
 
     private List<SimpleMedicine> callApi(String keyword, int pageNo, int numOfRows) {
-        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(openApiUrl);
-        factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 
         try {
-            Map<String, Object> response = webClient.get()
+            Map<String, Object> response = medicineWebClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .queryParam("serviceKey", serviceKey)
-                                .queryParam("type", "json") // json 형식 요청
+                                .queryParam("type", "json")
                                 .queryParam("pageNo", pageNo)
                                 .queryParam("numOfRows", numOfRows);
 
@@ -54,6 +55,7 @@ public class MedicineService {
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
+
 
             if (response == null) {
                 System.out.println("공공데이터 API 응답이 null입니다.");
