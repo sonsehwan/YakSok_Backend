@@ -46,6 +46,7 @@ public class MedicineService {
                                 .queryParam("numOfRows", numOfRows);
 
                         if (keyword != null && !keyword.trim().isEmpty()) {
+                            // EncodingMode.NONE을 사용 중이므로 한글 검색어는 직접 인코딩해야 합니다.
                             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
                             uriBuilder.queryParam("item_name", encodedKeyword);
                         }
@@ -62,18 +63,23 @@ public class MedicineService {
             }
 
             Map<String, Object> body = null;
-            Map<String, Object> rootResponse = (Map<String, Object>) response.get("getMdcinGrnIdntfcInfoList03_response");
 
-            if (rootResponse == null) {
-                rootResponse = (Map<String, Object>) response.get("response");
+            if (response.containsKey("body")) {
+                body = (Map<String, Object>) response.get("body");
             }
+            else {
+                Map<String, Object> rootResponse = (Map<String, Object>) response.get("getMdcinGrnIdntfcInfoList03_response");
+                if (rootResponse == null) {
+                    rootResponse = (Map<String, Object>) response.get("response");
+                }
 
-            if (rootResponse != null && rootResponse.containsKey("body")) {
-                body = (Map<String, Object>) rootResponse.get("body");
+                if (rootResponse != null && rootResponse.containsKey("body")) {
+                    body = (Map<String, Object>) rootResponse.get("body");
+                }
             }
 
             if (body == null) {
-                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다.");
+                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다. 응답 구조: " + response);
                 return new ArrayList<>();
             }
 
