@@ -34,16 +34,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            echo "--- 기존 프로세스 종료 시작 ---"
-            # 8081 포트 프로세스 강제 종료 (없어도 에러 무시)
-            sudo fuser -k 8081/tcp || echo "실행 중인 프로세스 없음"
+            echo "--- 모든 YakSok 프로세스 종료 시작 ---"
+            # 포트 번호에 상관없이 파일 이름에 'YakSok'이 들어간 모든 자바 프로세스 종료
+            sudo pkill -f 'YakSok' || echo "실행 중인 프로세스 없음"
             
-            echo "--- 기존 파일 삭제 시작 ---"
-            # 디렉토리 내의 모든 jar 파일을 강제로 삭제
+            echo "--- 기존 파일 및 로그 초기화 ---"
+            # app 폴더 내의 이전 빌드 파일과 로그 삭제
             sudo rm -rf /home/ubuntu/app/*.jar
             sudo rm -f /home/ubuntu/app/nohup.out
             
-            # 삭제 확인 로그
+            # [중요] app 폴더 밖에서 자꾸 살아나는 '유령 파일'도 삭제 (좀비 방지)
+            sudo rm -f /home/ubuntu/YakSok-0.0.1-SNAPSHOT.jar
+            
+            # 삭제 결과 확인 로그
+            echo "--- 남은 파일 목록 ---"
             ls -al /home/ubuntu/app/
 
       # 4. [SCP] 빌드된 새 jar 파일을 깨끗해진 EC2 폴더로 전송
