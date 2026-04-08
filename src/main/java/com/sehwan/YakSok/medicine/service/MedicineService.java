@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MedicineService {
 
-    // 빈이 여러개일 때 어떤 빈을 주입할 것이지 명시
     @Qualifier("medicineWebClient")
     private final WebClient medicineWebClient;
 
@@ -36,7 +36,6 @@ public class MedicineService {
     }
 
     private List<SimpleMedicine> callApi(String keyword, int pageNo, int numOfRows) {
-
         try {
             Map<String, Object> response = medicineWebClient.get()
                     .uri(uriBuilder -> {
@@ -47,7 +46,8 @@ public class MedicineService {
                                 .queryParam("numOfRows", numOfRows);
 
                         if (keyword != null && !keyword.trim().isEmpty()) {
-                            uriBuilder.queryParam("item_name", keyword);
+                            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+                            uriBuilder.queryParam("item_name", encodedKeyword);
                         }
 
                         return uriBuilder.build();
@@ -56,40 +56,44 @@ public class MedicineService {
                     .bodyToMono(Map.class)
                     .block();
 
-            System.out.println("DEBUG: API 원본 응답 -> " + response);
-
             if (response == null) {
                 System.out.println("공공데이터 API 응답이 null입니다.");
                 return new ArrayList<>();
             }
 
             Map<String, Object> body = null;
+            Map<String, Object> rootResponse = (Map<String, Object>) response.get("getMdcinGrnIdntfcInfoList03_response");
 
-            // 2-1. 바로 body가 있는 경우 (일부 API)
-            if (response.containsKey("body")) {
-                body = (Map<String, Object>) response.get("body");
+            if (rootResponse == null) {
+                rootResponse = (Map<String, Object>) response.get("response");
             }
-            // 2-2. "response" 안에 "body"가 있는 경우 (대부분의 공공데이터 API)
-            else if (response.containsKey("response")) {
-                Map<String, Object> outerResponse = (Map<String, Object>) response.get("response");
-                if(outerResponse != null && outerResponse.containsKey("body")){
-                    body = (Map<String, Object>) outerResponse.get("body");
-                }
+
+            if (rootResponse != null && rootResponse.containsKey("body")) {
+                body = (Map<String, Object>) rootResponse.get("body");
             }
 
             if (body == null) {
-                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다. 응답 형태: " + response.toString());
+                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다.");
                 return new ArrayList<>();
             }
 
-            List<Map<String, Object>> items = null;
+            List<Map<String, Object>> items = new ArrayList<>();
+            Object itemsObj = body.get("items");
 
-            if(body.get("items") instanceof List){
-                items = (List<Map<String, Object>>) body.get("items");
+            if (itemsObj instanceof Map) {
+                Map<String, Object> itemsMap = (Map<String, Object>) itemsObj;
+                Object itemEntry = itemsMap.get("item");
+                if (itemEntry instanceof List) {
+                    items = (List<Map<String, Object>>) itemEntry;
+                } else if (itemEntry instanceof Map) {
+                    items.add((Map<String, Object>) itemEntry);
+                }
+            } else if (itemsObj instanceof List) {
+                items = (List<Map<String, Object>>) itemsObj;
             }
 
-            if (items == null || items.isEmpty()) {
-                System.out.println("body 안에서 'items' 리스트를 찾을 수 없거나 데이터가 없습니다.");
+            if (items.isEmpty()) {
+                System.out.println("검색 결과가 없습니다.");
                 return new ArrayList<>();
             }
 
