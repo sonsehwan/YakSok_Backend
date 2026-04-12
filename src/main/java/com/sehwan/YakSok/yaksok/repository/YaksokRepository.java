@@ -1,4 +1,8 @@
 package com.sehwan.YakSok.yaksok.repository;
 
-public class YaksokRepository {
+import com.sehwan.YakSok.yaksok.entity.Yaksok;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface YaksokRepository extends JpaRepository<Yaksok, String> {
+
 }
