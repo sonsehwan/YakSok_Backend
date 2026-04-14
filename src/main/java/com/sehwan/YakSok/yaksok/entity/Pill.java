@@ -10,29 +10,28 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "pill")
 public class Pill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "image", nullable = false)
+    @Column(nullable = false)
     private String image;
 
-    @Column(name = "day_frequency", nullable = false)
-    private int dayFrequency;
+    @Column(nullable = false)
+    private int prescriptionDays;
 
-    @Column(name = "duration", nullable = false)
-    private int duration;
+    @Column(nullable = false)
+    private int dailyFrequency;
 
-    @Column(name = "day_dosage", nullable = false)
-    private int dayDosage;
+    @Column(nullable = false)
+    private int dosage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "yaksok_num", nullable = false)
+    @JoinColumn(nullable = false)
     private Yaksok yaksok;
 }

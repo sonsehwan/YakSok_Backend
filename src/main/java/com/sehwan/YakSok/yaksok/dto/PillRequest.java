@@ -14,18 +14,19 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 public class PillRequest {
 
-    @NotNull
-    private String name;
 
     @NotNull
     private String image;
 
     @NotNull
-    private int dayFrequency;
+    private String name;
 
     @NotNull
-    private int duration;
+    private int prescriptionDays;
 
     @NotNull
-    private int dayDosage;
+    private int dailyFrequency;
+
+    @NotNull
+    private int dosage;
 }

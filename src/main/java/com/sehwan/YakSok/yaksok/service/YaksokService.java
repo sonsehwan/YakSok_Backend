@@ -31,9 +31,9 @@ public class YaksokService {
             Pill pill = Pill.builder()
                     .name(pillRequest.getName())
                     .image(pillRequest.getImage())
-                    .dayFrequency(pillRequest.getDayFrequency())
-                    .duration(pillRequest.getDuration())
-                    .dayDosage(pillRequest.getDayDosage())
+                    .prescriptionDays(pillRequest.getPrescriptionDays())
+                    .dailyFrequency(pillRequest.getDailyFrequency())
+                    .dosage(pillRequest.getDosage())
                     .build();
             yaksok.addPill(pill);
         }
