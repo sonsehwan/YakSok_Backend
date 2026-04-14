@@ -27,5 +27,8 @@ public class YaksokRequest {
     private boolean takeDinner;
 
     @NotNull
+    private String dosageTime;
+
+    @NotNull
     private List<PillRequest> pills;
 }

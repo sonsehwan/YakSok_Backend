@@ -27,7 +27,9 @@ public class YaksokService {
                 .startDate(request.getStartDate())
                 .prescriptionDays(request.getPrescriptionDays())
                 .takeMorning(request.isTakeMorning())
-
+                .takeLunch(request.isTakeLunch())
+                .takeDinner(request.isTakeDinner())
+                .dosageTime(request.getDosageTime())
                 .build();
 
         for(PillRequest pillRequest : request.getPills()){

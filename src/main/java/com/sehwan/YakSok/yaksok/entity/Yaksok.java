@@ -32,6 +32,9 @@ public class Yaksok {
     private boolean takeLunch;
     private boolean takeDinner;
 
+    @Column(nullable = false)
+    private String dosageTime;
+
     @OneToMany(mappedBy = "yaksok", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
     private List<Pill> pills = new ArrayList<>();
