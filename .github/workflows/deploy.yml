@@ -74,4 +74,4 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 최신 jar 파일을 찾아 백그라운드에서 실행
-            nohup java -jar /home/ubuntu/app/*.jar --server.port=8081 > /home/ubuntu/app/nohup.out 2>&1 &
+            nohup java -Xms512m -Xmx512m -jar /home/ubuntu/app/*.jar --server.port=8081 > /home/ubuntu/app/nohup.out 2>&1 &
