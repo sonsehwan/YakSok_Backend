@@ -3,7 +3,6 @@ package com.sehwan.YakSok.yaksok.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class Yaksok {
     private String title; // 약속 이름
 
     @Column(nullable = false)
-    private LocalDate startDate; // 복약 시작일
+    private String startDate; // 복약 시작일
 
     @Column(nullable = false)
     private int prescriptionDays; // 복약일(이 값을 기준으로 종료일 계산)

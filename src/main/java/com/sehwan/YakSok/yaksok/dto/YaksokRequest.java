@@ -2,8 +2,6 @@ package com.sehwan.YakSok.yaksok.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -19,7 +17,7 @@ public class YaksokRequest {
     private String title;
 
     @NotNull
-    private LocalDate startDate;
+    private String startDate;
 
     @NotNull
     private int prescriptionDays;
