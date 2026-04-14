@@ -25,5 +25,5 @@ public class PillRequest {
     private int dailyFrequency;
 
     @NotNull
-    private int dosage;
+    private String dosage;
 }
