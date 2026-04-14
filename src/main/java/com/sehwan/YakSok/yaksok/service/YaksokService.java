@@ -23,15 +23,17 @@ public class YaksokService {
     @Transactional
     public void saveYaksok(YaksokRequest request){
         Yaksok yaksok = Yaksok.builder()
-                .name(request.getName())
-                .date(request.getDate())
+                .title(request.getTitle())
+                .startDate(request.getStartDate())
+                .prescriptionDays(request.getPrescriptionDays())
+                .takeMorning(request.isTakeMorning())
+
                 .build();
 
         for(PillRequest pillRequest : request.getPills()){
             Pill pill = Pill.builder()
                     .name(pillRequest.getName())
                     .image(pillRequest.getImage())
-                    .prescriptionDays(pillRequest.getPrescriptionDays())
                     .dailyFrequency(pillRequest.getDailyFrequency())
                     .dosage(pillRequest.getDosage())
                     .build();

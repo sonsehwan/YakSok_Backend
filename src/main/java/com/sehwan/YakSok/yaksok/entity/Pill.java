@@ -23,13 +23,11 @@ public class Pill {
     private String image;
 
     @Column(nullable = false)
-    private int prescriptionDays;
+    private int dailyFrequency; // 1일 투여 횟수
 
     @Column(nullable = false)
-    private int dailyFrequency;
+    private int dosage; // 1회 투약량
 
-    @Column(nullable = false)
-    private int dosage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

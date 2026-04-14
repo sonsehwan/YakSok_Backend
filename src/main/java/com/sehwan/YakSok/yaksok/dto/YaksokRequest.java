@@ -3,6 +3,7 @@ package com.sehwan.YakSok.yaksok.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -15,10 +16,17 @@ import java.util.List;
 public class YaksokRequest {
 
     @NotNull
-    private String date;
+    private String title;
 
     @NotNull
-    private String name;
+    private LocalDate startDate;
+
+    @NotNull
+    private int prescriptionDays;
+
+    private boolean takeMorning;
+    private boolean takeLunch;
+    private boolean takeDinner;
 
     @NotNull
     private List<PillRequest> pills;

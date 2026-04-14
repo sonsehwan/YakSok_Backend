@@ -22,9 +22,6 @@ public class PillRequest {
     private String name;
 
     @NotNull
-    private int prescriptionDays;
-
-    @NotNull
     private int dailyFrequency;
 
     @NotNull
