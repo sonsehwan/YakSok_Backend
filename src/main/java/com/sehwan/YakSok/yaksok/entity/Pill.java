@@ -26,7 +26,7 @@ public class Pill {
     private int dailyFrequency; // 1일 투여 횟수
 
     @Column(nullable = false)
-    private int dosage; // 1회 투약량
+    private String dosage; // 1회 투약량
 
 
     @ManyToOne(fetch = FetchType.LAZY)
