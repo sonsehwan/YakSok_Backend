@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/modifyinfo").permitAll()
                         .requestMatchers("/api/users/modifyPassword").permitAll()
                         .requestMatchers("/api/medicine/search").permitAll()
+                        .requestMatchers("/api/yaksok").permitAll()
 
                         .requestMatchers("/error").permitAll()
 
