@@ -35,14 +35,16 @@ public class YaksokService {
                 .dosageTime(request.getDosageTime())
                 .build();
 
-        for(PillRequest pillRequest : request.getPills()){
-            Pill pill = Pill.builder()
-                    .name(pillRequest.getName())
-                    .image(pillRequest.getImage())
-                    .dailyFrequency(pillRequest.getDailyFrequency())
-                    .dosage(pillRequest.getDosage())
-                    .build();
-            yaksok.addPill(pill);
+        if(request.getPills() != null){
+            for(PillRequest pillRequest : request.getPills()){
+                Pill pill = Pill.builder()
+                        .name(pillRequest.getName())
+                        .image(pillRequest.getImage())
+                        .dailyFrequency(pillRequest.getDailyFrequency())
+                        .dosage(pillRequest.getDosage())
+                        .build();
+                yaksok.addPill(pill);
+            }
         }
 
         Yaksok savedYaksok = yaksokRepository.save(yaksok);
