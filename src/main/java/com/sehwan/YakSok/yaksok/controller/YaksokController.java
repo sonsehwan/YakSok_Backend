@@ -22,10 +22,10 @@ public class YaksokController {
     private final YaksokService yaksokService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> saveYaksok(@RequestBody YaksokRequest request) {
+    public ResponseEntity<ApiResponse<Long>> saveYaksok(@RequestBody YaksokRequest request) {
         try{
-            yaksokService.saveYaksok(request);
-            return ResponseEntity.ok(ApiResponse.success("약속 저장에 성공하였습니다."));
+            Long yaksokId = yaksokService.saveYaksok(request);
+            return ResponseEntity.ok(ApiResponse.success("약속 저장에 성공하였습니다.", yaksokId));
         }catch(Exception e){
             log.error("에러 발생 : {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(ApiResponse.error(400,"FAIL_SAVE_YAKSOK", e.getMessage()));

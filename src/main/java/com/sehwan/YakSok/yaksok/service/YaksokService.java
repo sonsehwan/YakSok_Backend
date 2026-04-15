@@ -21,7 +21,7 @@ public class YaksokService {
     private final YaksokRepository yaksokRepository;
 
     @Transactional
-    public void saveYaksok(YaksokRequest request){
+    public Long saveYaksok(YaksokRequest request){
         Yaksok yaksok = Yaksok.builder()
                 .title(request.getTitle())
                 .startDate(request.getStartDate())
@@ -42,6 +42,7 @@ public class YaksokService {
             yaksok.addPill(pill);
         }
 
-        yaksokRepository.save(yaksok);
+        Yaksok savedYaksok = yaksokRepository.save(yaksok);
+        return  savedYaksok.getId();
     }
 }
