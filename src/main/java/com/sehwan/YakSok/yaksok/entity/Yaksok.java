@@ -32,6 +32,10 @@ public class Yaksok {
     private boolean takeLunch;
     private boolean takeDinner;
 
+    private String timeMorning;
+    private String timeLunch;
+    private String timeDinner;
+
     @Column(nullable = false)
     private String dosageTime;
 

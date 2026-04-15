@@ -29,6 +29,9 @@ public class YaksokService {
                 .takeMorning(request.isTakeMorning())
                 .takeLunch(request.isTakeLunch())
                 .takeDinner(request.isTakeDinner())
+                .timeMorning(request.getTimeMorning())
+                .timeLunch(request.getTimeLunch())
+                .timeDinner(request.getTimeDinner())
                 .dosageTime(request.getDosageTime())
                 .build();
 

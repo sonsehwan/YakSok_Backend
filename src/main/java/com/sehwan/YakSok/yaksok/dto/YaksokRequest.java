@@ -26,6 +26,10 @@ public class YaksokRequest {
     private boolean takeLunch;
     private boolean takeDinner;
 
+    private String timeMorning;
+    private String timeLunch;
+    private String timeDinner;
+
     @NotNull
     private String dosageTime;
 
