@@ -23,8 +23,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/signup").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
-                        .requestMatchers("/api/users/modifyinfo").permitAll()
-                        .requestMatchers("/api/users/modifyPassword").permitAll()
+                        .requestMatchers("/api/users/info").permitAll()
+                        .requestMatchers("/api/users/password").permitAll()
                         .requestMatchers("/api/medicine/search").permitAll()
                         .requestMatchers("/api/yaksok").permitAll()
 
