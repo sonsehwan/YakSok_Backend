@@ -37,6 +37,7 @@ public class Yaksok {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private YaksokStatus status = YaksokStatus.TAKING;
 
     @OneToMany(mappedBy = "yaksok", cascade = CascadeType.ALL, orphanRemoval = true)
