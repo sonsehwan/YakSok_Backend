@@ -22,6 +22,19 @@ public class YaksokService {
 
     @Transactional
     public Long saveYaksok(YaksokRequest request){
+        String timeMorning = request.getTimeMorning();
+        if(request.isTakeMorning() && (timeMorning == null ||  timeMorning.trim().isEmpty())){
+            timeMorning = "오전 08:00";
+        }
+        String timeLunch = request.getTimeLunch();
+        if (request.isTakeLunch() && (timeLunch == null || timeLunch.trim().isEmpty())) {
+            timeLunch = "오후 12:00";
+        }
+        String timeDinner = request.getTimeDinner();
+        if (request.isTakeDinner() && (timeDinner == null || timeDinner.trim().isEmpty())) {
+            timeDinner = "오후 06:00";
+        }
+
         Yaksok yaksok = Yaksok.builder()
                 .title(request.getTitle())
                 .startDate(request.getStartDate())
@@ -29,9 +42,9 @@ public class YaksokService {
                 .takeMorning(request.isTakeMorning())
                 .takeLunch(request.isTakeLunch())
                 .takeDinner(request.isTakeDinner())
-                .timeMorning(request.getTimeMorning())
-                .timeLunch(request.getTimeLunch())
-                .timeDinner(request.getTimeDinner())
+                .timeMorning(timeMorning)
+                .timeLunch(timeLunch)
+                .timeDinner(timeDinner)
                 .dosageTime(request.getDosageTime())
                 .build();
 
