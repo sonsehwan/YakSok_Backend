@@ -3,6 +3,8 @@ package com.sehwan.YakSok.yaksok.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -32,5 +34,6 @@ public class Pill {
     @JsonIgnore // JSON 변환시 무한 참조 방지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // DB에서도 실제로 CASCADE설정을 해준다.
     private Yaksok yaksok;
 }

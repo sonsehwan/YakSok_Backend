@@ -3,6 +3,8 @@ package com.sehwan.YakSok.yaksok.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @NoArgsConstructor
@@ -33,5 +35,6 @@ public class Notification {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // DB에서도 실제로 CASCADE설정을 해준다.
     private Yaksok yaksok; // 왜래키 연결
 }
