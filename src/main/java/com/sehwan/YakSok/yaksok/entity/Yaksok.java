@@ -25,7 +25,7 @@ public class Yaksok {
     private String startDate; // 복약 시작일
 
     @Column(nullable = false)
-    private int prescriptionDays; // 복약일(이 값을 기준으로 종료일 계산)
+    private int prescriptionDays; // 복약일
 
     // 아침, 점심, 저녁 복용 여부
     private boolean takeMorning;
@@ -48,8 +48,13 @@ public class Yaksok {
     @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
     private List<Pill> pills = new ArrayList<>();
 
+    @OneToMany(mappedBy = "yaksok", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
+    private List<Notification> Notifications = new ArrayList<>();
+
+
     public void addPill(Pill pill){
         pills.add(pill);
-        pill.setYaksok(this); //
+        pill.setYaksok(this);
     }
 }
