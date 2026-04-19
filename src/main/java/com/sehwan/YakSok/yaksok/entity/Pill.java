@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.yaksok.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +29,7 @@ public class Pill {
     @Column(nullable = false)
     private String dosage; // 1회 투약량
 
-
+    @JsonIgnore // JSON 변환시 무한 참조 방지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Yaksok yaksok;

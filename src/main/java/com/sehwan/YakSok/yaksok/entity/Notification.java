@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.yaksok.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class Notification {
     @Column(nullable = false)
     private boolean isTaken; //
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Yaksok yaksok; // 왜래키 연결
