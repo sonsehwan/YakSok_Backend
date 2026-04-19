@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class SaveYaksokResponse {
-    Long Id;
-    List<Notification> notificationList = new ArrayList<>();
+    Long id;
+    List<Notification> notifications = new ArrayList<>();
 }

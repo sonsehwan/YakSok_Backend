@@ -28,7 +28,7 @@ public class Notification {
     private String instruction; // 복욕 정보 (ex: 식후, 식전 등등)
 
     @Column(nullable = false)
-    private boolean isTaken; //
+    private boolean isTaken;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
