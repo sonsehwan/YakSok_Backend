@@ -61,9 +61,13 @@ public class YaksokService {
 
         Yaksok savedYaksok = yaksokRepository.save(yaksok);
 
+        System.out.println("이름 : " + savedYaksok.getId());
+
         List<Notification> notifications =  createNotification(savedYaksok);
 
         SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok.getId(), notifications);
+
+        System.out.println("이름 : " + response.getId());
 
         return response;
     }
