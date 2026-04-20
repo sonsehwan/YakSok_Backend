@@ -79,26 +79,27 @@ public class YaksokService {
             String dateStr = currentDate.toString();
 
             if(yaksok.isTakeMorning()){
-                Notification morningNoti = saveNotification(yaksok, dateStr, yaksok.getTimeMorning());
+                Notification morningNoti = saveNotification(yaksok,"아침", dateStr, yaksok.getTimeMorning());
                 notifications.add(morningNoti);
             }
             if(yaksok.isTakeLunch()){
-                Notification lunchNoti = saveNotification(yaksok, dateStr, yaksok.getTimeLunch());
+                Notification lunchNoti = saveNotification(yaksok, "점심", dateStr, yaksok.getTimeLunch());
                 notifications.add(lunchNoti);
             }
             if(yaksok.isTakeDinner()){
-                Notification dinnerNoti = saveNotification(yaksok, dateStr, yaksok.getTimeDinner());
+                Notification dinnerNoti = saveNotification(yaksok, "저녁", dateStr, yaksok.getTimeDinner());
                 notifications.add(dinnerNoti);
             }
         }
         return notifications;
     }
 
-    private Notification saveNotification(Yaksok yaksok, String date, String time){
+    private Notification saveNotification(Yaksok yaksok, String timeCatagory, String date, String time){
         System.out.println("이름: " + yaksok.getTitle());
 
         Notification notification = Notification.builder()
                 .title(yaksok.getTitle())
+                .timeCategory(timeCatagory)
                 .date(date)
                 .time(time)
                 .instruction(yaksok.getDosageTime())

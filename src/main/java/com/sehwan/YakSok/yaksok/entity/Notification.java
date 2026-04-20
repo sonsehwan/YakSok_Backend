@@ -21,6 +21,9 @@ public class Notification {
     private String title;
 
     @Column(nullable = false)
+    private String timeCategory; //(아침, 점심, 저녁)
+
+    @Column(nullable = false)
     private String date;
 
     @Column(nullable = false)
