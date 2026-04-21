@@ -1,11 +1,15 @@
 package com.sehwan.YakSok.user.entity;
 
+import com.sehwan.YakSok.yaksok.entity.Pill;
+import com.sehwan.YakSok.yaksok.entity.Yaksok;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -48,4 +52,13 @@ public class User {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
+    private List<Yaksok> yaksoks = new ArrayList<>();
+
+    public void addYaksok(Yaksok yaksok) {
+        yaksoks.add(yaksok);
+        yaksok.setUser(this);
+    }
 }
