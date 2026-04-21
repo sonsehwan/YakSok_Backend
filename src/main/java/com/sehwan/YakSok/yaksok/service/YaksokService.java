@@ -71,7 +71,7 @@ public class YaksokService {
         createNotification(savedYaksok);
         List<Notification> notifications = notificationRepository.findAllByOrderByTimeAscTitleAsc();
 
-                SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok.getId(), notifications);
+                SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok, notifications);
 
         return response;
     }

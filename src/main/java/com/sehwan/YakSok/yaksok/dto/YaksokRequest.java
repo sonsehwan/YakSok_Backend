@@ -38,4 +38,7 @@ public class YaksokRequest {
 
     @NotNull
     private List<PillRequest> pills;
+
+    @NotNull
+    private String status;
 }
