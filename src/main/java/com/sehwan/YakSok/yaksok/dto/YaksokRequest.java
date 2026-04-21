@@ -14,6 +14,9 @@ import java.util.List;
 public class YaksokRequest {
 
     @NotNull
+    private String email;
+
+    @NotNull
     private String title;
 
     @NotNull

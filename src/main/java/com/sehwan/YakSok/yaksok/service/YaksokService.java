@@ -1,5 +1,7 @@
 package com.sehwan.YakSok.yaksok.service;
 
+import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.yaksok.dto.PillRequest;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
@@ -27,12 +29,16 @@ public class YaksokService {
     private final PillRepository pillRepository;
     private final YaksokRepository yaksokRepository;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public SaveYaksokResponse saveYaksok(YaksokRequest request){
         String timeMorning = (request.isTakeMorning() && (request.getTimeMorning() == null ||  request.getTimeMorning().trim().isEmpty()) ? "오전 08:00" : request.getTimeMorning());
         String timeLunch = (request.isTakeLunch() && (request.getTimeLunch() == null ||  request.getTimeLunch().trim().isEmpty()) ? "오후 12:00" : request.getTimeLunch());
         String timeDinner = (request.isTakeDinner() && (request.getTimeDinner() == null ||  request.getTimeDinner().trim().isEmpty()) ? "오후 06:00" : request.getTimeDinner());
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         Yaksok yaksok = Yaksok.builder()
                 .title(request.getTitle())
@@ -46,6 +52,7 @@ public class YaksokService {
                 .timeDinner(timeDinner)
                 .dosageTime(request.getDosageTime())
                 .build();
+        user.addYaksok(yaksok);
 
         if(request.getPills() != null){
             for(PillRequest pillRequest : request.getPills()){
@@ -61,9 +68,10 @@ public class YaksokService {
 
         Yaksok savedYaksok = yaksokRepository.save(yaksok);
 
-        List<Notification> notifications =  createNotification(savedYaksok);
+        createNotification(savedYaksok);
+        List<Notification> notifications = notificationRepository.findAllByOrderByTimeAscTitleAsc();
 
-        SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok.getId(), notifications);
+                SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok.getId(), notifications);
 
         return response;
     }
