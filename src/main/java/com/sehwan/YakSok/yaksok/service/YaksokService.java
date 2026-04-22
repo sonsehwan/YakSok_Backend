@@ -118,4 +118,12 @@ public class YaksokService {
 
         return notification;
     }
+
+    public void updateNotificationStatus(Long notificationId, boolean isTaken) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다. id=" + notificationId));
+
+        // Entity에 맞게 메서드명 수정 필요 (예: updateIsTaken 또는 Setter 사용)
+        notification.setTaken(isTaken);
+    }
 }
