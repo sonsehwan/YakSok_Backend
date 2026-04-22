@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.yaksok.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -33,6 +34,7 @@ public class Notification {
     private String instruction; // 복욕 정보 (ex: 식후, 식전 등등)
 
     @Column(nullable = false)
+    @JsonProperty("isTaken")
     private boolean isTaken;
 
     @JsonIgnore
