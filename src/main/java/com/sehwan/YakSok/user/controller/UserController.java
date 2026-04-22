@@ -7,10 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 안드로이드 앱의 HTTP 요청을 처리하는 컨트롤러
- */
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor

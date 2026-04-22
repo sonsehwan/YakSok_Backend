@@ -5,18 +5,15 @@ import com.sehwan.YakSok.user.dto.*;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//비즈니스 로직을 처리하는 서비스
 @Service
-
-
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class UserService {
 
-    //여기에 자동 생성된 빈을
     private final UserRepository userRepository;
 
     @Transactional
