@@ -4,7 +4,9 @@ package com.sehwan.YakSok.yaksok.controller;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
+import com.sehwan.YakSok.yaksok.entity.Notification;
 import com.sehwan.YakSok.yaksok.entity.Yaksok;
+import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
 import com.sehwan.YakSok.yaksok.service.YaksokService;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/yaksok")
 @RequiredArgsConstructor
 public class YaksokController {
     private final YaksokService yaksokService;
+    private final NotificationRepository notificationRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<SaveYaksokResponse>> saveYaksok(@RequestBody YaksokRequest request) {
@@ -37,5 +42,13 @@ public class YaksokController {
 
         yaksokService.updateNotificationStatus(notificationId, isTaken);
         return ResponseEntity.ok(ApiResponse.success("알림 상태가 성공적으로 변경되었습니다."));
+    }
+
+    @GetMapping("{userEmail}/notifications")
+    public ResponseEntity<ApiResponse<List<Notification>>> getNotifications(
+            @PathVariable String userEmail
+            ){
+        List<Notification> notifications = notificationRepository.findAllByUserEmail(userEmail);
+        return ResponseEntity.ok(ApiResponse.success("성공적으로 알림 리스트를 가져왔습니다.", notifications));
     }
 }

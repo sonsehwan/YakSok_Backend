@@ -14,6 +14,7 @@ import com.sehwan.YakSok.yaksok.repository.YaksokRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -125,5 +126,9 @@ public class YaksokService {
 
         // Entity에 맞게 메서드명 수정 필요 (예: updateIsTaken 또는 Setter 사용)
         notification.setTaken(isTaken);
+    }
+
+    public List<Notification> findAllByUserEmail(@Param("email") String email) {
+        return notificationRepository.findAllByUserEmail(email);
     }
 }
