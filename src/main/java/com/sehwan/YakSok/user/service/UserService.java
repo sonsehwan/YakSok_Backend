@@ -73,4 +73,12 @@ public class UserService {
         user.setPassword(dto.getNewPassword());
     }
 
+    @Transactional
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다. email=" + email));
+
+        userRepository.delete(user);
+    }
+
 }

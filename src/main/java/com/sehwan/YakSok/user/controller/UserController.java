@@ -60,4 +60,14 @@ public class UserController {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_PW_FAIL", e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{email}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String email) {
+        try {
+            userService.deleteUser(email);
+            return ResponseEntity.ok(ApiResponse.success("회원 탈퇴(삭제)가 성공적으로 처리되었습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_DELETE_USER", e.getMessage()));
+        }
+    }
 }
