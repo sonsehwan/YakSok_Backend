@@ -26,6 +26,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/info").permitAll()
                         .requestMatchers("/api/users/password").permitAll()
                         .requestMatchers("/api/medicine/search").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
+
                         .requestMatchers("/api/yaksok").permitAll()
                         .requestMatchers("/api/yaksok/**").permitAll()
 
