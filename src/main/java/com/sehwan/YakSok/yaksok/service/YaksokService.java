@@ -138,4 +138,13 @@ public class YaksokService {
 
         return yaksokRepository.findAllByUserEmail(email);
     }
+
+    @Transactional
+    public void deleteYaksok(Long id) {
+        Yaksok yaksok = yaksokRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + id));
+
+        // JPA의 Cascade 설정 덕분에 yaksok을 삭제하면 연관된 Pill, Notification도 자동 삭제됩니다.
+        yaksokRepository.delete(yaksok);
+    }
 }

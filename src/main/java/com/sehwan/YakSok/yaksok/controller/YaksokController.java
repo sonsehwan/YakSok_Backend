@@ -62,4 +62,15 @@ public class YaksokController {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_GET_YAKSOK_LIST", e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteYaksok(@PathVariable Long id) {
+        try {
+            yaksokService.deleteYaksok(id);
+            return ResponseEntity.ok(ApiResponse.success("약속이 성공적으로 삭제되었습니다."));
+        } catch (Exception e) {
+            log.error("삭제 중 에러 발생 : {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_DELETE_YAKSOK", e.getMessage()));
+        }
+    }
 }
