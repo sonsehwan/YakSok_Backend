@@ -51,4 +51,15 @@ public class YaksokController {
         List<Notification> notifications = notificationRepository.findAllByUserEmail(userEmail);
         return ResponseEntity.ok(ApiResponse.success("성공적으로 알림 리스트를 가져왔습니다.", notifications));
     }
+
+    @GetMapping("/list/{userEmail}")
+    public ResponseEntity<ApiResponse<List<Yaksok>>> getYaksokList(@PathVariable String userEmail){
+        try {
+            List<Yaksok> yaksokList = yaksokService.getYaksokListByUserEmail(userEmail);
+            return ResponseEntity.ok(ApiResponse.success("약속 목록을 성공적으로 가져왔습니다.", yaksokList));
+        } catch(Exception e) {
+            log.error("에러 발생 : {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_GET_YAKSOK_LIST", e.getMessage()));
+        }
+    }
 }

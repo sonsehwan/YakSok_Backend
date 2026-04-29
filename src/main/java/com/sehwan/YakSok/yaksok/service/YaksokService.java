@@ -131,4 +131,11 @@ public class YaksokService {
     public List<Notification> findAllByUserEmail(@Param("email") String email) {
         return notificationRepository.findAllByUserEmail(email);
     }
+
+    public List<Yaksok> getYaksokListByUserEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return yaksokRepository.findAllByUserEmail(email);
+    }
 }
