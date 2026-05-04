@@ -52,6 +52,7 @@ public class YaksokService {
                 .timeLunch(timeLunch)
                 .timeDinner(timeDinner)
                 .dosageTime(request.getDosageTime())
+                .currentClearNotifications(0)
                 .build();
         user.addYaksok(yaksok);
 
@@ -69,10 +70,11 @@ public class YaksokService {
 
         Yaksok savedYaksok = yaksokRepository.save(yaksok);
 
-        createNotification(savedYaksok);
-        List<Notification> notifications = notificationRepository.findAllByOrderByTimeAscTitleAsc();
+        List<Notification> notifications = createNotification(savedYaksok);
 
-                SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok, notifications);
+        yaksok.setTotalNotifications(notifications.size());
+
+        SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok, notifications);
 
         return response;
     }

@@ -36,13 +36,16 @@ public class Yaksok {
     private boolean takeLunch;
     private boolean takeDinner;
 
+    // 알림 시간
     private String timeMorning;
     private String timeLunch;
     private String timeDinner;
 
+    // 복용 타이밍(식전 30분, 식후 30분, 식후)
     @Column(nullable = false)
     private String dosageTime;
 
+    // 복약 완료 상태(모든 약을 복용 했는지 아닌지)
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -55,6 +58,10 @@ public class Yaksok {
     @OneToMany(mappedBy = "yaksok", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
     private List<Notification> Notifications = new ArrayList<>();
+
+
+    private int totalNotifications;
+    private int currentClearNotifications;
 
     @JsonIgnore // JSON 변환시 무한 참조 방지
     @ManyToOne(fetch = FetchType.LAZY)
