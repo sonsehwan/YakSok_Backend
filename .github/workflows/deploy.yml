@@ -19,10 +19,10 @@ jobs:
           distribution: 'temurin'
 
       # 1.5 Firebase 서비스 계정 키 생성
-      - name: Create Fireabse Service Account JSON
-        run:
-          mkdir -p src/main/resources
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > src/main/resources/firebase-service-account.json
+      - name: Create Firebase Service Account JSON
+          run: |
+            mkdir -p src/main/resources
+            echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > src/main/resources/firebase-service-account.json
 
       # 2. Gradle 빌드 (테스트 제외로 속도 향상)
       # chmod +x ./gradlew : 리눅스 환경에서 Gradle 실행 파일(gradlew)에 실행 권한을 부여합니다.
