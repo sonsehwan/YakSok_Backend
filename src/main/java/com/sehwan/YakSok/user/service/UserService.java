@@ -81,4 +81,11 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
+    public void updateToken(FirebaseTokenRequest dto){
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        user.setFcmToken(dto.getToken());
+    }
 }

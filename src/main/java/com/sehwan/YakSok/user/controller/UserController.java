@@ -2,6 +2,8 @@ package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.*;
+import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +70,17 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.success("회원 탈퇴(삭제)가 성공적으로 처리되었습니다."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_DELETE_USER", e.getMessage()));
+        }
+    }
+
+    //Firebase 토큰 저장
+    @PostMapping("/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@RequestBody FirebaseTokenRequest dto){
+        try{
+            userService.updateToken(dto);
+            return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "토큰 업데이트 실패", e.getMessage()));
         }
     }
 }
