@@ -1,3 +1,8 @@
+logging:
+  level:
+    com.sehwan.YakSok: INFO
+    org.hibernate.SQL: DEBUG
+
 api:
   medicine:
     service-key: "5b0016030bacdf44ef216c32ac7961609fb29b0513dd411049f655aa5a2a63a0"
