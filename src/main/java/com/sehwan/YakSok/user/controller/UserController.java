@@ -6,9 +6,12 @@ import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -78,8 +81,10 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> updateFcmToken(@RequestBody FirebaseTokenRequest dto){
         try{
             userService.updateToken(dto);
+            log.info("토큰 업데이트 실행");
             return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
         }catch (RuntimeException e){
+            log.error("토큰 업데이트 실패");
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "토큰 업데이트 실패", e.getMessage()));
         }
     }
