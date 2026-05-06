@@ -8,6 +8,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FirebaseTokenRequest {
-    private String email;
     private String fcmToken;
 }

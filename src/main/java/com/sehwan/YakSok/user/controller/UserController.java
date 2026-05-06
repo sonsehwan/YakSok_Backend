@@ -77,14 +77,15 @@ public class UserController {
     }
 
     //Firebase 토큰 저장
-    @PostMapping("/fcm-token")
-    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@RequestBody FirebaseTokenRequest dto){
+    @PatchMapping("/{email}/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@PathVariable String email, @RequestBody FirebaseTokenRequest dto){
         try{
-            userService.updateToken(dto);
+            userService.updateToken(email, dto.getFcmToken());
             return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
         }catch (RuntimeException e){
             log.error("토큰 업데이트 실패");
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "토큰 업데이트 실패", e.getMessage()));
         }
     }
+
 }
