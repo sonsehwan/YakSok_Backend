@@ -53,7 +53,7 @@ public class NotificationScheduler {
                 String body = noti.getTitle() + " 약속을 지킬 시간이에요.";
 
                 if(token != null){
-                    fcmService.sendMessage(token, title, body);
+                    fcmService.sendMessage(token, title, body, String.valueOf(noti.getId()));
                 }else{
                     log.warn("유저 {} 의 토큰이 없어 알림을 보내지 못했습니다.", user.getEmail());
                 }
