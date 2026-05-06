@@ -88,6 +88,7 @@ public class UserService {
         log.info("토큰 업데이트 실행");
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        log.info("전달받은 토큰: {}", dto.getFcmToken());
         user.setFcmToken(dto.getFcmToken());
         log.info("토큰 업데이트 완료");
     }
