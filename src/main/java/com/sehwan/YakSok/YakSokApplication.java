@@ -2,6 +2,7 @@ package com.sehwan.YakSok;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @EnableAutoConfiguration: 가장 중요한 부분으로, 외부 라이브러리에 미리 정의된 자동 설정들을 활성화합니다.
  **/
+@EnableScheduling
 @SpringBootApplication
 public class YakSokApplication {
     public static void main(String[] args) {

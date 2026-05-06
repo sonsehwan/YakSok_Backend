@@ -32,7 +32,7 @@ public class NotificationScheduler {
         DateTimeFormatter now = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREAN);
         String stringNow = LocalTime.now().format(now);
 
-        log.info("알림 스케줄러 실행 중... 현재 시간:ㅣ {} {}", today, now);
+        log.info("알림 스케줄러 실행 중... 현재 시간:ㅣ {} {}", stringToday, stringNow);
 
         try{
             List<Notification> notifications = notificationRepository.findByDateAndTimeAndIsTakenFalse(stringToday, stringNow);
