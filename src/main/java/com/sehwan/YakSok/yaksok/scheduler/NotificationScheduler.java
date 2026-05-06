@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -26,11 +27,13 @@ public class NotificationScheduler {
     @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void sendScheduelNotifications(){
-        LocalDate today = LocalDate.now();
+        ZoneId kst = ZoneId.of("Asia/Seoul");
+
+        LocalDate today = LocalDate.now(kst);
         String stringToday = today.toString();
 
         DateTimeFormatter now = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREAN);
-        String stringNow = LocalTime.now().format(now);
+        String stringNow = LocalTime.now(kst).format(now);
 
         log.info("알림 스케줄러 실행 중... 현재 시간:ㅣ {} {}", stringToday, stringNow);
 
