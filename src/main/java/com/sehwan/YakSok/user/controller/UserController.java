@@ -81,7 +81,6 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> updateFcmToken(@RequestBody FirebaseTokenRequest dto){
         try{
             userService.updateToken(dto);
-            log.info("토큰 업데이트 실행");
             return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
         }catch (RuntimeException e){
             log.error("토큰 업데이트 실패");

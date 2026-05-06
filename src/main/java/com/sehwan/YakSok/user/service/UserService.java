@@ -5,11 +5,13 @@ import com.sehwan.YakSok.user.dto.*;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
@@ -83,9 +85,10 @@ public class UserService {
 
     @Transactional
     public void updateToken(FirebaseTokenRequest dto){
+        log.info("토큰 업데이트 실행");
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
         user.setFcmToken(dto.getToken());
+        log.info("토큰 업데이트 완료");
     }
 }
