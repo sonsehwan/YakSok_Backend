@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
@@ -13,4 +15,7 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
             "WHERE y.user.email = :email " +
             "ORDER BY n.time ASC, n.title ASC")
     List<Notification> findAllByUserEmail(@Param("email") String email);
+
+
+    List<Notification> findByDateAndTimeAndIsTakenFalse(String date, String time);
 }
