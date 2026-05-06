@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Component
@@ -27,8 +29,8 @@ public class NotificationScheduler {
         LocalDate today = LocalDate.now();
         String stringToday = today.toString();
 
-        LocalTime now =  LocalTime.now();
-        String stringNow = now.toString();
+        DateTimeFormatter now = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREAN);
+        String stringNow = LocalTime.now().format(now);
 
         log.info("알림 스케줄러 실행 중... 현재 시간:ㅣ {} {}", today, now);
 
