@@ -139,20 +139,18 @@ public class YaksokService {
         Yaksok yaksok = notification.getYaksok();
         int current = yaksok.getCurrentClearNotifications();
         int total = yaksok.getTotalNotifications();
-        YaksokStatus status = yaksok.getStatus();
 
-        if(isTaken && current < total){
-            yaksok.setCurrentClearNotifications(current + 1);
+        if (isTaken && current < total) {
             current++;
-        }else if(!isTaken && current > 0){
-            yaksok.setCurrentClearNotifications(current - 1);
+        } else if (!isTaken && current > 0) {
             current--;
         }
 
-        if(current == total && status.equals(YaksokStatus.TAKING)){
+        yaksok.setCurrentClearNotifications(current);
+
+        if (current == total && yaksok.getStatus() == YaksokStatus.TAKING) {
             yaksok.setStatus(YaksokStatus.COMPLETED);
-        }
-        if(current < total && status.equals(YaksokStatus.COMPLETED)){
+        } else if (current < total && yaksok.getStatus() == YaksokStatus.COMPLETED) {
             yaksok.setStatus(YaksokStatus.TAKING);
         }
     }
