@@ -126,8 +126,23 @@ public class YaksokService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다. id=" + notificationId));
 
-        // Entity에 맞게 메서드명 수정 필요 (예: updateIsTaken 또는 Setter 사용)
+        if(isTaken == notification.isTaken()){
+            return;
+        }
+
         notification.setTaken(isTaken);
+        updateYaksokCurrentClearNotifications(notification, isTaken);
+    }
+
+    public void updateYaksokCurrentClearNotifications(Notification notification, boolean isTaken){
+        Yaksok yaksok = notification.getYaksok();
+        int current = yaksok.getCurrentClearNotifications();
+        int total = yaksok.getTotalNotifications();
+        if(isTaken && current < total){
+            yaksok.setCurrentClearNotifications(current + 1);
+        }else if(!isTaken && current > 0){
+            yaksok.setCurrentClearNotifications(current - 1);
+        }
     }
 
     public List<Notification> findAllByUserEmail(@Param("email") String email) {
