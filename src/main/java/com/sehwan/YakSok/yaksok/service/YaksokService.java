@@ -8,6 +8,7 @@ import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
 import com.sehwan.YakSok.yaksok.entity.Notification;
 import com.sehwan.YakSok.yaksok.entity.Pill;
 import com.sehwan.YakSok.yaksok.entity.Yaksok;
+import com.sehwan.YakSok.yaksok.entity.YaksokStatus;
 import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
 import com.sehwan.YakSok.yaksok.repository.PillRepository;
 import com.sehwan.YakSok.yaksok.repository.YaksokRepository;
@@ -138,10 +139,21 @@ public class YaksokService {
         Yaksok yaksok = notification.getYaksok();
         int current = yaksok.getCurrentClearNotifications();
         int total = yaksok.getTotalNotifications();
+        YaksokStatus status = yaksok.getStatus();
+
         if(isTaken && current < total){
             yaksok.setCurrentClearNotifications(current + 1);
+            current++;
         }else if(!isTaken && current > 0){
             yaksok.setCurrentClearNotifications(current - 1);
+            current--;
+        }
+
+        if(current == total && status.equals(YaksokStatus.TAKING)){
+            yaksok.setStatus(YaksokStatus.COMPLETED);
+        }
+        if(current < total && status.equals(YaksokStatus.COMPLETED)){
+            yaksok.setStatus(YaksokStatus.TAKING);
         }
     }
 
