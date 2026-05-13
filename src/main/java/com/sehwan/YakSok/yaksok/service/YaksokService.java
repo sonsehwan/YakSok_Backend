@@ -80,6 +80,73 @@ public class YaksokService {
         return response;
     }
 
+    @Transactional
+    public SaveYaksokResponse updateYaksok(Long yaksokId, YaksokRequest request) {
+        Yaksok yaksok = yaksokRepository.findById(yaksokId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 약속을 찾을 수 없습니다. id=" + yaksokId));
+
+        // 알림 재생성이 필요한 '일정/시간' 변경 여부 확인
+        boolean isScheduleChanged =
+                !yaksok.getStartDate().equals(request.getStartDate()) ||
+                        yaksok.getPrescriptionDays() != request.getPrescriptionDays() ||
+                        yaksok.isTakeMorning() != request.isTakeMorning() ||
+                        yaksok.isTakeLunch() != request.isTakeLunch() ||
+                        yaksok.isTakeDinner() != request.isTakeDinner() ||
+                        !java.util.Objects.equals(yaksok.getTimeMorning(), request.getTimeMorning()) ||
+                        !java.util.Objects.equals(yaksok.getTimeLunch(), request.getTimeLunch()) ||
+                        !java.util.Objects.equals(yaksok.getTimeDinner(), request.getTimeDinner()) ||
+                        !yaksok.getDosageTime().equals(request.getDosageTime());
+
+        boolean isTitleChanged = !yaksok.getTitle().equals(request.getTitle());
+
+        yaksok.setTitle(request.getTitle());
+        yaksok.setStartDate(request.getStartDate());
+        yaksok.setPrescriptionDays(request.getPrescriptionDays());
+        yaksok.setTakeMorning(request.isTakeMorning());
+        yaksok.setTakeLunch(request.isTakeLunch());
+        yaksok.setTakeDinner(request.isTakeDinner());
+        yaksok.setDosageTime(request.getDosageTime());
+        yaksok.setTimeMorning(request.getTimeMorning());
+        yaksok.setTimeLunch(request.getTimeLunch());
+        yaksok.setTimeDinner(request.getTimeDinner());
+
+        yaksok.getPills().clear();
+        if (request.getPills() != null) {
+            for (PillRequest pillReq : request.getPills()) {
+                Pill newPill = Pill.builder()
+                        .name(pillReq.getName())
+                        .image(pillReq.getImage())
+                        .dailyFrequency(pillReq.getDailyFrequency())
+                        .dosage(pillReq.getDosage())
+                        .build();
+                yaksok.addPill(newPill);
+            }
+        }
+
+        List<Notification> currentNotifications = yaksok.getNotifications();
+
+        if (isScheduleChanged) {
+            currentNotifications.clear();
+
+            List<Notification> newNotifications = createNotification(yaksok);
+            for(Notification noti : newNotifications) {
+                currentNotifications.add(noti);
+                noti.setYaksok(yaksok);
+            }
+
+            yaksok.setTotalNotifications(newNotifications.size());
+            yaksok.setCurrentClearNotifications(0);
+            yaksok.setStatus(YaksokStatus.TAKING);
+
+        } else if (isTitleChanged) {
+            for (Notification noti : currentNotifications) {
+                noti.setTitle(request.getTitle());
+            }
+        }
+
+        return new SaveYaksokResponse(yaksok, currentNotifications);
+    }
+
     private List<Notification> createNotification(Yaksok yaksok){
         LocalDate stasrtDate = LocalDate.parse(yaksok.getStartDate());
         int days = yaksok.getPrescriptionDays();

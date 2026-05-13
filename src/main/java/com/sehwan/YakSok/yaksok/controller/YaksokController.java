@@ -35,6 +35,19 @@ public class YaksokController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<SaveYaksokResponse>> updateYaksok(
+            @PathVariable Long id,
+            @RequestBody YaksokRequest request){
+        try {
+            SaveYaksokResponse response = yaksokService.updateYaksok(id, request);
+            return ResponseEntity.ok(ApiResponse.success("약속이 성공적으로 수정되었습니다.", response));
+        } catch (Exception e) {
+            log.error("수정 중 에러 발생 : {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_UPDATE_YAKSOK", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/notifications/{notificationId}/status")
     public ResponseEntity<ApiResponse<Void>> updateNotificationStatus(
             @PathVariable Long notificationId,
