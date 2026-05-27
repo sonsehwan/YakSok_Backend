@@ -35,6 +35,10 @@ public class MedicineService {
         return callApi(keyword, pageNo, numOfRows);
     }
 
+    public SimpleMedicine fetchPill(String keyword) {
+        return callApi(keyword);
+    }
+
     private List<SimpleMedicine> callApi(String keyword, int pageNo, int numOfRows) {
         try {
             Map<String, Object> response = medicineWebClient.get()
@@ -114,6 +118,88 @@ public class MedicineService {
             System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
+        }
+    }
+
+    private SimpleMedicine callApi(String keyword) {
+        try {
+            Map<String, Object> response = medicineWebClient.get()
+                    .uri(uriBuilder -> {
+                        uriBuilder
+                                .queryParam("serviceKey", serviceKey)
+                                .queryParam("type", "json")
+                                .queryParam("pageNo", 1)     // 단일 객체만 필요하므로 1로 고정
+                                .queryParam("numOfRows", 1); // 단일 객체만 필요하므로 1로 고정
+
+                        if (keyword != null && !keyword.trim().isEmpty()) {
+                            // EncodingMode.NONE을 사용 중이므로 한글 검색어는 직접 인코딩해야 합니다.
+                            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+                            uriBuilder.queryParam("item_name", encodedKeyword);
+                        }
+
+                        return uriBuilder.build();
+                    })
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (response == null) {
+                System.out.println("공공데이터 API 응답이 null입니다.");
+                return null; // 단일 객체이므로 null 반환
+            }
+
+            Map<String, Object> body = null;
+
+            if (response.containsKey("body")) {
+                body = (Map<String, Object>) response.get("body");
+            }
+            else {
+                Map<String, Object> rootResponse = (Map<String, Object>) response.get("getMdcinGrnIdntfcInfoList03_response");
+                if (rootResponse == null) {
+                    rootResponse = (Map<String, Object>) response.get("response");
+                }
+
+                if (rootResponse != null && rootResponse.containsKey("body")) {
+                    body = (Map<String, Object>) rootResponse.get("body");
+                }
+            }
+
+            if (body == null) {
+                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다. 응답 구조: " + response);
+                return null;
+            }
+
+            List<Map<String, Object>> items = new ArrayList<>();
+            Object itemsObj = body.get("items");
+
+            if (itemsObj instanceof Map) {
+                Map<String, Object> itemsMap = (Map<String, Object>) itemsObj;
+                Object itemEntry = itemsMap.get("item");
+                if (itemEntry instanceof List) {
+                    items = (List<Map<String, Object>>) itemEntry;
+                } else if (itemEntry instanceof Map) {
+                    items.add((Map<String, Object>) itemEntry);
+                }
+            } else if (itemsObj instanceof List) {
+                items = (List<Map<String, Object>>) itemsObj;
+            }
+
+            if (items.isEmpty()) {
+                System.out.println("검색 결과가 없습니다.");
+                return null;
+            }
+
+            // 첫 번째 아이템만 단일 객체로 매핑하여 반환
+            Map<String, Object> firstItem = items.get(0);
+            return new SimpleMedicine(
+                    (String) firstItem.get("ITEM_NAME"),
+                    (String) firstItem.get("ITEM_IMAGE")
+            );
+
+        } catch (Exception e) {
+            System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }

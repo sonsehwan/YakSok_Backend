@@ -10,6 +10,8 @@ public class SimpleMedicine {
         this.image = image;
     }
 
+    public SimpleMedicine() {}
+
     public String getImage() {
         return image;
     }

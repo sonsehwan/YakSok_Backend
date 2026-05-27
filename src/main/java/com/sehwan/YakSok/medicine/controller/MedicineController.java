@@ -39,4 +39,19 @@ public class MedicineController {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "약 검색 실패", e.getMessage()));
         }
     }
+
+    @GetMapping("/search/pill")
+    public ResponseEntity<ApiResponse<SimpleMedicine>> searchPill(@RequestParam String keyword) {
+        try{
+            SimpleMedicine pill = new SimpleMedicine();
+
+            if(keyword != null){
+                pill = medicineService.fetchPill(keyword);
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("약 검색 결과입니다.", pill));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "약 검색 실패", e.getMessage()));
+        }
+    }
 }

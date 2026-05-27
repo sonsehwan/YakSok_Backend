@@ -22,7 +22,6 @@ public class UserController {
     //회원가입
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequest dto) {
-
         try {
             userService.signUp(dto);
 
