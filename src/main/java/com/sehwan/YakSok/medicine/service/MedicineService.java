@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -18,8 +18,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MedicineService {
 
-    @Qualifier("medicineWebClient")
-    private final WebClient medicineWebClient;
+    // WebClient 대신 RestClient 주입
+    @Qualifier("medicineRestClient")
+    private final RestClient medicineRestClient;
 
     @Value("${api.medicine.service-key}")
     private String serviceKey;
@@ -41,7 +42,7 @@ public class MedicineService {
 
     private List<SimpleMedicine> callApi(String keyword, int pageNo, int numOfRows) {
         try {
-            Map<String, Object> response = medicineWebClient.get()
+            Map response = medicineRestClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .queryParam("serviceKey", serviceKey)
@@ -50,7 +51,6 @@ public class MedicineService {
                                 .queryParam("numOfRows", numOfRows);
 
                         if (keyword != null && !keyword.trim().isEmpty()) {
-                            // EncodingMode.NONE을 사용 중이므로 한글 검색어는 직접 인코딩해야 합니다.
                             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
                             uriBuilder.queryParam("item_name", encodedKeyword);
                         }
@@ -58,8 +58,7 @@ public class MedicineService {
                         return uriBuilder.build();
                     })
                     .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+                    .body(Map.class);
 
             if (response == null) {
                 System.out.println("공공데이터 API 응답이 null입니다.");
@@ -123,16 +122,15 @@ public class MedicineService {
 
     private SimpleMedicine callApi(String keyword) {
         try {
-            Map<String, Object> response = medicineWebClient.get()
+            Map response = medicineRestClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .queryParam("serviceKey", serviceKey)
                                 .queryParam("type", "json")
-                                .queryParam("pageNo", 1)     // 단일 객체만 필요하므로 1로 고정
-                                .queryParam("numOfRows", 1); // 단일 객체만 필요하므로 1로 고정
+                                .queryParam("pageNo", 1)
+                                .queryParam("numOfRows", 1);
 
                         if (keyword != null && !keyword.trim().isEmpty()) {
-                            // EncodingMode.NONE을 사용 중이므로 한글 검색어는 직접 인코딩해야 합니다.
                             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
                             uriBuilder.queryParam("item_name", encodedKeyword);
                         }
@@ -140,13 +138,13 @@ public class MedicineService {
                         return uriBuilder.build();
                     })
                     .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+                    .body(Map.class);
 
             if (response == null) {
-                reCallApi(keyword);
+                return reCallApi(keyword); // 기존 코드 로직에 맞춤 (null일 때 재호출)
             }
 
+            // --- 아래 파싱 로직 기존과 동일 ---
             Map<String, Object> body = null;
 
             if (response.containsKey("body")) {
@@ -188,7 +186,6 @@ public class MedicineService {
                 return null;
             }
 
-            // 첫 번째 아이템만 단일 객체로 매핑하여 반환
             Map<String, Object> firstItem = items.get(0);
             return new SimpleMedicine(
                     (String) firstItem.get("ITEM_NAME"),
@@ -206,16 +203,15 @@ public class MedicineService {
         int index = keyword.indexOf("정");
         String itemName = keyword.substring(0, index+1);
         try {
-            Map<String, Object> response = medicineWebClient.get()
+            Map response = medicineRestClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .queryParam("serviceKey", serviceKey)
                                 .queryParam("type", "json")
-                                .queryParam("pageNo", 1)     // 단일 객체만 필요하므로 1로 고정
-                                .queryParam("numOfRows", 1); // 단일 객체만 필요하므로 1로 고정
+                                .queryParam("pageNo", 1)
+                                .queryParam("numOfRows", 1);
 
                         if (itemName != null && !itemName.trim().isEmpty()) {
-                            // EncodingMode.NONE을 사용 중이므로 한글 검색어는 직접 인코딩해야 합니다.
                             String encodedKeyword = URLEncoder.encode(itemName, StandardCharsets.UTF_8);
                             uriBuilder.queryParam("item_name", encodedKeyword);
                         }
@@ -223,14 +219,14 @@ public class MedicineService {
                         return uriBuilder.build();
                     })
                     .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+                    .body(Map.class);
 
             if (response == null) {
                 System.out.println("공공데이터 API 응답이 null입니다.");
-                return null; // 단일 객체이므로 null 반환
+                return null;
             }
 
+            // --- 아래 파싱 로직 기존과 동일 ---
             Map<String, Object> body = null;
 
             if (response.containsKey("body")) {
@@ -272,7 +268,6 @@ public class MedicineService {
                 return null;
             }
 
-            // 첫 번째 아이템만 단일 객체로 매핑하여 반환
             Map<String, Object> firstItem = items.get(0);
             return new SimpleMedicine(
                     (String) firstItem.get("ITEM_NAME"),
