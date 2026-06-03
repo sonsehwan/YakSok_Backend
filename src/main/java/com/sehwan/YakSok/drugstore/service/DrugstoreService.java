@@ -40,7 +40,7 @@ public class DrugstoreService {
         try{
             JsonNode rootNode = drugstoreRestClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/getCcrtInsttLcinfoInqire")
+                            .path("/getParmacyLcinfoInqire")
                             .queryParam("ServiceKey", serviceKey)
                             .queryParam("WGS84_LAT", latitude)
                             .queryParam("WGS84_LON", longitude)
