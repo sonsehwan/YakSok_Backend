@@ -27,7 +27,7 @@ public class DrugstoreController {
 
     @GetMapping("/closelist")
     public ResponseEntity<ApiResponse<List<DrugStore>>> getCloseDrugstores(
-            @RequestParam String email,
+            //@RequestParam String email,
             @RequestParam String latitude,
             @RequestParam String longitude
     ){
