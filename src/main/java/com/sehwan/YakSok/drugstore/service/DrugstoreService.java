@@ -37,8 +37,8 @@ public class DrugstoreService {
     }
 
     private List<DrugStore> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
-        try{
-            JsonNode rootNode = drugstoreRestClient.get()
+        try {
+            String responseJson = drugstoreRestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/getParmacyLcinfoInqire")
                             .queryParam("ServiceKey", serviceKey)
@@ -49,38 +49,37 @@ public class DrugstoreService {
                             .queryParam("_type", "json")
                             .build())
                     .retrieve()
-                    .body(JsonNode.class);
+                    .body(String.class);
 
-            if(rootNode == null){
-                log.error("공공데이터 API 응답이 null입니다.");
-                return new ArrayList<>();
-            }
-
-            JsonNode itemNode = rootNode.path("response").path("body").path("items").path("item");
-
-            if(itemNode.isMissingNode() || itemNode.isNull() || itemNode.isEmpty()){
-                log.error("해당 위치 주변에 검색된 약국이 없습니다.");
+            if (responseJson == null || responseJson.isEmpty()) {
+                log.error("공공데이터 API 응답이 null이거나 비어있습니다.");
                 return new ArrayList<>();
             }
 
             ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(responseJson);
+
+            JsonNode itemNode = rootNode.path("response").path("body").path("items").path("item");
+
+            if (itemNode.isMissingNode() || itemNode.isNull() || itemNode.isEmpty()) {
+                log.error("해당 위치 주변에 검색된 약국이 없습니다.");
+                return new ArrayList<>();
+            }
 
             if (itemNode.isObject()) {
                 DrugStore singleStore = mapper.treeToValue(itemNode, DrugStore.class);
                 List<DrugStore> list = new ArrayList<>();
                 list.add(singleStore);
                 return list;
-            }
-
-            else if (itemNode.isArray()) {
+            } else if (itemNode.isArray()) {
                 return mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {});
             }
 
-        }catch (JsonProcessingException e){
-            log.error("응답 데이터를 DrugStore 객체로 변환하는 중 에러 발생: ", e.getMessage());
+        } catch (JsonProcessingException e) {
+            log.error("응답 데이터를 DrugStore 객체로 변환하는 중 에러 발생: {}", e.getMessage());
             e.printStackTrace();
-        }catch (Exception e){
-            log.error("약국 API 통신 중 에러 발생: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("약국 API 통신 중 에러 발생: {}", e.getMessage());
             e.printStackTrace();
         }
         return new ArrayList<>();
