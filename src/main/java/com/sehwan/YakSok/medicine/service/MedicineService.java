@@ -202,7 +202,15 @@ public class MedicineService {
 
     private SimpleMedicine reCallApi(String keyword) {
         int index = keyword.indexOf("정");
-        String itemName = keyword.substring(0, index+1);
+
+        if (index == -1) {
+            System.out.println("약 이름에 '정'이 포함되어 있지 않아 재검색을 종료합니다.");
+            return null;
+        }
+
+        String itemName = keyword.substring(0, index + 1);
+        System.out.println("정제된 약 이름으로 재검색: " + itemName);
+
         try {
             Map response = medicineRestClient.get()
                     .uri(uriBuilder -> {
@@ -223,11 +231,9 @@ public class MedicineService {
                     .body(Map.class);
 
             if (response == null) {
-                System.out.println("공공데이터 API 응답이 null입니다.");
                 return null;
             }
 
-            // --- 아래 파싱 로직 기존과 동일 ---
             Map<String, Object> body = null;
 
             if (response.containsKey("body")) {
@@ -245,7 +251,6 @@ public class MedicineService {
             }
 
             if (body == null) {
-                System.out.println("응답에서 'body' 객체를 찾을 수 없습니다. 응답 구조: " + response);
                 return null;
             }
 
@@ -265,7 +270,7 @@ public class MedicineService {
             }
 
             if (items.isEmpty()) {
-                System.out.println("검색 결과가 없습니다.");
+                System.out.println("재검색 결과도 없습니다.");
                 return null;
             }
 
@@ -276,8 +281,7 @@ public class MedicineService {
             );
 
         } catch (Exception e) {
-            System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("재검색 통신 중 에러 발생: " + e.getMessage());
             return null;
         }
     }
