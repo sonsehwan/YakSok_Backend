@@ -46,6 +46,7 @@ public class DrugstoreService {
                             .queryParam("WGS84_LON", longitude)
                             .queryParam("pageNo", pageNo)
                             .queryParam("numOfRows", numOfRows)
+                            .queryParam("_type", "json")
                             .build())
                     .retrieve()
                     .body(JsonNode.class);
