@@ -70,8 +70,10 @@ public class DrugstoreService {
                 DrugStore singleStore = mapper.treeToValue(itemNode, DrugStore.class);
                 List<DrugStore> list = new ArrayList<>();
                 list.add(singleStore);
+                System.out.println(list);
                 return list;
             } else if (itemNode.isArray()) {
+                System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {}));
                 return mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {});
             }
 
