@@ -141,7 +141,8 @@ public class MedicineService {
                     .body(Map.class);
 
             if (response == null) {
-                return reCallApi(keyword); // 기존 코드 로직에 맞춤 (null일 때 재호출)
+                System.out.println("공공데이터 API 통신 응답 자체가 null입니다.");
+                return null;
             }
 
             // --- 아래 파싱 로직 기존과 동일 ---
@@ -182,8 +183,8 @@ public class MedicineService {
             }
 
             if (items.isEmpty()) {
-                System.out.println("검색 결과가 없습니다.");
-                return null;
+                System.out.println("'" + keyword + "' 검색 결과가 없습니다. 이름 정제 후 재검색을 시도합니다.");
+                return reCallApi(keyword);
             }
 
             Map<String, Object> firstItem = items.get(0);
