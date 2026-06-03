@@ -8,6 +8,10 @@ api:
     service-key: "5b0016030bacdf44ef216c32ac7961609fb29b0513dd411049f655aa5a2a63a0"
     url: "http://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService03/getMdcinGrnIdntfcInfoList03"
 
+  drugstore:
+    service-key: "5b0016030bacdf44ef216c32ac7961609fb29b0513dd411049f655aa5a2a63a0"
+    url: "https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService"
+
 spring:
   application:
     name: YakSok
