@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sehwan.YakSok.drugstore.dto.DrugStore;
+import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,8 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,8 +31,9 @@ public class DrugstoreService {
     @Value("${api.medicine.service-key}")
     private String serviceKey;
 
-    public List<DrugStore> getCloseDrugStoreList(String latitude, String longitude, int pageNo, int numOfRows) {
-        return callApi(latitude, longitude, pageNo, numOfRows);
+
+    public List<DrugStore> getCloseDrugStoreList(String latitude, String longitude) {
+        return callApi(latitude, longitude, 1, 20);
     }
 
     private List<DrugStore> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
@@ -35,11 +41,12 @@ public class DrugstoreService {
             String responseJson = drugstoreRestClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/getParmacyLcinfoInqire")
-                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("ServiceKey", serviceKey)
                             .queryParam("WGS84_LAT", latitude)
                             .queryParam("WGS84_LON", longitude)
                             .queryParam("pageNo", pageNo)
                             .queryParam("numOfRows", numOfRows)
+                            .queryParam("_type", "json")
                             .build())
                     .retrieve()
                     .body(String.class);
@@ -63,8 +70,10 @@ public class DrugstoreService {
                 DrugStore singleStore = mapper.treeToValue(itemNode, DrugStore.class);
                 List<DrugStore> list = new ArrayList<>();
                 list.add(singleStore);
+                System.out.println(list);
                 return list;
             } else if (itemNode.isArray()) {
+                System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {}));
                 return mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {});
             }
 
