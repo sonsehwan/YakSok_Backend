@@ -29,11 +29,12 @@ public class DrugstoreController {
     public ResponseEntity<ApiResponse<List<DrugStore>>> getCloseDrugstores(
             //@RequestParam String email,
             @RequestParam String latitude,
-            @RequestParam String longitude
+            @RequestParam String longitude,
+            @RequestParam int page
     ){
         List<DrugStore> drugStores;
 
-        drugStores = drugstoreService.getCloseDrugStoreList(latitude, longitude);
+        drugStores = drugstoreService.getCloseDrugStoreList(latitude, longitude, page);
 
         return ResponseEntity.ok(success("근접 약국 리스트를 성공적으로 가져왔습니다.", drugStores));
     }

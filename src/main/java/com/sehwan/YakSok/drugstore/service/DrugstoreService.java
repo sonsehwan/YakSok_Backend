@@ -32,8 +32,8 @@ public class DrugstoreService {
     private String serviceKey;
 
 
-    public List<DrugStore> getCloseDrugStoreList(String latitude, String longitude) {
-        return callApi(latitude, longitude, 1, 20);
+    public List<DrugStore> getCloseDrugStoreList(String latitude, String longitude, int page) {
+        return callApi(latitude, longitude, page, 20);
     }
 
     private List<DrugStore> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
