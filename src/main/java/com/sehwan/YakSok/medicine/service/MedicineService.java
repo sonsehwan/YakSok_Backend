@@ -28,14 +28,17 @@ public class MedicineService {
     @Value("${api.medicine.url}")
     private String openApiUrl;
 
+    // 검색어 없이 순서대로 전체 리스트 가져오기
     public List<SimpleMedicine> fetchAllMedicineList(int pageNo, int numOfRows) {
         return callApi(null, pageNo, numOfRows);
     }
 
+    // 검색어로 검색 후 리스트 가져오기
     public List<SimpleMedicine> searchMedicineList(String keyword, int pageNo, int numOfRows) {
         return callApi(keyword, pageNo, numOfRows);
     }
 
+    // 정확한 검색어 명칭으로 단일 검색 결과 가져오기
     public SimpleMedicine fetchPill(String keyword) {
         return callApi(keyword);
     }
