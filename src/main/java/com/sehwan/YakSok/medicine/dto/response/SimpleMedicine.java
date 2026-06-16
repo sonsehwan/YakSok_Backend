@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.medicine.entity;
+package com.sehwan.YakSok.medicine.dto.response;
 
 public class SimpleMedicine {
 

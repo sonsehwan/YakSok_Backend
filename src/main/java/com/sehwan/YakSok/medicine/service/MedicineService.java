@@ -1,6 +1,6 @@
 package com.sehwan.YakSok.medicine.service;
 
-import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
+import com.sehwan.YakSok.medicine.dto.response.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,7 +1,7 @@
 package com.sehwan.YakSok.medicine.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
-import com.sehwan.YakSok.medicine.entity.SimpleMedicine;
+import com.sehwan.YakSok.medicine.dto.response.SimpleMedicine;
 import com.sehwan.YakSok.medicine.service.MedicineService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
