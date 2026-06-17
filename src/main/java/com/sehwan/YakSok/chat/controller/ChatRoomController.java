@@ -1,16 +1,16 @@
 package com.sehwan.YakSok.chat.controller;
 
 
+import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.service.ChatService;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat/room")
@@ -28,5 +28,11 @@ public class ChatRoomController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "CHAT_ROOM_FAIL", e.getMessage()));
         }
+    }
+
+    @GetMapping("/{roomId}/messages")
+    public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(@PathVariable String roomId) {
+        List<ChatMessageDto> messages = chatService.getChatMessages(roomId);
+        return ResponseEntity.ok(ApiResponse.success("과거 메시지 조회 성공", messages));
     }
 }

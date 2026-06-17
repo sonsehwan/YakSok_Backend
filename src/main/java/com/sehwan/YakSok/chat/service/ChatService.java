@@ -1,9 +1,12 @@
 package com.sehwan.YakSok.chat.service;
 
+import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
+import com.sehwan.YakSok.chat.entity.ChatMessage;
 import com.sehwan.YakSok.chat.entity.ChatParticipant;
 import com.sehwan.YakSok.chat.entity.ChattingRoom;
+import com.sehwan.YakSok.chat.repository.ChatRepository;
 import com.sehwan.YakSok.chat.repository.ChattingRoomRepository;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
@@ -12,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -22,7 +27,30 @@ public class ChatService {
 
     private final ChattingRoomRepository chattingRoomRepository;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
 
+    // ------------------------------------채팅 메시지 관련 로직------------------------------------------------------------
+
+    // 받은 채팅 저장
+    @Transactional
+    public void saveMessage(ChatMessageDto message){
+        ChatMessage chatMessage = message.toEntity();
+        chatRepository.save(chatMessage);
+    }
+
+    @Transactional
+    public List<ChatMessageDto> getChatMessages(String roomId){
+        List<ChatMessage> list =  chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+
+        return list.stream()
+                .map(msg -> new ChatMessageDto(msg.getRoomId(), msg.getSender(), msg.getMessage()))
+                .collect(Collectors.toList());
+    }
+
+
+    // ------------------------------------채팅방 관련 로직------------------------------------------------------------
+
+    // 채팅방이 있으면 가져오고 없으면 생성하여 유저들 참가시키기
     @Transactional
     public ChatRoomResponse getOrCreateRoom(ChatRoomRequest request){
 
@@ -50,4 +78,14 @@ public class ChatService {
         log.info("새로운 채팅방 생성 완료: 방 번호 {}", newRoom.getId());
         return new ChatRoomResponse(newRoom.getId(), true);
     }
+
+    // 로그인 유저가 참여중인 채팅방 리스트 목록
+//    @Transactional(readOnly = true)
+//    public List<ChatRoomListDto> getMyChatRooms(String email) {
+//        List<ChattingRoom> rooms = chattingRoomRepository.findAllByUserEmail(email);
+//
+//        return rooms.stream()
+//                .map(room -> new ChatRoomListDto(room.getId(), room.getRoomName()))
+//                .collect(Collectors.toList());
+//    }
 }

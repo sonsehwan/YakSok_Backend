@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/yaksok/**").permitAll()
                         .requestMatchers("/api/medicine/**").permitAll()
                         .requestMatchers("/api/drugstore/**").permitAll()
-                        .requestMatchers("/api/chat/room").permitAll()
+                        .requestMatchers("/api/chat/room/").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
 
                         .requestMatchers("/error").permitAll()
