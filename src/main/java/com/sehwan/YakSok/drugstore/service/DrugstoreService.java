@@ -4,7 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sehwan.YakSok.drugstore.dto.DrugStore;
+import com.sehwan.YakSok.drugstore.entity.DrugStore;
+import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
+import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
+import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DrugstoreService {
 
+    private final DrugStoreRepository  drugstoreRepository;
+    private final UserRepository userRepository;
+
     @Qualifier("drugstoreRestClient")
     private final RestClient drugstoreRestClient;
 
@@ -27,11 +34,11 @@ public class DrugstoreService {
     private String serviceKey;
 
 
-    public List<DrugStore> getCloseDrugStoreList(String latitude, String longitude, int page) {
+    public List<DrugStoreDto> getCloseDrugStoreList(String latitude, String longitude, int page) {
         return callApi(latitude, longitude, page, 20);
     }
 
-    private List<DrugStore> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
+    private List<DrugStoreDto> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
         try {
             String responseJson = drugstoreRestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -62,14 +69,39 @@ public class DrugstoreService {
             }
 
             if (itemNode.isObject()) {
-                DrugStore singleStore = mapper.treeToValue(itemNode, DrugStore.class);
-                List<DrugStore> list = new ArrayList<>();
+                DrugStoreDto singleStore = mapper.treeToValue(itemNode, DrugStoreDto.class);
+                List<DrugStoreDto> list = new ArrayList<>();
                 list.add(singleStore);
                 System.out.println(list);
+
+                //임시로 첫페이지 첫번째 약국의 Entity생성하여 약사 유저와 연결
+                if(pageNo == 1){
+                    DrugStore drugStore = singleStore.toEntity();
+                    drugstoreRepository.save(drugStore);
+
+                    User user = userRepository.findByEmail("test2@naver.com")
+                            .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+                    user.setMyDrugStore(drugStore);
+                }
+
                 return list;
             } else if (itemNode.isArray()) {
-                System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {}));
-                return mapper.convertValue(itemNode, new TypeReference<List<DrugStore>>() {});
+                System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStoreDto>>() {}));
+                List<DrugStoreDto> list = mapper.convertValue(itemNode, new TypeReference<List<DrugStoreDto>>() {});
+
+                if(pageNo == 1){
+                    DrugStore drugStore = list.get(0).toEntity();
+
+                    drugstoreRepository.save(drugStore);
+
+                    User user = userRepository.findByEmail("test2@naver.com")
+                            .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+                    user.setMyDrugStore(drugStore);
+                }
+
+                return list;
             }
 
         } catch (JsonProcessingException e) {
@@ -81,4 +113,5 @@ public class DrugstoreService {
         }
         return new ArrayList<>();
     }
+
 }
