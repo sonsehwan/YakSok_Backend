@@ -77,14 +77,15 @@ public class DrugstoreService {
                 //임시로 첫페이지 첫번째 약국의 Entity생성하여 약사 유저와 연결
                 if(pageNo == 1){
                     DrugStore drugStore = singleStore.toEntity();
-                    drugstoreRepository.save(drugStore);
+                    if(!drugstoreRepository.existsByHpid(drugStore.getHpid())){
+                        drugstoreRepository.save(drugStore);
 
-                    User user = userRepository.findByEmail("test2@naver.com")
-                            .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+                        User user = userRepository.findByEmail("test2@naver.com")
+                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-                    user.setMyDrugStore(drugStore);
+                        user.setMyDrugStore(drugStore);
+                    }
                 }
-
                 return list;
             } else if (itemNode.isArray()) {
                 System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStoreDto>>() {}));
@@ -92,15 +93,15 @@ public class DrugstoreService {
 
                 if(pageNo == 1){
                     DrugStore drugStore = list.get(0).toEntity();
+                    if(!drugstoreRepository.existsByHpid(drugStore.getHpid())){
+                        drugstoreRepository.save(drugStore);
 
-                    drugstoreRepository.save(drugStore);
+                        User user = userRepository.findByEmail("test2@naver.com")
+                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-                    User user = userRepository.findByEmail("test2@naver.com")
-                            .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-
-                    user.setMyDrugStore(drugStore);
+                        user.setMyDrugStore(drugStore);
+                    }
                 }
-
                 return list;
             }
 
