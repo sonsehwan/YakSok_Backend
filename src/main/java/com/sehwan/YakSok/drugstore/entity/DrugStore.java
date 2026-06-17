@@ -13,8 +13,7 @@ import lombok.*;
 public class DrugStore {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String hpid; // 약국id
 
     @Column(nullable = false)
     private String dutyName; // 약국 이름

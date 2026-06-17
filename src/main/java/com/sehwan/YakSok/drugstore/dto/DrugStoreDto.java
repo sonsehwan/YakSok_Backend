@@ -10,6 +10,7 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DrugStoreDto {
 
+    private String hpid; // 약국 id
     private String dutyName; // 약국 이름
     private String dutyAddr; // 약국 주소
     private String dutyTel1; // 약국 전화번호
@@ -21,6 +22,7 @@ public class DrugStoreDto {
 
     public DrugStore toEntity() {
         return DrugStore.builder()
+                .hpid(this.hpid)
                 .dutyName(this.dutyName)
                 .dutyAddr(this.dutyAddr)
                 .dutyTel1(this.dutyTel1)
