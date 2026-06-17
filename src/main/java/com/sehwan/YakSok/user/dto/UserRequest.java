@@ -25,13 +25,17 @@ public class UserRequest {
 
     private String fcmToken;
 
-    private UserRole role;
+    private String role;
 
     /**
      * DTO를 User 엔티티로 변환하는 메서드
      * 서비스 계층에서 DB에 저장할 때 사용됩니다.
      */
     public User toEntity() {
+        UserRole userRole = this.role != null && this.role.equals("PHARMACY")
+                ? UserRole.PHARMACY
+                : UserRole.NORMAL;
+
         return User.builder()
                 .email(email)
                 .password(password)
@@ -39,7 +43,7 @@ public class UserRequest {
                 .gender(gender)
                 .birthdate(birthdate)
                 .fcmToken(fcmToken)
-                .role(role != null ? role: UserRole.NORMAL)
+                .role(userRole)
                 .penaltyEnable(false) // 초기 가입 시 기본값
                 .isLocked(false)      // 초기 가입 시 기본값
                 .build();
