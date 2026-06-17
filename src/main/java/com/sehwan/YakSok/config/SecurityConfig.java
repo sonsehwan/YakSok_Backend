@@ -19,28 +19,33 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 // 2. HTTP 기본 인증 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable)
-                // 3. 경로별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/signup").permitAll()
-                        .requestMatchers("/api/users/login").permitAll()
-                        .requestMatchers("/api/users/info").permitAll()
-                        .requestMatchers("/api/users/password").permitAll()
-                        .requestMatchers("/api/medicine/search").permitAll()
-                        .requestMatchers("/api/medicine/search/pill").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/users").permitAll()
-
-                        .requestMatchers("/api/yaksok").permitAll()
-                        .requestMatchers("/api/yaksok/**").permitAll()
-                        .requestMatchers("/api/medicine/**").permitAll()
-                        .requestMatchers("/api/drugstore/**").permitAll()
-                        .requestMatchers("/api/chat/room/").permitAll()
-                        .requestMatchers("/ws-stomp/**").permitAll()
-
-                        .requestMatchers("/error").permitAll()
-
-                        .anyRequest().authenticated()
+                        .requestMatchers("/**").permitAll()
                 );
+
+//                // 3. 경로별 권한 설정
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/users/signup").permitAll()
+//                        .requestMatchers("/api/users/login").permitAll()
+//                        .requestMatchers("/api/users/info").permitAll()
+//                        .requestMatchers("/api/users/password").permitAll()
+//                        .requestMatchers("/api/medicine/search").permitAll()
+//                        .requestMatchers("/api/medicine/search/pill").permitAll()
+//                        .requestMatchers("/api/users/**").permitAll()
+//                        .requestMatchers("/api/users").permitAll()
+//
+//                        .requestMatchers("/api/yaksok").permitAll()
+//                        .requestMatchers("/api/yaksok/**").permitAll()
+//                        .requestMatchers("/api/medicine/**").permitAll()
+//                        .requestMatchers("/api/drugstore/**").permitAll()
+//                        .requestMatchers("/api/chat/room/").permitAll()
+//                        .requestMatchers("/api/chat/room").permitAll()
+//                        .requestMatchers("/ws-stomp/**").permitAll()
+//
+//                        .requestMatchers("/error").permitAll()
+//
+//                        .anyRequest().authenticated()
+//                );
 
         return http.build();
     }
