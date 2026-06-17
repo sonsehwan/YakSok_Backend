@@ -54,6 +54,10 @@ public class DrugstoreService {
                     .retrieve()
                     .body(String.class);
 
+            log.info("===== [공공데이터 API 실제 응답] =====");
+            log.info(responseJson);
+            log.info("====================================");
+
             if (responseJson == null || responseJson.isEmpty()) {
                 log.error("공공데이터 API 응답이 null이거나 비어있습니다.");
                 return new ArrayList<>();
