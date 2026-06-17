@@ -1,12 +1,10 @@
 package com.sehwan.YakSok.drugstore.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
-import com.sehwan.YakSok.drugstore.dto.DrugStore;
+import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
 import com.sehwan.YakSok.drugstore.service.DrugstoreService;
 import com.sehwan.YakSok.user.service.UserService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,13 +24,13 @@ public class DrugstoreController {
     private final UserService userService;
 
     @GetMapping("/closelist")
-    public ResponseEntity<ApiResponse<List<DrugStore>>> getCloseDrugstores(
+    public ResponseEntity<ApiResponse<List<DrugStoreDto>>> getCloseDrugstores(
             //@RequestParam String email,
             @RequestParam String latitude,
             @RequestParam String longitude,
             @RequestParam int page
     ){
-        List<DrugStore> drugStores;
+        List<DrugStoreDto> drugStores;
 
         drugStores = drugstoreService.getCloseDrugStoreList(latitude, longitude, page);
 

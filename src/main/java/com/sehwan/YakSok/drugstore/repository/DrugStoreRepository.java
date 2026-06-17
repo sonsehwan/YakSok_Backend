@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.drugstore;
+package com.sehwan.YakSok.drugstore.repository;
 
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import org.springframework.data.jpa.repository.JpaRepository;
