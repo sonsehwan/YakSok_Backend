@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.user.entity;
 
+import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.yaksok.entity.Pill;
 import com.sehwan.YakSok.yaksok.entity.Yaksok;
 import jakarta.persistence.*;
@@ -49,6 +50,13 @@ public class User {
 
     @Builder.Default
     private Boolean isLocked = false;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "drug_store_id")
+    private DrugStore myDrugStore; // 일반 유저는 null
 
     // 6. 가입일자: 생성 시 자동 기록
     @CreationTimestamp
