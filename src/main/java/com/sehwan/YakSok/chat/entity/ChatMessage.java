@@ -20,10 +20,13 @@ public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String roomId;
 
     private String sender;
 
+    @Column(nullable = false, length = 1000)
     private String message;
 
     @CreationTimestamp
