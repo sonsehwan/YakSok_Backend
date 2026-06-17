@@ -85,14 +85,14 @@ public class DrugstoreService {
                         DrugStore changeDrugStore = singleStore.toEntity();
                         DrugStore drugStore = drugstoreRepository.save(changeDrugStore);
 
-                        User user = userRepository.findByEmail("test2@naver.com")
+                        User user = userRepository.findByEmail("test1@naver.com")
                                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
                         user.setMyDrugStore(drugStore);
                         userRepository.save(user);
                     }else{
                         DrugStore drugStore = drugstoreRepository.findByHpid(singleStore.getHpid());
-                        User user = userRepository.findByEmail("test2@naver.com")
+                        User user = userRepository.findByEmail("test1@naver.com")
                                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
                         user.setMyDrugStore(drugStore);
@@ -109,14 +109,14 @@ public class DrugstoreService {
                         DrugStore changeDrugStore = list.getFirst().toEntity();
                         DrugStore drugStore = drugstoreRepository.save(changeDrugStore);
 
-                        User user = userRepository.findByEmail("test2@naver.com")
+                        User user = userRepository.findByEmail("test1@naver.com")
                                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
                         user.setMyDrugStore(drugStore);
                         userRepository.save(user);
                     }else{
                         DrugStore drugStore = drugstoreRepository.findByHpid(list.getFirst().getHpid());
-                        User user = userRepository.findByEmail("test2@naver.com")
+                        User user = userRepository.findByEmail("test1@naver.com")
                                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
                         user.setMyDrugStore(drugStore);
