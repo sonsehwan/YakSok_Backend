@@ -46,6 +46,7 @@ public class UserRequest {
                 .role(userRole)
                 .penaltyEnable(false) // 초기 가입 시 기본값
                 .isLocked(false)      // 초기 가입 시 기본값
+                .myDrugStore(null)
                 .build();
     }
 }
