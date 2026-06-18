@@ -123,6 +123,25 @@ public class DrugstoreService {
                         userRepository.save(user);
                     }
                 }
+                if(pageNo == 1){
+                    if(!drugstoreRepository.existsByHpid(list.get(1).getHpid())){
+                        DrugStore changeDrugStore = list.get(1).toEntity();
+                        DrugStore drugStore = drugstoreRepository.save(changeDrugStore);
+
+                        User user = userRepository.findByEmail("test2@naver.com")
+                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+                        user.setMyDrugStore(drugStore);
+                        userRepository.save(user);
+                    }else{
+                        DrugStore drugStore = drugstoreRepository.findByHpid(list.get(1).getHpid());
+                        User user = userRepository.findByEmail("test2@naver.com")
+                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+                        user.setMyDrugStore(drugStore);
+                        userRepository.save(user);
+                    }
+                }
                 return list;
             }
 
