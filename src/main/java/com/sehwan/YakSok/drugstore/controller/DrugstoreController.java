@@ -2,6 +2,7 @@ package com.sehwan.YakSok.drugstore.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
+import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.service.DrugstoreService;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,19 @@ public class DrugstoreController {
         List<DrugStoreDto> drugStores;
 
         drugStores = drugstoreService.getCloseDrugStoreList(latitude, longitude, page);
+
+        return ResponseEntity.ok(success("근접 약국 리스트를 성공적으로 가져왔습니다.", drugStores));
+    }
+
+    @GetMapping("/searchlist")
+    public ResponseEntity<ApiResponse<List<SearchDrugStoreDto>>> getSearchDrugstores(
+            @RequestParam String firstAddress,
+            @RequestParam String secondAddress,
+            @RequestParam String name
+    ){
+        List<SearchDrugStoreDto> drugStores;
+
+        drugStores = drugstoreService.getSearchDrugStoreList(firstAddress, secondAddress, name);
 
         return ResponseEntity.ok(success("근접 약국 리스트를 성공적으로 가져왔습니다.", drugStores));
     }
