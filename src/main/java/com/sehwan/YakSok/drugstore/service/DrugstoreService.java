@@ -5,8 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
+import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
+import com.sehwan.YakSok.user.dto.UserResponse;
+import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,71 +49,6 @@ public class DrugstoreService {
     public List<SearchDrugStoreDto> getSearchDrugStoreList(String firstAddress, String secondAddress, String name) {
         return callSearchApi(firstAddress, secondAddress, name);
     }
-
-//    private List<SearchDrugStoreDto> callSearchApi(String firstAddress, String secondAddress, String name) {
-//        try{
-//
-//            log.info("검색 요청 파라미터 firstAddress={}, secondAddress={}, name={}",
-//                    firstAddress, secondAddress, name);
-//
-//            String responseJson = drugstoreRestClient.get()
-//                    .uri(uriBuilder -> uriBuilder
-//                            .path("/getParmacyListInfoInqire")
-//                            .queryParam("ServiceKey", serviceKey)
-//                            .queryParam("Q0", firstAddress)
-//                            .queryParam("Q1", secondAddress)
-//                            .queryParam("QN", name)
-//                            .queryParam("_type", "json")
-//                            .build())
-//                    .retrieve()
-//                    .body(String.class);
-//
-//            log.info("===== [공공데이터 API 실제 응답] =====");
-//            log.info(responseJson);
-//            log.info("====================================");
-//
-//            ObjectMapper mapper = new ObjectMapper();
-//            JsonNode rootNode = mapper.readTree(responseJson);
-//
-//            log.info("rootNode = {}", rootNode.toPrettyString());
-//            log.info("body = {}", rootNode.path("response").path("body").toPrettyString());
-//            log.info("items = {}", rootNode.path("response").path("body").path("items").toPrettyString());
-//            log.info("item = {}", rootNode.path("response").path("body").path("items").path("item").toPrettyString());
-//
-//            JsonNode itemNode = rootNode.path("response").path("body").path("items").path("item");
-//
-//            if (itemNode.isMissingNode() || itemNode.isNull() || itemNode.isEmpty()) {
-//                log.error("해당 위치 주변에 검색된 약국이 없습니다.");
-//                return new ArrayList<>();
-//            }
-//
-//            if (itemNode.isObject()) {
-//                SearchDrugStoreDto singleStore = mapper.treeToValue(itemNode, SearchDrugStoreDto.class);
-//                List<SearchDrugStoreDto> list = new ArrayList<>();
-//                list.add(singleStore);
-//                System.out.println(list);
-//
-//                return list;
-//            } else if (itemNode.isArray()) {
-//                System.out.println(mapper.convertValue(itemNode, new TypeReference<List<SearchDrugStoreDto>>() {}));
-//                List<SearchDrugStoreDto> list = mapper.convertValue(itemNode, new TypeReference<List<SearchDrugStoreDto>>() {});
-//
-//                return list;
-//            }
-//
-//        } catch (RestClientResponseException e) {
-//            log.error("공공 API HTTP 상태코드 = {}", e.getStatusCode());
-//            log.error("공공 API 에러 응답 바디 = {}", e.getResponseBodyAsString(StandardCharsets.UTF_8));
-//            e.printStackTrace();
-//        } catch (JsonProcessingException e) {
-//            log.error("JSON 파싱 에러 = {}", e.getMessage());
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            log.error("약국 API 통신 중 에러 발생 = {}", e.getMessage());
-//            e.printStackTrace();
-//        }
-//        return new ArrayList<>();
-//    }
 
     private List<SearchDrugStoreDto> callSearchApi(String firstAddress, String secondAddress, String name) {
         try {
@@ -289,5 +227,18 @@ public class DrugstoreService {
             e.printStackTrace();
         }
         return new ArrayList<>();
+    }
+
+    @Transactional
+    public UserResponse createDrugStore(String email, SearchDrugStoreDto drugStore) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        DrugStore drugStoreEntity = drugstoreRepository.save(drugStore.toEntity());
+
+        user.setMyDrugStore(drugStoreEntity);
+        userRepository.save(user);
+
+        return new UserResponse(user);
     }
 }

@@ -1,16 +1,17 @@
 package com.sehwan.YakSok.drugstore.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
+import com.sehwan.YakSok.drugstore.dto.CreateDrugStoreRequest;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.service.DrugstoreService;
+import com.sehwan.YakSok.user.dto.UserRequest;
+import com.sehwan.YakSok.user.dto.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,6 +24,16 @@ public class DrugstoreController {
 
     private final DrugstoreService drugstoreService;
     private final UserService userService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<UserResponse>> createDrugStore(@RequestBody CreateDrugStoreRequest request){
+        String email = request.getEmail();
+        SearchDrugStoreDto drugStore = request.getDrugStore();
+
+        UserResponse response = drugstoreService.createDrugStore(email, drugStore);
+
+        return ResponseEntity.ok(success("약국을 성공적으로 생성 및 유저와 연결하였습니다.", response));
+    }
 
     @GetMapping("/closelist")
     public ResponseEntity<ApiResponse<List<DrugStoreDto>>> getCloseDrugstores(

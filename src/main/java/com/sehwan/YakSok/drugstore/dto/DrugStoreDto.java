@@ -19,17 +19,4 @@ public class DrugStoreDto {
 
     private String latitude; // 약국 위도
     private String longitude; // 약국 경도
-
-    public DrugStore toEntity() {
-        return DrugStore.builder()
-                .hpid(this.hpid)
-                .dutyName(this.dutyName)
-                .dutyAddr(this.dutyAddr)
-                .dutyTel1(this.dutyTel1)
-                .startTime(this.startTime)
-                .endTime(this.endTime)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .build();
-    }
 }
