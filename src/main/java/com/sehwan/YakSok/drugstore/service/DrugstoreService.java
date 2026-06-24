@@ -18,7 +18,9 @@ import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,11 +95,15 @@ public class DrugstoreService {
                 return list;
             }
 
+        } catch (RestClientResponseException e) {
+            log.error("공공 API HTTP 상태코드 = {}", e.getStatusCode());
+            log.error("공공 API 에러 응답 바디 = {}", e.getResponseBodyAsString(StandardCharsets.UTF_8));
+            e.printStackTrace();
         } catch (JsonProcessingException e) {
-            log.error("응답 데이터를 DrugStore 객체로 변환하는 중 에러 발생: {}", e.getMessage());
+            log.error("JSON 파싱 에러 = {}", e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
-            log.error("약국 API 통신 중 에러 발생: {}", e.getMessage());
+            log.error("약국 API 통신 중 에러 발생 = {}", e.getMessage());
             e.printStackTrace();
         }
         return new ArrayList<>();
