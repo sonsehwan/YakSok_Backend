@@ -171,51 +171,10 @@ public class DrugstoreService {
                 List<DrugStoreDto> list = new ArrayList<>();
                 list.add(singleStore);
                 System.out.println(list);
-
-                //임시로 첫페이지 첫번째 약국의 Entity생성하여 약사 유저와 연결
-//                if(pageNo == 1){
-//                    if(!drugstoreRepository.existsByHpid(singleStore.getHpid())){
-//                        DrugStore changeDrugStore = singleStore.toEntity();
-//                        DrugStore drugStore = drugstoreRepository.save(changeDrugStore);
-//
-//                        User user = userRepository.findByEmail("test1@naver.com")
-//                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-//
-//                        user.setMyDrugStore(drugStore);
-//                        userRepository.save(user);
-//                    }else{
-//                        DrugStore drugStore = drugstoreRepository.findByHpid(singleStore.getHpid());
-//                        User user = userRepository.findByEmail("test1@naver.com")
-//                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-//
-//                        user.setMyDrugStore(drugStore);
-//                        userRepository.save(user);
-//                    }
-//                }
                 return list;
             } else if (itemNode.isArray()) {
                 System.out.println(mapper.convertValue(itemNode, new TypeReference<List<DrugStoreDto>>() {}));
                 List<DrugStoreDto> list = mapper.convertValue(itemNode, new TypeReference<List<DrugStoreDto>>() {});
-
-//                if(pageNo == 1){
-//                    if(!drugstoreRepository.existsByHpid(list.getFirst().getHpid())){
-//                        DrugStore changeDrugStore = list.getFirst().toEntity();
-//                        DrugStore drugStore = drugstoreRepository.save(changeDrugStore);
-//
-//                        User user = userRepository.findByEmail("test1@naver.com")
-//                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-//
-//                        user.setMyDrugStore(drugStore);
-//                        userRepository.save(user);
-//                    }else{
-//                        DrugStore drugStore = drugstoreRepository.findByHpid(list.getFirst().getHpid());
-//                        User user = userRepository.findByEmail("test1@naver.com")
-//                                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-//
-//                        user.setMyDrugStore(drugStore);
-//                        userRepository.save(user);
-//                    }
-//                }
                 return list;
             }
 
