@@ -5,26 +5,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
-import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
-import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.http.HttpStatusCode;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientResponseException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.web.util.UriComponentsBuilder;
+import java.net.URI;
 
 @Slf4j
 @Service
@@ -122,91 +119,49 @@ public class DrugstoreService {
             log.info("secondAddress = {}", secondAddress);
             log.info("name = {}", name);
 
-            PublicApiResult apiResult = drugstoreRestClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/getParmacyListInfoInqire")
-                            .queryParam("ServiceKey", serviceKey)
-                            .queryParam("Q0", firstAddress)
-                            .queryParam("Q1", secondAddress)
-                            .queryParam("QN", name)
-                            .queryParam("pageNo", 1)
-                            .queryParam("numOfRows", 20)
-                            .queryParam("_type", "json")
-                            .build())
-                    .exchange((request, response) -> {
-                        String body = StreamUtils.copyToString(
-                                response.getBody(),
-                                StandardCharsets.UTF_8
-                        );
+            URI uri = UriComponentsBuilder
+                    .fromUriString("https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire")
+                    .queryParam("ServiceKey", serviceKey)
+                    .queryParam("Q0", firstAddress)
+                    .queryParam("Q1", secondAddress)
+                    .queryParam("QN", name)
+                    .queryParam("pageNo", 1)
+                    .queryParam("numOfRows", 20)
+                    .queryParam("_type", "json")
+                    .encode()
+                    .build()
+                    .toUri();
 
-                        String requestUrl = request.getURI().toString();
-                        HttpStatusCode statusCode = response.getStatusCode();
+            log.error("===== 최종 공공 API 요청 URI =====");
+            log.error("{}", uri);
+            log.error("ASCII URI = {}", uri.toASCIIString());
 
-                        log.error("===== 공공 API 요청 URL =====");
-                        log.error("{}", requestUrl);
+            String responseJson = RestClient.create()
+                    .get()
+                    .uri(uri)
+                    .retrieve()
+                    .body(String.class);
 
-                        log.error("===== 공공 API 상태 코드 =====");
-                        log.error("{}", statusCode);
-
-                        log.error("===== 공공 API 응답 바디 =====");
-                        log.error("{}", body);
-
-                        System.out.println("===== 공공 API 요청 URL =====");
-                        System.out.println(requestUrl);
-
-                        System.out.println("===== 공공 API 상태 코드 =====");
-                        System.out.println(statusCode);
-
-                        System.out.println("===== 공공 API 응답 바디 =====");
-                        System.out.println(body);
-
-                        return new PublicApiResult(requestUrl, statusCode, body);
-                    });
-
-            if (apiResult == null) {
-                log.error("공공 API 응답 결과 객체가 null입니다.");
-                return new ArrayList<>();
-            }
-
-            if (!apiResult.statusCode().is2xxSuccessful()) {
-                log.error("공공 API 호출 실패. statusCode={}, body={}",
-                        apiResult.statusCode(),
-                        apiResult.body());
-                return new ArrayList<>();
-            }
-
-            String responseJson = apiResult.body();
+            log.info("===== 공공 API 응답 =====");
+            log.info(responseJson);
 
             if (responseJson == null || responseJson.isBlank()) {
-                log.error("공공 API 응답 body가 비어있습니다.");
+                log.error("공공 API 응답이 비어있습니다.");
                 return new ArrayList<>();
             }
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseJson);
 
-            log.info("===== 공공 API JSON 파싱 결과 =====");
-            log.info("rootNode = {}", rootNode.toPrettyString());
-            log.info("header = {}", rootNode.path("response").path("header").toPrettyString());
-            log.info("body = {}", rootNode.path("response").path("body").toPrettyString());
-            log.info("items = {}", rootNode.path("response").path("body").path("items").toPrettyString());
-
-            JsonNode bodyNode = rootNode.path("response").path("body");
-            JsonNode itemsNode = bodyNode.path("items");
-
-            JsonNode itemNode;
-
-            if (itemsNode.has("item")) {
-                itemNode = itemsNode.path("item");
-            } else {
-                itemNode = itemsNode;
-            }
-
-            log.info("itemNode = {}", itemNode.toPrettyString());
+            JsonNode itemNode = rootNode
+                    .path("response")
+                    .path("body")
+                    .path("items")
+                    .path("item");
 
             if (itemNode.isMissingNode() || itemNode.isNull() || itemNode.isEmpty()) {
                 log.error("검색된 약국이 없습니다.");
-                log.error("공공 API body = {}", bodyNode.toPrettyString());
+                log.error("body = {}", rootNode.path("response").path("body").toPrettyString());
                 return new ArrayList<>();
             }
 
@@ -216,38 +171,27 @@ public class DrugstoreService {
 
                 List<SearchDrugStoreDto> list = new ArrayList<>();
                 list.add(singleStore);
-
-                log.info("검색 결과 개수 = {}", list.size());
                 return list;
             }
 
             if (itemNode.isArray()) {
-                List<SearchDrugStoreDto> list =
-                        mapper.convertValue(itemNode, new TypeReference<List<SearchDrugStoreDto>>() {});
-
-                log.info("검색 결과 개수 = {}", list.size());
-                return list;
+                return mapper.convertValue(
+                        itemNode,
+                        new TypeReference<List<SearchDrugStoreDto>>() {}
+                );
             }
 
-            log.error("예상하지 못한 itemNode 구조입니다. itemNode={}", itemNode.toPrettyString());
-            return new ArrayList<>();
+            log.error("예상하지 못한 itemNode 구조 = {}", itemNode.toPrettyString());
 
         } catch (JsonProcessingException e) {
-            log.error("응답 데이터를 SearchDrugStoreDto로 변환하는 중 에러 발생: {}", e.getMessage());
+            log.error("JSON 파싱 에러: {}", e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
-            log.error("약국 검색 API 통신 중 에러 발생: {}", e.getMessage());
+            log.error("약국 검색 API 통신 에러: {}", e.getMessage());
             e.printStackTrace();
         }
 
         return new ArrayList<>();
-    }
-
-    private record PublicApiResult(
-            String requestUrl,
-            HttpStatusCode statusCode,
-            String body
-    ) {
     }
 
     private List<DrugStoreDto> callApi(String latitude, String longitude, int pageNo, int numOfRows) {
