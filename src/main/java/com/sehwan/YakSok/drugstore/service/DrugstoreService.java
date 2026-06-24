@@ -231,13 +231,24 @@ public class DrugstoreService {
 
     @Transactional
     public UserResponse createDrugStore(String email, SearchDrugStoreDto drugStore) {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-        DrugStore drugStoreEntity = drugstoreRepository.save(drugStore.toEntity());
+        if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
+            throw new RuntimeException("약국 정보가 올바르지 않습니다.");
+        }
+
+        String hpid = drugStore.getHpid();
+
+        if (userRepository.existsByMyDrugStore_HpidAndEmailNot(hpid, email)) {
+            throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
+        }
+
+        DrugStore drugStoreEntity = drugstoreRepository.findByHpid(hpid)
+                .orElseGet(() -> drugstoreRepository.save(drugStore.toEntity()));
 
         user.setMyDrugStore(drugStoreEntity);
-        userRepository.save(user);
 
         return new UserResponse(user);
     }

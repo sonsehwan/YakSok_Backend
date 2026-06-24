@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     // hpid로 약사 유저 찾기
     Optional<User> findByMyDrugStore_Hpid(String hpid);
 
+
+    boolean existsByMyDrugStore_HpidAndEmailNot(String hpid, String email);
 }
