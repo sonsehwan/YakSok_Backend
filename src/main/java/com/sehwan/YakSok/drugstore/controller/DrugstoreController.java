@@ -18,7 +18,7 @@ import static com.sehwan.YakSok.common.response.ApiResponse.success;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("api/drugstore")
+@RequestMapping("/api/drugstore")
 public class DrugstoreController {
 
     private final DrugstoreService drugstoreService;

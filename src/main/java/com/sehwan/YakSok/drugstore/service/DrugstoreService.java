@@ -55,6 +55,9 @@ public class DrugstoreService {
                             .queryParam("Q0", firstAddress)
                             .queryParam("Q1", secondAddress)
                             .queryParam("QN", name)
+                            .queryParam("pageNo", 1)
+                            .queryParam("numOfRows", 20)
+                            .queryParam("_type", "json")
                             .build())
                     .retrieve()
                     .body(String.class);
