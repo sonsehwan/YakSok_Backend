@@ -236,6 +236,23 @@ public class DrugstoreService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
         if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
+
+            if(drugStore == null){
+                log.error("객체가 있는가: false");
+            }else{
+                log.error("객체가 있는가: true");
+            }
+            if(drugStore.getHpid() == null){
+                log.error("객체에 id가 있는가?: false");
+            }else{
+                log.error("객체에 id가 있는가?: true");
+            }
+            if(drugStore.getHpid().isBlank()){
+                log.error("id가 비어있는가?: false");
+            }else{
+                log.error("id가 비어있는가?: true");
+            }
+
             throw new RuntimeException("약국 정보가 올바르지 않습니다.");
         }
 
