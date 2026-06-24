@@ -67,6 +67,11 @@ public class DrugstoreService {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseJson);
 
+            log.info("rootNode = {}", rootNode.toPrettyString());
+            log.info("body = {}", rootNode.path("response").path("body").toPrettyString());
+            log.info("items = {}", rootNode.path("response").path("body").path("items").toPrettyString());
+            log.info("item = {}", rootNode.path("response").path("body").path("items").path("item").toPrettyString());
+
             JsonNode itemNode = rootNode.path("response").path("body").path("items").path("item");
 
             if (itemNode.isMissingNode() || itemNode.isNull() || itemNode.isEmpty()) {
