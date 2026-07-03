@@ -2,11 +2,8 @@ package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.*;
-import com.sehwan.YakSok.user.entity.User;
-import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +18,7 @@ public class UserController {
 
     //회원가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequest dto) {
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserDto dto) {
         try {
             userService.signUp(dto);
 

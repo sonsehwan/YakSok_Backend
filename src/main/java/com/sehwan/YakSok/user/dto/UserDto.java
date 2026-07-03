@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequest {
+public class UserDto {
 
     private String email;
     private String password;
@@ -32,8 +32,8 @@ public class UserRequest {
      * 서비스 계층에서 DB에 저장할 때 사용됩니다.
      */
     public User toEntity() {
-        UserRole userRole = this.role != null && this.role.equals("PHARMACY")
-                ? UserRole.PHARMACY
+        UserRole userRole = this.role != null && this.role.equals("DRUGSTORE")
+                ? UserRole.DRUGSTORE
                 : UserRole.NORMAL;
 
         return User.builder()

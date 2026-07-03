@@ -5,7 +5,6 @@ import com.sehwan.YakSok.drugstore.dto.CreateDrugStoreRequest;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.service.DrugstoreService;
-import com.sehwan.YakSok.user.dto.UserRequest;
 import com.sehwan.YakSok.user.dto.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;

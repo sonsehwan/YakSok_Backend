@@ -44,6 +44,7 @@ public class User {
     @Column(length = 255)
     private String fcmToken;
 
+    //벌금 여부
     @Builder.Default
     private Boolean penaltyEnable = false;
 
