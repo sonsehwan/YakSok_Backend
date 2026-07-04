@@ -20,10 +20,6 @@ public class DrugStore {
 
     private String dutyAddr; // 약국 주소
     private String dutyTel1; // 전화번호
-    private String startTime; // 영업 시작
-    private String endTime; // 영업 종료
-    private String latitude; // 위도
-    private String longitude; // 경도
 
     //영업 종료 시간(월~일 + 공휴일(8))
     private String dutyTime1c;
