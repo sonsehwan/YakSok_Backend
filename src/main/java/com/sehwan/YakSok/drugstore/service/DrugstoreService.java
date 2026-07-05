@@ -226,6 +226,10 @@ public class DrugstoreService {
 
         user.setMyDrugStore(drugStoreEntity);
 
-        return new UserResponse(user);
+        UserResponse userResponse = new UserResponse(user);
+
+        log.info(userResponse.toString());
+
+        return userResponse;
     }
 }

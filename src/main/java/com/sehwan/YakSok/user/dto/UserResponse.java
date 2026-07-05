@@ -6,10 +6,12 @@ import com.sehwan.YakSok.user.entity.UserRole;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Getter
+@ToString
 public class UserResponse {
     private String email;
 
