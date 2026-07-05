@@ -228,7 +228,10 @@ public class DrugstoreService {
 
         UserResponse userResponse = new UserResponse(user);
 
+        DrugStore d = userResponse.getMyDrugStore();
+
         log.info(userResponse.toString());
+        log.info(d.toString());
 
         return userResponse;
     }
