@@ -39,6 +39,6 @@ public class UserResponse {
         this.gender = user.getGender();
         this.birthdate = user.getBirthdate();
         this.role = user.getRole();
-        this.myDrugStore = getMyDrugStore();
+        this.myDrugStore = user.getMyDrugStore();
     }
 }
