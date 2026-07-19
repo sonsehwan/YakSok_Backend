@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.user.entity;
 
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
+import com.sehwan.YakSok.user.dto.UserResponse;
 import com.sehwan.YakSok.yaksok.entity.Yaksok;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,14 +25,16 @@ public class User {
 
     // 1. 이메일: 기본키 (PK)
     @Id
-    @Column(length = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
 
     // 3. 비밀번호: 필수
     @Column(nullable = false, length = 255)
     private String password;
 
-    // 4. 선택 입력 사항
     @Column(unique = true, length = 50)
     private String nickname;
 
@@ -71,5 +74,21 @@ public class User {
     public void addYaksok(Yaksok yaksok) {
         yaksoks.add(yaksok);
         yaksok.setUser(this);
+    }
+
+    public UserResponse toDto() {
+        return UserResponse.builder()
+                .id(id)
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .gender(gender)
+                .birthdate(birthdate)
+                .fcmToken(fcmToken)
+                .role(role)
+                .penaltyEnable(penaltyEnable) // 초기 가입 시 기본값
+                .isLocked(isLocked)      // 초기 가입 시 기본값
+                .myDrugStore(myDrugStore)
+                .build();
     }
 }

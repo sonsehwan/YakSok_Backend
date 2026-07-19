@@ -18,7 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String signUp(UserDto dto) {
+    public void signUp(UserDto dto) {
         // 1. 이메일 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
@@ -31,7 +31,7 @@ public class UserService {
         // 3. DTO를 엔티티로 변환하여 저장
         User user = dto.toEntity();
         System.out.println("디버깅: DB 저장 직전!");
-        return userRepository.save(user).getEmail();
+        userRepository.save(user);
     }
 
     @Transactional

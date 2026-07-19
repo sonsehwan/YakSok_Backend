@@ -12,7 +12,9 @@ import java.time.LocalDate;
 
 @Getter
 @ToString
+@Builder
 public class UserResponse {
+    private Long id;
     private String email;
 
     private String password;
@@ -23,6 +25,7 @@ public class UserResponse {
 
     private LocalDate birthdate;
 
+    private String fcmToken;
 
     private Boolean penaltyEnable = false;
 
@@ -33,10 +36,12 @@ public class UserResponse {
     private DrugStore myDrugStore; // 일반 유저는 null
 
     public UserResponse(User user) {
+        this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
+        this.fcmToken = user.getFcmToken();
         this.birthdate = user.getBirthdate();
         this.role = user.getRole();
         this.myDrugStore = user.getMyDrugStore();

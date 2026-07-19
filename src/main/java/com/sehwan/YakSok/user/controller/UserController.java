@@ -32,7 +32,6 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest dto) {
-        System.out.println("로그인 요청 도달!");
         try {
             UserResponse loginUser = userService.login(dto);
             return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
