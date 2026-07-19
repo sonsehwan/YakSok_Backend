@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.user;
+package com.sehwan.YakSok.user.entity;
 
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
