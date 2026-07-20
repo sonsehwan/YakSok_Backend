@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.user.dto;
+package com.sehwan.YakSok.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sehwan.YakSok.user.entity.User;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class UserRequest {
 
     private String email;
     private String password;
