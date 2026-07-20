@@ -1,7 +1,11 @@
 package com.sehwan.YakSok.user.service;
 
 
-import com.sehwan.YakSok.user.dto.*;
+import com.sehwan.YakSok.user.dto.request.LoginRequest;
+import com.sehwan.YakSok.user.dto.request.ModifyInfoRequest;
+import com.sehwan.YakSok.user.dto.request.ModifyPasswordRequest;
+import com.sehwan.YakSok.user.dto.request.UserRequest;
+import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void signUp(UserDto dto) {
+    public void signUp(UserRequest dto) {
         // 1. 이메일 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");

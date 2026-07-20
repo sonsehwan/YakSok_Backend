@@ -8,7 +8,7 @@ import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
 import com.sehwan.YakSok.drugstore.dto.DrugStoreDto;
-import com.sehwan.YakSok.user.dto.UserResponse;
+import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

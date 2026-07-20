@@ -1,7 +1,7 @@
 package com.sehwan.YakSok.user.entity;
 
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
-import com.sehwan.YakSok.user.dto.UserResponse;
+import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.yaksok.entity.Yaksok;
 import jakarta.persistence.*;
 import lombok.*;

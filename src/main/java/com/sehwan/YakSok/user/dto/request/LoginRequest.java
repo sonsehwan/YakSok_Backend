@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.user.dto;
+package com.sehwan.YakSok.user.dto.request;
 
 
 import lombok.*;

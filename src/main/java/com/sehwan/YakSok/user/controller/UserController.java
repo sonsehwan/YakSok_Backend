@@ -1,7 +1,8 @@
 package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
-import com.sehwan.YakSok.user.dto.*;
+import com.sehwan.YakSok.user.dto.request.*;
+import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class UserController {
 
     //회원가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequest dto) {
         try {
             userService.signUp(dto);
 

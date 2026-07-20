@@ -1,9 +1,8 @@
-package com.sehwan.YakSok.user.dto;
+package com.sehwan.YakSok.user.dto.response;
 
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
