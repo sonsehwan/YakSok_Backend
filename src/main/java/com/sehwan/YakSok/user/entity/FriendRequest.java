@@ -74,6 +74,9 @@ public class FriendRequest {
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
 
+    /**
+    친구 신청 객체 생성
+     */
     private FriendRequest(
             User requester,
             User receiver
@@ -90,6 +93,9 @@ public class FriendRequest {
         this.respondedAt = null;
     }
 
+    /**
+     * 외부에서 친구 요청 만들 때 사용
+     */
     public static FriendRequest create(
             User requester,
             User receiver
