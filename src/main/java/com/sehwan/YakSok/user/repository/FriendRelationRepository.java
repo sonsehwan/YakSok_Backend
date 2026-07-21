@@ -11,6 +11,8 @@ import java.util.List;
 
 @Repository
 public interface FriendRelationRepository extends JpaRepository<FriendRelation, FriendRelationId> {
+    
+    // 친구 리스트 가져오기
     @Query("SELECT fr FROM FriendRelation fr JOIN fetch fr.friend WHERE  fr.user.id = :userId")
     List<FriendRelation> findByUserId(@Param("userId") Long userId);
 }

@@ -31,6 +31,7 @@ public class FriendResponseDto {
         this.friendedAt = friendedAt;
     }
 
+    // 친구 관계 entity에서 친구 entity를 가져와 필요한 정보만 뽑아서 담는다.
     public static FriendResponseDto from(FriendRelation friendRelation) {
         return new FriendResponseDto(
                 friendRelation.getFriend().getId(),
