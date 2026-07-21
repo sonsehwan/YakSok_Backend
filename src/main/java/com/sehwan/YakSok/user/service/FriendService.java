@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.user.service;
 
+import com.sehwan.YakSok.user.dto.response.FriendListDto;
 import com.sehwan.YakSok.user.entity.FriendRelation;
 import com.sehwan.YakSok.user.entity.FriendRequest;
 import com.sehwan.YakSok.user.entity.User;
@@ -9,6 +10,8 @@ import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class FriendService {
         friendRequestRepository.save(friendRequest);
     }
 
-    // 친구 수락
+    // 친구 요청 수락
     @Transactional
     public void acceptFriendRequest(Long requestId, Long loginUserId){
         FriendRequest friendRequest = friendRequestRepository.findById(requestId)
@@ -59,7 +62,26 @@ public class FriendService {
         friendRelationRepository.save(receiverRelation);
     }
 
+    //친구 요청 거절
+    @Transactional
+    public void rejectFriendRequest(Long requestId, Long loginUserId){
+        FriendRequest friendRequest = friendRequestRepository.findById(requestId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 친구 요청입니다."));
+
+        if(!friendRequest.isReceivedBy(loginUserId)){
+            throw new IllegalArgumentException("친구 요청을 거절할 권한이 없는 유저입니다.");
+        }
+
+        friendRequest.reject();
+    }
+
     /**
      *  친구 관계
      */
+
+    @Transactional
+    public FriendListDto getFriendList(Long loginUserId){
+        List<FriendRelation> relations = friendRelationRepository.findByUserId(loginUserId);
+        return FriendListDto.from(relations);
+    }
 }
