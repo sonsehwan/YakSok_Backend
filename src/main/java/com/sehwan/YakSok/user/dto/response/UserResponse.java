@@ -3,8 +3,10 @@ package com.sehwan.YakSok.user.dto.response;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -12,6 +14,8 @@ import java.time.LocalDate;
 @Getter
 @ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponse {
     private Long id;
     private String email;
@@ -26,8 +30,10 @@ public class UserResponse {
 
     private String fcmToken;
 
+    @Builder.Default
     private Boolean penaltyEnable = false;
 
+    @Builder.Default
     private Boolean isLocked = false;
 
     private UserRole role;
