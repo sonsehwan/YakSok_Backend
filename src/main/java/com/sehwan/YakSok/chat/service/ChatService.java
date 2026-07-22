@@ -60,6 +60,11 @@ public class ChatService {
         User pharmacyUser = userRepository.findByMyDrugStore_Hpid(request.getHpid())
                 .orElseThrow(()-> new RuntimeException("아직 채팅 상담을 지원하지 않는 약국입니다."));
 
+        // 자기 자신과의 채팅방은 만들지 않는다.
+        if (clientUser.getId().equals(pharmacyUser.getId())) {
+            throw new RuntimeException("자신의 약국에는 채팅을 시작할 수 없습니다.");
+        }
+
         Optional<ChattingRoom> existingRoom = chattingRoomRepository.findExistingRoom(clientUser, pharmacyUser);
 
         if(existingRoom.isPresent()){

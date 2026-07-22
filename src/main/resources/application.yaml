@@ -24,13 +24,13 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
-    jackson:
-      serialization:
-        fail-on-empty-beans: false
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
