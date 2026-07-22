@@ -2,6 +2,7 @@ package com.sehwan.YakSok.user.service;
 
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
 import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
+import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
 import com.sehwan.YakSok.user.entity.FriendRelation;
 import com.sehwan.YakSok.user.entity.FriendRequest;
 import com.sehwan.YakSok.user.entity.FriendRequestStatus;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +27,19 @@ public class FriendService {
     /**
      *  친구 요청
      */
+    // 닉네임으로 친구 추가할 사용자 검색
+    @Transactional(readOnly = true)
+    public UserSearchResultDto searchUserByNickname(String nickname, Long loginUserId){
+        User foundUser = userRepository.findByNickname(nickname)
+                .orElseThrow(()-> new IllegalArgumentException("해당 닉네임의 사용자가 없습니다."));
+
+        if(foundUser.getId().equals(loginUserId)){
+            throw new IllegalArgumentException("자기 자신은 친구로 추가할 수 없습니다.");
+        }
+
+        return UserSearchResultDto.from(foundUser);
+    }
+
     // 친구 요청 생성
     @Transactional
     public void createFriendRequest(Long userId, Long friendId){

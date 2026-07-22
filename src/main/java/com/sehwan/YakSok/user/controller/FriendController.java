@@ -5,6 +5,7 @@ import com.sehwan.YakSok.user.dto.request.FriendRequestAnswerDto;
 import com.sehwan.YakSok.user.dto.request.FriendRequestCreateDto;
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
 import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
+import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
 import com.sehwan.YakSok.user.service.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,26 @@ public class FriendController {
     /**
      *  친구 요청 관련 API
      */
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<UserSearchResultDto>> searchUser(
+            @RequestParam String nickname,
+            @RequestParam Long loginUserId){
+        ResponseEntity<ApiResponse<UserSearchResultDto>> response = null;
+
+        try{
+            log.info("닉네임으로 사용자를 검색합니다.");
+
+            UserSearchResultDto user = friendService.searchUserByNickname(nickname, loginUserId);
+
+            response = ResponseEntity.ok(ApiResponse.success("사용자를 찾았습니다.", user));
+        }catch(Exception e){
+            log.error("사용자 검색 실패", e);
+            response = ResponseEntity.badRequest().body(ApiResponse.error(400, "사용자 검색 실패", e.getMessage()));
+        }
+        return response;
+    }
+
     @PostMapping("/request")
     public ResponseEntity<ApiResponse<Void>> createFriendRequest(@RequestBody FriendRequestCreateDto request){
         try{
