@@ -1,10 +1,7 @@
 package com.sehwan.YakSok.user.dto.response;
 
 import com.sehwan.YakSok.user.entity.FriendRequest;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -37,6 +34,6 @@ public class ReceivedFriendRequestDto {
                 friendRequest.getRequester().getNickname(),
                 friendRequest.getRequester().getEmail(),
                 friendRequest.getRequestedAt()
-        )
+        );
     }
 }
