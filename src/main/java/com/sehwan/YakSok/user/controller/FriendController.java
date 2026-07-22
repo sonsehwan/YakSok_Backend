@@ -39,7 +39,7 @@ public class FriendController {
         }
     }
 
-    @PatchMapping("/{requestId}/answer")
+    @PatchMapping("/request/{requestId}/answer")
     public ResponseEntity<ApiResponse<Void>> answerFriendRequest(
             @PathVariable Long requestId,
             @RequestBody FriendRequestAnswerDto request){
