@@ -1,8 +1,10 @@
 package com.sehwan.YakSok.user.service;
 
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
+import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
 import com.sehwan.YakSok.user.entity.FriendRelation;
 import com.sehwan.YakSok.user.entity.FriendRequest;
+import com.sehwan.YakSok.user.entity.FriendRequestStatus;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.FriendRelationRepository;
 import com.sehwan.YakSok.user.repository.FriendRequestRepository;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,6 +76,17 @@ public class FriendService {
         }
 
         friendRequest.reject();
+    }
+
+    // 로그인 유저가 받은 대기 중인 친구 요청 목록
+    @Transactional
+    public List<ReceivedFriendRequestDto> getReceivedFriendRequests(Long loginUserId){
+        List<FriendRequest> requests = friendRequestRepository
+                .findReceivedRequests(loginUserId, FriendRequestStatus.PENDING);
+
+        return requests.stream()
+                .map(ReceivedFriendRequestDto::from)
+                .toList();
     }
 
     /**

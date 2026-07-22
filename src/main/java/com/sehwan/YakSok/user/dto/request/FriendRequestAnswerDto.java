@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FriendRequestAnswer {
-    private Long requestId;
+public class FriendRequestAnswerDto {
     private Long loginUserId;
-    private String answer;
+    private Boolean answer;
 }
