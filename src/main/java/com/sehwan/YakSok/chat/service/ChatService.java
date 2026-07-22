@@ -43,7 +43,7 @@ public class ChatService {
         List<ChatMessage> list =  chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
 
         return list.stream()
-                .map(msg -> new ChatMessageDto(msg.getRoomId(), msg.getSender(), msg.getMessage()))
+                .map(ChatMessageDto::from)
                 .collect(Collectors.toList());
     }
 
