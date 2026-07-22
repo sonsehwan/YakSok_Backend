@@ -79,7 +79,7 @@ public class FriendService {
     }
 
     // 로그인 유저가 받은 대기 중인 친구 요청 목록
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ReceivedFriendRequestDto> getReceivedFriendRequests(Long loginUserId){
         List<FriendRequest> requests = friendRequestRepository
                 .findReceivedRequests(loginUserId, FriendRequestStatus.PENDING);
