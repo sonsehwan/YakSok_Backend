@@ -4,6 +4,8 @@ import com.sehwan.YakSok.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -27,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByMyDrugStore_HpidAndEmailNot(String hpid, String email);
 
     Optional<User> findByNickname(String nickname);
+
+    // 여러 이메일의 사용자를 한 번에 조회 (채팅 메시지의 닉네임 매핑용)
+    List<User> findByEmailIn(Collection<String> emails);
 }

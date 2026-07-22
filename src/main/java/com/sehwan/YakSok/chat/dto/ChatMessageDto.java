@@ -14,18 +14,22 @@ import lombok.Setter;
 public class ChatMessageDto {
     private String roomId;
     private String sender;
+    private String senderNickname;
     private String message;
     private MessageType type;
     private Long yaksokId;
+    private String createdAt;      // Gson이 java.time을 못 다루므로 문자열로 내린다
 
     // 엔티티 -> DTO
-    public static ChatMessageDto from(ChatMessage entity) {
+    public static ChatMessageDto from(ChatMessage entity, String senderNickname) {
         return new ChatMessageDto(
                 entity.getRoomId(),
                 entity.getSender(),
+                senderNickname,
                 entity.getMessage(),
                 entity.getType(),
-                entity.getYaksokId()
+                entity.getYaksokId(),
+                entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : null
         );
     }
 

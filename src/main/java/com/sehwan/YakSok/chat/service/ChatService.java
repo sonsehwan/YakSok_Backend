@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -32,19 +34,32 @@ public class ChatService {
 
     // ------------------------------------채팅 메시지 관련 로직------------------------------------------------------------
 
-    // 받은 채팅 저장
+    // 받은 채팅 저장. 저장 결과를 그대로 브로드캐스트하도록 DTO를 돌려준다.
     @Transactional
-    public void saveMessage(ChatMessageDto message){
-        ChatMessage chatMessage = message.toEntity();
-        chatRepository.save(chatMessage);
+    public ChatMessageDto saveMessage(ChatMessageDto message){
+        ChatMessage saved = chatRepository.save(message.toEntity());
+
+        String nickname = userRepository.findByEmail(saved.getSender())
+                .map(User::getNickname)
+                .orElse(saved.getSender());
+
+        return ChatMessageDto.from(saved, nickname);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChatMessageDto> getChatMessages(String roomId){
-        List<ChatMessage> list =  chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+        List<ChatMessage> list = chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+
+        // 메시지마다 유저를 조회하면 N번 쿼리가 나가므로 한 번에 가져온다
+        Set<String> senders = list.stream()
+                .map(ChatMessage::getSender)
+                .collect(Collectors.toSet());
+
+        Map<String, String> nicknames = userRepository.findByEmailIn(senders).stream()
+                .collect(Collectors.toMap(User::getEmail, User::getNickname));
 
         return list.stream()
-                .map(ChatMessageDto::from)
+                .map(m -> ChatMessageDto.from(m, nicknames.getOrDefault(m.getSender(), m.getSender())))
                 .collect(Collectors.toList());
     }
 
