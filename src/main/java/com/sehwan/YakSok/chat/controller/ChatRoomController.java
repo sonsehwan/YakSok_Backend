@@ -1,8 +1,10 @@
 package com.sehwan.YakSok.chat.controller;
 
 
+import com.google.protobuf.Api;
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
+import com.sehwan.YakSok.chat.dto.request.FriendChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.service.ChatService;
 import com.sehwan.YakSok.common.response.ApiResponse;
@@ -27,6 +29,18 @@ public class ChatRoomController {
             return ResponseEntity.ok(ApiResponse.success("채팅방 연결에 성공하였습니다.",response));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "CHAT_ROOM_FAIL", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/friend")
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> enterFriendChatRoom(
+            @RequestBody FriendChatRoomRequest request
+    ){
+        try{
+            ChatRoomResponse response = chatService.getOrCreateFriendRoom(request);
+            return ResponseEntity.ok(ApiResponse.success("채팅방 연결에 성공하였습니다.", response));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "채팅방 연결 실패", e.getMessage()));
         }
     }
 

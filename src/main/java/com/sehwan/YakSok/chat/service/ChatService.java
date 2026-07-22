@@ -2,6 +2,7 @@ package com.sehwan.YakSok.chat.service;
 
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
+import com.sehwan.YakSok.chat.dto.request.FriendChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.entity.ChatMessage;
 import com.sehwan.YakSok.chat.entity.ChatParticipant;
@@ -81,6 +82,39 @@ public class ChatService {
         chattingRoomRepository.save(newRoom);
 
         log.info("새로운 채팅방 생성 완료: 방 번호 {}", newRoom.getId());
+        return new ChatRoomResponse(newRoom.getId(), true);
+    }
+
+    // 친구와의 1:1 채팅방이 있으면 가져오고 없으면 생성한다.
+    @Transactional
+    public ChatRoomResponse getOrCreateFriendRoom(FriendChatRoomRequest request){
+
+        User me = userRepository.findByEmail(request.getUserEmail())
+                .orElseThrow(() -> new RuntimeException("현재 로그인한 회원 정보를 찾지 못했습니다."));
+
+        User friend = userRepository.findById(request.getFriendId())
+                .orElseThrow(() -> new RuntimeException("상대방 회원 정보를 찾지 못했습니다."));
+
+        if (me.getId().equals(friend.getId())) {
+            throw new RuntimeException("자기 자신과는 채팅할 수 없습니다.");
+        }
+
+        Optional<ChattingRoom> existingRoom = chattingRoomRepository.findExistingRoom(me, friend);
+
+        if(existingRoom.isPresent()){
+            log.info("이미 존재하는 친구 채팅방입니다. 방 번호 {}", existingRoom.get().getId());
+            return new ChatRoomResponse(existingRoom.get().getId(), false);
+        }
+
+        ChattingRoom newRoom = new ChattingRoom();
+        newRoom.setRoomName(friend.getNickname());
+
+        newRoom.addParticipant(new ChatParticipant(me, newRoom));
+        newRoom.addParticipant(new ChatParticipant(friend, newRoom));
+
+        chattingRoomRepository.save(newRoom);
+
+        log.info("새로운 친구 채팅방 생성 완료: 방 번호 {}", newRoom.getId());
         return new ChatRoomResponse(newRoom.getId(), true);
     }
 
