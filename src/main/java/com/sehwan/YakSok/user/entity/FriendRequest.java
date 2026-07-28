@@ -46,7 +46,7 @@ public class FriendRequest {
                     name = "fk_friend_request_requester"
             )
     )
-    private User requester;
+    private User requester; // 친구 요청을 보낸 사람
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
@@ -56,7 +56,7 @@ public class FriendRequest {
                     name = "fk_friend_request_receiver"
             )
     )
-    private User receiver;
+    private User receiver; // 친구 요청을 받은 사람
 
     @Column(name = "user_low_id", nullable = false)
     private Long userLowId;
@@ -179,6 +179,10 @@ public class FriendRequest {
     public boolean isPending() {
         return this.status == FriendRequestStatus.PENDING;
     }
+
+    public boolean isAccepted() {return  this.status == FriendRequestStatus.ACCEPTED;}
+
+    public boolean isRejected() {return  this.status == FriendRequestStatus.REJECTED;}
 
     private void setUserPair(
             Long firstUserId,

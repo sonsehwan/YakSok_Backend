@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
@@ -18,4 +19,6 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
             "ORDER BY fr.requestedAt DESC")
     List<FriendRequest> findReceivedRequests(@Param("receiverId") Long receiverId,
                                              @Param("status") FriendRequestStatus status);
+    // LowID, HighID로 생성된 친구요청을 가져오기
+    Optional<FriendRequest> findByUserLowIdAndUserHighId(Long lowId, Long highId);
 }

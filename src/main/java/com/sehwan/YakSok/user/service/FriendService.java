@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,15 +45,53 @@ public class FriendService {
     @Transactional
     public void createFriendRequest(Long userId, Long friendId){
 
+        if(userId.equals(friendId)){
+            throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         User friend = userRepository.findById(friendId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        FriendRequest friendRequest = FriendRequest.create(user, friend);
+        Long lowId = Math.min(userId, friendId);
+        Long highId = Math.max(userId, friendId);
 
-        friendRequestRepository.save(friendRequest);
+        Optional<FriendRequest> found = friendRequestRepository.findByUserLowIdAndUserHighId(lowId, highId);
+
+        if(found.isEmpty()){
+            friendRequestRepository.save(FriendRequest.create(user, friend));
+            return;
+        }
+
+        FriendRequest request = found.get();
+
+        if(request.isAccepted()){
+            throw new IllegalStateException("이미 친구인 사용자입니다.");
+        }
+
+        if(request.isPending()){
+            if(request.isRequestedBy(userId)){
+                throw new IllegalStateException("이미 보낸 친구 요청입니다.");
+            }
+            acceptAndCreateRelation(request);
+            return;
+        }
+
+        // 거절된 요청은 이전 방향과 무관하게 이번 요청자를 기준으로 다시 시작한다.
+        request.restart(user, friend);
+    }
+
+    // 친구 요청을 수락하고 양방향 친구 관계를 만든다.
+    private void acceptAndCreateRelation(FriendRequest request){
+        User requester = request.getRequester();
+        User receiver = request.getReceiver();
+
+        request.accept();
+
+        friendRelationRepository.save(FriendRelation.create(requester, receiver));
+        friendRelationRepository.save(FriendRelation.create(receiver, requester));
     }
 
     // 친구 요청 수락
@@ -106,6 +145,7 @@ public class FriendService {
      *  친구 관계
      */
 
+    // 친구 목록
     @Transactional
     public FriendListDto getFriendList(Long loginUserId){
         List<FriendRelation> relations = friendRelationRepository.findByUserId(loginUserId);
