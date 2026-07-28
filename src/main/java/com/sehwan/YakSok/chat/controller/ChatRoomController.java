@@ -5,6 +5,7 @@ import com.google.protobuf.Api;
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.request.FriendChatRoomRequest;
+import com.sehwan.YakSok.chat.dto.response.ChatRoomListDto;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.service.ChatService;
 import com.sehwan.YakSok.common.response.ApiResponse;
@@ -21,6 +22,19 @@ public class ChatRoomController {
 
     private final ChatService chatService;
 
+    // 로그인한 유저가 참여 중인 채팅방 목록
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> getMyRooms(
+            @RequestParam String userEmail
+    ){
+        try{
+            List<ChatRoomListDto> rooms = chatService.getMyChatRooms(userEmail);
+            return ResponseEntity.ok(ApiResponse.success("채팅방 목록 조회 성공", rooms));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "채팅방 목록 조회 실패", e.getMessage()));
+        }
+    }
+
     // 앱에서 "채팅하기" 버튼을 눌렀을 때 호출하는 API
     @PostMapping
     public ResponseEntity<ApiResponse<ChatRoomResponse>> enterChatRoom(@RequestBody ChatRoomRequest request) {
@@ -32,6 +46,7 @@ public class ChatRoomController {
         }
     }
 
+    // 친구와 채팅방 생성
     @PostMapping("/friend")
     public ResponseEntity<ApiResponse<ChatRoomResponse>> enterFriendChatRoom(
             @RequestBody FriendChatRoomRequest request
@@ -44,6 +59,7 @@ public class ChatRoomController {
         }
     }
 
+    // 채팅 메시지 리스트 반환
     @GetMapping("/{roomId}/messages")
     public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(@PathVariable String roomId) {
         List<ChatMessageDto> messages = chatService.getChatMessages(roomId);

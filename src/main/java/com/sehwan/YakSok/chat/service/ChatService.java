@@ -3,6 +3,7 @@ package com.sehwan.YakSok.chat.service;
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.request.FriendChatRoomRequest;
+import com.sehwan.YakSok.chat.dto.response.ChatRoomListDto;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.entity.ChatMessage;
 import com.sehwan.YakSok.chat.entity.ChatParticipant;
@@ -16,10 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -134,12 +132,52 @@ public class ChatService {
     }
 
     // 로그인 유저가 참여중인 채팅방 리스트 목록
-//    @Transactional(readOnly = true)
-//    public List<ChatRoomListDto> getMyChatRooms(String email) {
-//        List<ChattingRoom> rooms = chattingRoomRepository.findAllByUserEmail(email);
-//
-//        return rooms.stream()
-//                .map(room -> new ChatRoomListDto(room.getId(), room.getRoomName()))
-//                .collect(Collectors.toList());
-//    }
+    @Transactional(readOnly = true)
+    public List<ChatRoomListDto> getMyChatRooms(String email){
+        User loginUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 회원정보를 찾지 못했습니다."));
+
+        List<ChattingRoom> rooms = chattingRoomRepository.findAllWithParticipantsByUserEmail(loginUser.getEmail());
+
+        if(rooms.isEmpty()){
+            return List.of();
+        }
+
+        List<String> roomIds = rooms.stream()
+                .map(room -> String.valueOf(room.getId()))
+                .toList();
+
+        Map<String, ChatMessage> lastMessage = chatRepository.findLastMessagesByRoomIds(roomIds).stream()
+                .collect(Collectors.toMap(ChatMessage::getRoomId, m -> m));
+
+        return rooms.stream()
+                .map(room -> {
+                    ChatMessage last = lastMessage.get(String.valueOf(room.getId()));
+
+                    return new ChatRoomListDto(
+                            room.getId(),
+                            resolveRoomName(room, loginUser.getEmail()),
+                            last != null ? last.getMessage() : null,
+                            last != null ? last.getCreatedAt() : null
+                    );
+                })
+                .sorted(Comparator.comparing(
+                        ChatRoomListDto::getLastMessageAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    // 방이름을 직접 조회유저에 맞게 생성
+    private String resolveRoomName(ChattingRoom room, String myEmail) {
+        return room.getParticipants().stream()
+                .map(ChatParticipant::getUser)
+                .filter(Objects::nonNull)
+                .filter(participant -> !participant.getEmail().equals(myEmail))
+                .findFirst()
+                .map(other -> other.getMyDrugStore() != null
+                        ? other.getMyDrugStore().getDutyName()
+                        : other.getNickname())
+                .orElse(room.getRoomName());
+    }
 }
