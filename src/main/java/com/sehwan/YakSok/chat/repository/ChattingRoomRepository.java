@@ -26,4 +26,8 @@ public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long
             "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.email = :email" +
             ")")
     List<ChattingRoom> findAllWithParticipantsByUserEmail(@Param("email") String email);
+
+    // 내가 참여 중인 방 번호만 조회: 약속 공유 검증에 사용
+    @Query("SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.email = :email")
+    List<Long> findRoomIdByUserEmail(@Param("email") String email);
 }

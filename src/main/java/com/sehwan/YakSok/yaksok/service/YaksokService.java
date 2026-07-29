@@ -4,6 +4,7 @@ import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.yaksok.dto.PillRequest;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
+import com.sehwan.YakSok.yaksok.dto.YaksokDto;
 import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
 import com.sehwan.YakSok.yaksok.entity.Notification;
 import com.sehwan.YakSok.yaksok.entity.Pill;
@@ -80,6 +81,15 @@ public class YaksokService {
         return response;
     }
 
+    // 단일 약속
+    @Transactional
+    public YaksokDto getYaksok(Long yaksokId) {
+        Yaksok yaksok = yaksokRepository.findByIdWithPills(yaksokId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + yaksokId));
+
+        return YaksokDto.from(yaksok);
+    }
+
     @Transactional
     public SaveYaksokResponse updateYaksok(Long yaksokId, YaksokRequest request) {
         Yaksok yaksok = yaksokRepository.findById(yaksokId)
@@ -147,6 +157,7 @@ public class YaksokService {
         return new SaveYaksokResponse(yaksok, currentNotifications);
     }
 
+    @Transactional
     private List<Notification> createNotification(Yaksok yaksok){
         LocalDate stasrtDate = LocalDate.parse(yaksok.getStartDate());
         int days = yaksok.getPrescriptionDays();
@@ -173,6 +184,7 @@ public class YaksokService {
         return notifications;
     }
 
+    @Transactional
     private Notification saveNotification(Yaksok yaksok, String timeCatagory, String date, String time){
         System.out.println("이름: " + yaksok.getTitle());
 
@@ -190,6 +202,7 @@ public class YaksokService {
         return notification;
     }
 
+    @Transactional
     public void updateNotificationStatus(Long notificationId, boolean isTaken) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다. id=" + notificationId));
@@ -202,6 +215,7 @@ public class YaksokService {
         updateYaksokCurrentClearNotifications(notification, isTaken);
     }
 
+    @Transactional
     public void updateYaksokCurrentClearNotifications(Notification notification, boolean isTaken){
         Yaksok yaksok = notification.getYaksok();
         int current = yaksok.getCurrentClearNotifications();
@@ -222,10 +236,12 @@ public class YaksokService {
         }
     }
 
+    @Transactional
     public List<Notification> findAllByUserEmail(@Param("email") String email) {
         return notificationRepository.findAllByUserEmail(email);
     }
 
+    @Transactional
     public List<Yaksok> getYaksokListByUserEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
