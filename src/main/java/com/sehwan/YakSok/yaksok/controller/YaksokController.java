@@ -72,9 +72,9 @@ public class YaksokController {
 
     // 약속 목록 가져오기
     @GetMapping("/list/{userEmail}")
-    public ResponseEntity<ApiResponse<List<Yaksok>>> getYaksokList(@PathVariable String userEmail){
+    public ResponseEntity<ApiResponse<List<YaksokDto>>> getYaksokList(@PathVariable String userEmail){
         try {
-            List<Yaksok> yaksokList = yaksokService.getYaksokListByUserEmail(userEmail);
+            List<YaksokDto> yaksokList = yaksokService.getYaksokListByUserEmail(userEmail);
             return ResponseEntity.ok(ApiResponse.success("약속 목록을 성공적으로 가져왔습니다.", yaksokList));
         } catch(Exception e) {
             log.error("에러 발생 : {}", e.getMessage(), e);

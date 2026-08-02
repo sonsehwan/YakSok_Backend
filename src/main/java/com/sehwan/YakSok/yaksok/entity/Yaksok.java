@@ -2,6 +2,7 @@ package com.sehwan.YakSok.yaksok.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.yaksok.dto.YaksokDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -73,4 +74,16 @@ public class Yaksok {
         pills.add(pill);
         pill.setYaksok(this);
     }
+
+//    public YaksokDto toDto(){
+//        return YaksokDto.builder()
+//                .id(id)
+//                .title(title)
+//                .startDate(startDate)
+//                .prescriptionDays(prescriptionDays)
+//                .takeMorning(takeMorning)
+//                .takeLunch(takeLunch)
+//                .takeDinner(takeDinner)
+//                .
+//    }
 }

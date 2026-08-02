@@ -158,7 +158,7 @@ public class YaksokService {
     }
 
     @Transactional
-    private List<Notification> createNotification(Yaksok yaksok){
+    public List<Notification> createNotification(Yaksok yaksok){
         LocalDate stasrtDate = LocalDate.parse(yaksok.getStartDate());
         int days = yaksok.getPrescriptionDays();
 
@@ -185,7 +185,7 @@ public class YaksokService {
     }
 
     @Transactional
-    private Notification saveNotification(Yaksok yaksok, String timeCatagory, String date, String time){
+    public Notification saveNotification(Yaksok yaksok, String timeCatagory, String date, String time){
         System.out.println("이름: " + yaksok.getTitle());
 
         Notification notification = Notification.builder()
@@ -242,11 +242,17 @@ public class YaksokService {
     }
 
     @Transactional
-    public List<Yaksok> getYaksokListByUserEmail(String email) {
+    public List<YaksokDto> getYaksokListByUserEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        return yaksokRepository.findAllByUserEmail(email);
+        List<Yaksok> yaksokList = yaksokRepository.findAllByUserEmail(email);
+
+        List<YaksokDto>  yaksokDtoList = yaksokList.stream()
+                .map(yaksok -> YaksokDto.from(yaksok))
+                .toList();
+
+        return yaksokDtoList;
     }
 
     @Transactional
