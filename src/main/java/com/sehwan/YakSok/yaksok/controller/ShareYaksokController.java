@@ -1,6 +1,5 @@
 package com.sehwan.YakSok.yaksok.controller;
 
-import com.google.protobuf.Api;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.response.SharedUser;
 import com.sehwan.YakSok.yaksok.dto.ShareYaksokRequest;
@@ -8,7 +7,6 @@ import com.sehwan.YakSok.yaksok.dto.YaksokDto;
 import com.sehwan.YakSok.yaksok.service.ShareYaksokService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,9 +46,11 @@ public class ShareYaksokController {
 
     // 저장한 공유 약속 목록
     @GetMapping
-    public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(@RequestParam Long userId) {
+    public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(
+            @RequestParam Long userId,
+            @RequestParam(required = false) Long senderId) {
         try {
-            List<YaksokDto> list = shareYaksokService.getSharedYaksokList(userId);
+            List<YaksokDto> list = shareYaksokService.getSharedYaksokList(userId, senderId);
             return ResponseEntity.ok(ApiResponse.success("공유 약속 목록을 가져왔습니다.", list));
         } catch (Exception e) {
             log.error("공유 약속 목록 조회 실패 : {}", e.getMessage(), e);

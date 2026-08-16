@@ -29,4 +29,13 @@ public interface ShareYaksokRepository extends JpaRepository<ShareYaksok,Long> {
             "WHERE s.receiver.id = :userId " +
             "ORDER BY s.savedAt DESC")
     List<ShareYaksok> findAllByReceiverId(@Param("userId") Long userId);
+
+    // 로그인 유저 id와 공유자 id로 약속 목록 가져오기
+    @Query("SELECT DISTINCT s FROM ShareYaksok s " +
+            "JOIN FETCH s.yaksok y " +
+            "JOIN FETCH y.user u " +
+            "LEFT JOIN FETCH y.pills " +
+            "WHERE s.receiver.id = :userId AND u.id = :senderId " +
+            "ORDER BY s.savedAt DESC")
+    List<ShareYaksok> findAllByReceiverIdAndSenderId(@Param("userId") Long userId, @Param("senderId") Long senderId);
 }

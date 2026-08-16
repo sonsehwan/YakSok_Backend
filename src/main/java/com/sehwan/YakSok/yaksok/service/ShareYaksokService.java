@@ -76,8 +76,12 @@ public class ShareYaksokService {
 
     // 저장한 공유 약속 목록
     @Transactional
-    public List<YaksokDto> getSharedYaksokList(Long userId) {
-        return shareYaksokRepository.findAllByReceiverId(userId).stream()
+    public List<YaksokDto> getSharedYaksokList(Long userId, Long senderId) {
+        List<ShareYaksok> shares = (senderId != null)
+                ? shareYaksokRepository.findAllByReceiverIdAndSenderId(userId, senderId)
+                : shareYaksokRepository.findAllByReceiverId(userId);
+
+        return shares.stream()
                 .map(share -> YaksokDto.from(share.getYaksok()))
                 .toList();
     }
