@@ -20,15 +20,11 @@ public class UserResponse {
     private Long id;
     private String email;
 
-    private String password;
-
     private String nickname;
 
     private String gender;
 
     private LocalDate birthdate;
-
-    private String fcmToken;
 
     @Builder.Default
     private Boolean penaltyEnable = false;
@@ -43,10 +39,8 @@ public class UserResponse {
     public UserResponse(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
-        this.password = user.getPassword();
         this.nickname = user.getNickname();
         this.gender = user.getGender();
-        this.fcmToken = user.getFcmToken();
         this.birthdate = user.getBirthdate();
         this.role = user.getRole();
         this.myDrugStore = user.getMyDrugStore();

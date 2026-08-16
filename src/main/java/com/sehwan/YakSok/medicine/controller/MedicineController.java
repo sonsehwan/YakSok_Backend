@@ -19,6 +19,13 @@ public class MedicineController {
 
     private final MedicineService medicineService;
 
+    /***
+     * 검색어와 일치하는 약 리스트 목록
+     *
+     * @param keyword
+     * @param pageNo
+     * @return
+     */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<SimpleMedicine>>> searchMedicine(@RequestParam String keyword, @RequestParam int pageNo) {
         try{
@@ -40,6 +47,12 @@ public class MedicineController {
         }
     }
 
+    /***
+     * 단일 약 검색
+     *
+     * @param keyword
+     * @return
+     */
     @GetMapping("/search/pill")
     public ResponseEntity<ApiResponse<SimpleMedicine>> searchPill(@RequestParam String keyword) {
         try{

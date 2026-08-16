@@ -80,11 +80,9 @@ public class User {
         return UserResponse.builder()
                 .id(id)
                 .email(email)
-                .password(password)
                 .nickname(nickname)
                 .gender(gender)
                 .birthdate(birthdate)
-                .fcmToken(fcmToken)
                 .role(role)
                 .penaltyEnable(penaltyEnable) // 초기 가입 시 기본값
                 .isLocked(isLocked)      // 초기 가입 시 기본값
