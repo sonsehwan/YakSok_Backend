@@ -43,7 +43,6 @@ public class YaksokDto {
     private int currentClearNotifications;
 
     // 공유받은 사람에게 누구의 약속인지 알려주기 위한 값.
-    // User 엔티티를 그대로 담으면 비밀번호와 FCM 토큰까지 응답에 실린다.
     private String ownerNickname;
 
     public static YaksokDto from(Yaksok yaksok) {

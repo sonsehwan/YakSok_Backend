@@ -2,6 +2,7 @@ package com.sehwan.YakSok.yaksok.service;
 
 import com.sehwan.YakSok.chat.repository.ChatRepository;
 import com.sehwan.YakSok.chat.repository.ChattingRoomRepository;
+import com.sehwan.YakSok.user.dto.response.SharedUser;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.yaksok.dto.YaksokDto;
@@ -63,6 +64,14 @@ public class ShareYaksokService {
         if(chatRepository.countSharedInRooms(yaksokId, roomIds)== 0){
             throw new IllegalStateException("공유받지 않은 약속입니다.");
         }
+    }
+
+    // 내게 약속을 공유한 user의 목록
+    @Transactional
+    public List<SharedUser> getSharedUserList(Long userId){
+        return shareYaksokRepository.findDistinctBySendersByReceiverId(userId).stream()
+                .map(SharedUser::from)
+                .toList();
     }
 
     // 저장한 공유 약속 목록
