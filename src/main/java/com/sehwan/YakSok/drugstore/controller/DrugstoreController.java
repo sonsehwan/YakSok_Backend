@@ -26,10 +26,10 @@ public class DrugstoreController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createDrugStore(@RequestBody CreateDrugStoreRequest request){
-        String email = request.getEmail();
+        Long userId = request.getUserId();
         SearchDrugStoreDto drugStore = request.getDrugStore();
 
-        UserResponse response = drugstoreService.createDrugStore(email, drugStore);
+        UserResponse response = drugstoreService.createDrugStore(userId, drugStore);
 
         return ResponseEntity.ok(success("약국을 성공적으로 생성 및 유저와 연결하였습니다.", response));
     }

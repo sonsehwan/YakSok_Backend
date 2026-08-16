@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ModifyInfoRequest {
-    private String email;
+    private Long userId;
     private String nickname;
 }

@@ -11,9 +11,9 @@ import java.util.Optional;
 public interface YaksokRepository extends JpaRepository<Yaksok, Long> {
 
     @Query("SELECT y FROM Yaksok y " +
-            "WHERE y.user.email = :email " +
+            "WHERE y.user.id = :userId " +
             "ORDER BY y.startDate ASC")
-    List<Yaksok> findAllByUserEmail(String email);
+    List<Yaksok> findAllByUserId(Long userId);
 
     @Query("SELECT y FROM Yaksok y " +
             "LEFT JOIN FETCH y.pills " +

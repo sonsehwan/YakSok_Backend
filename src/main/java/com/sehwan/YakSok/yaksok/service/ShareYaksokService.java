@@ -29,8 +29,8 @@ public class ShareYaksokService {
 
     // 공유받은 약속을 내 목록에 저장한다.
     @Transactional
-    public void saveSharedYaksok(String userEmail, Long yaksokId){
-        User receiver = userRepository.findByEmail(userEmail)
+    public void saveSharedYaksok(Long userId, Long yaksokId){
+        User receiver = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         Yaksok yaksok = yaksokRepository.findById(yaksokId)
@@ -44,13 +44,13 @@ public class ShareYaksokService {
             throw new IllegalStateException("이미 저장한 공유 약속입니다.");
         }
 
-        validateSharedToMe(userEmail, yaksokId);
+        validateSharedToMe(userId, yaksokId);
 
         shareYaksokRepository.save(ShareYaksok.create(receiver, yaksok));
     }
 
-    private void validateSharedToMe(String userEmail, Long yaksokId){
-        List<Long> myRoomIds = chattingRoomRepository.findRoomIdByUserEmail(userEmail);
+    private void validateSharedToMe(Long userId, Long yaksokId){
+        List<Long> myRoomIds = chattingRoomRepository.findRoomIdByUserId(userId);
 
         if(myRoomIds.isEmpty()){
             throw new IllegalStateException("공유받지 않은 약속입니다.");
@@ -67,20 +67,17 @@ public class ShareYaksokService {
 
     // 저장한 공유 약속 목록
     @Transactional
-    public List<YaksokDto> getSharedYaksokList(String userEmail) {
-        return shareYaksokRepository.findAllByReceiverEmail(userEmail).stream()
+    public List<YaksokDto> getSharedYaksokList(Long userId) {
+        return shareYaksokRepository.findAllByReceiverId(userId).stream()
                 .map(share -> YaksokDto.from(share.getYaksok()))
                 .toList();
     }
 
     // 내 목록에서 빼기. 저장한 본인만 가능하다.
     @Transactional
-    public void deleteSharedYaksok(String userEmail, Long yaksokId) {
-        User receiver = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
+    public void deleteSharedYaksok(Long userId, Long yaksokId) {
         ShareYaksok share = shareYaksokRepository
-                .findByReceiverIdAndYaksokId(receiver.getId(), yaksokId)
+                .findByReceiverIdAndYaksokId(userId, yaksokId)
                 .orElseThrow(() -> new IllegalArgumentException("저장한 공유 약속이 아닙니다."));
 
         shareYaksokRepository.delete(share);

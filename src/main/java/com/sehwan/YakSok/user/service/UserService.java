@@ -54,7 +54,7 @@ public class UserService {
 
     @Transactional
     public UserResponse modifyInfo(ModifyInfoRequest dto){
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!user.getNickname().equals(dto.getNickname()) && userRepository.existsByNickname(dto.getNickname())){
@@ -68,7 +68,7 @@ public class UserService {
 
     @Transactional
     public void modifyPassword(ModifyPasswordRequest dto){
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!user.getPassword().equals(dto.getCurrentPassword())){
@@ -79,17 +79,17 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다. email=" + email));
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다. id=" + userId));
 
         userRepository.delete(user);
     }
 
     @Transactional
-    public void updateToken(String email, String token) {
+    public void updateToken(Long userId, String token) {
         log.info("토큰 업데이트 실행");
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         log.info("전달받은 토큰: {}", token);
         user.setFcmToken(token);

@@ -62,19 +62,19 @@ public class YaksokController {
     }
 
     // 알림 목록 가져오기
-    @GetMapping("{userEmail}/notifications")
+    @GetMapping("{userId}/notifications")
     public ResponseEntity<ApiResponse<List<Notification>>> getNotifications(
-            @PathVariable String userEmail
+            @PathVariable Long userId
             ){
-        List<Notification> notifications = notificationRepository.findAllByUserEmail(userEmail);
+        List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success("성공적으로 알림 리스트를 가져왔습니다.", notifications));
     }
 
     // 약속 목록 가져오기
-    @GetMapping("/list/{userEmail}")
-    public ResponseEntity<ApiResponse<List<YaksokDto>>> getYaksokList(@PathVariable String userEmail){
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<ApiResponse<List<YaksokDto>>> getYaksokList(@PathVariable Long userId){
         try {
-            List<YaksokDto> yaksokList = yaksokService.getYaksokListByUserEmail(userEmail);
+            List<YaksokDto> yaksokList = yaksokService.getYaksokListById(userId);
             return ResponseEntity.ok(ApiResponse.success("약속 목록을 성공적으로 가져왔습니다.", yaksokList));
         } catch(Exception e) {
             log.error("에러 발생 : {}", e.getMessage(), e);

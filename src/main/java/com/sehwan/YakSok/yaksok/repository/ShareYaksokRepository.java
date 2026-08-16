@@ -21,7 +21,7 @@ public interface ShareYaksokRepository extends JpaRepository<ShareYaksok,Long> {
             "JOIN FETCH s.yaksok y " +
             "JOIN FETCH y.user " +
             "LEFT JOIN FETCH y.pills " +
-            "WHERE s.receiver.email = :email " +
+            "WHERE s.receiver.id = :userId " +
             "ORDER BY s.savedAt DESC")
-    List<ShareYaksok> findAllByReceiverEmail(@Param("email") String email);
+    List<ShareYaksok> findAllByReceiverId(@Param("userId") Long userId);
 }

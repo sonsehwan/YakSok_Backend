@@ -62,10 +62,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{email}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String email) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         try {
-            userService.deleteUser(email);
+            userService.deleteUser(id);
             return ResponseEntity.ok(ApiResponse.success("회원 탈퇴(삭제)가 성공적으로 처리되었습니다."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_DELETE_USER", e.getMessage()));
@@ -73,10 +73,10 @@ public class UserController {
     }
 
     //Firebase 토큰 저장
-    @PatchMapping("/{email}/fcm-token")
-    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@PathVariable String email, @RequestBody FirebaseTokenRequest dto){
+    @PatchMapping("/{id}/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@PathVariable Long id, @RequestBody FirebaseTokenRequest dto){
         try{
-            userService.updateToken(email, dto.getFcmToken());
+            userService.updateToken(id, dto.getFcmToken());
             return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
         }catch (RuntimeException e){
             log.error("토큰 업데이트 실패");

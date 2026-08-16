@@ -25,10 +25,10 @@ public class ChatRoomController {
     // 로그인한 유저가 참여 중인 채팅방 목록
     @GetMapping
     public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> getMyRooms(
-            @RequestParam String userEmail
+            @RequestParam Long userId
     ){
         try{
-            List<ChatRoomListDto> rooms = chatService.getMyChatRooms(userEmail);
+            List<ChatRoomListDto> rooms = chatService.getMyChatRooms(userId);
             return ResponseEntity.ok(ApiResponse.success("채팅방 목록 조회 성공", rooms));
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "채팅방 목록 조회 실패", e.getMessage()));

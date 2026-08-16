@@ -12,9 +12,9 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     @Query("SELECT n FROM Notification n JOIN n.yaksok y " +
-            "WHERE y.user.email = :email " +
+            "WHERE y.user.id = :userId " +
             "ORDER BY n.time ASC, n.title ASC")
-    List<Notification> findAllByUserEmail(@Param("email") String email);
+    List<Notification> findAllByUserId(@Param("userId") Long userId);
 
 
     List<Notification> findByDateAndTimeAndIsTakenFalse(String date, String time);

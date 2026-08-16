@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ChatRoomRequest {
-    private String userEmail;
+    private Long userId;
     private String hpid;
 }

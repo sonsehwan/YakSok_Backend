@@ -189,9 +189,9 @@ public class DrugstoreService {
     }
 
     @Transactional
-    public UserResponse createDrugStore(String email, SearchDrugStoreDto drugStore) {
+    public UserResponse createDrugStore(Long userId, SearchDrugStoreDto drugStore) {
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
         if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
@@ -217,7 +217,7 @@ public class DrugstoreService {
 
         String hpid = drugStore.getHpid();
 
-        if (userRepository.existsByMyDrugStore_HpidAndEmailNot(hpid, email)) {
+        if (userRepository.existsByMyDrugStore_HpidAndIdNot(hpid, userId)) {
             throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
         }
 

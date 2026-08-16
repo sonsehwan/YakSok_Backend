@@ -23,11 +23,11 @@ public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long
             "LEFT JOIN FETCH p.user u " +
             "LEFT JOIN FETCH u.myDrugStore " +
             "WHERE c.id IN (" +
-            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.email = :email" +
+            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId" +
             ")")
-    List<ChattingRoom> findAllWithParticipantsByUserEmail(@Param("email") String email);
+    List<ChattingRoom> findAllWithParticipantsByUserId(@Param("userId") Long userId);
 
     // 내가 참여 중인 방 번호만 조회: 약속 공유 검증에 사용
-    @Query("SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.email = :email")
-    List<Long> findRoomIdByUserEmail(@Param("email") String email);
+    @Query("SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId")
+    List<Long> findRoomIdByUserId(@Param("userId") Long userId);
 }

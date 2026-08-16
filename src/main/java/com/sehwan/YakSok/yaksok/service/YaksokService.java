@@ -16,7 +16,6 @@ import com.sehwan.YakSok.yaksok.repository.YaksokRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -40,7 +39,7 @@ public class YaksokService {
         String timeLunch = (request.isTakeLunch() && (request.getTimeLunch() == null ||  request.getTimeLunch().trim().isEmpty()) ? "오후 12:00" : request.getTimeLunch());
         String timeDinner = (request.isTakeDinner() && (request.getTimeDinner() == null ||  request.getTimeDinner().trim().isEmpty()) ? "오후 06:00" : request.getTimeDinner());
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         Yaksok yaksok = Yaksok.builder()
@@ -237,16 +236,12 @@ public class YaksokService {
     }
 
     @Transactional
-    public List<Notification> findAllByUserEmail(@Param("email") String email) {
-        return notificationRepository.findAllByUserEmail(email);
-    }
+    public List<YaksokDto> getYaksokListById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
 
-    @Transactional
-    public List<YaksokDto> getYaksokListByUserEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-
-        List<Yaksok> yaksokList = yaksokRepository.findAllByUserEmail(email);
+        List<Yaksok> yaksokList = yaksokRepository.findAllByUserId(userId);
 
         List<YaksokDto>  yaksokDtoList = yaksokList.stream()
                 .map(yaksok -> YaksokDto.from(yaksok))

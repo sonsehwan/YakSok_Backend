@@ -68,7 +68,7 @@ public class ChatService {
     @Transactional
     public ChatRoomResponse getOrCreateRoom(ChatRoomRequest request){
 
-        User clientUser = userRepository.findByEmail(request.getUserEmail())
+        User clientUser = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("현재 로그인한 회원 정보를 찾지 못했습니다."));
 
         User pharmacyUser = userRepository.findByMyDrugStore_Hpid(request.getHpid())
@@ -102,7 +102,7 @@ public class ChatService {
     @Transactional
     public ChatRoomResponse getOrCreateFriendRoom(FriendChatRoomRequest request){
 
-        User me = userRepository.findByEmail(request.getUserEmail())
+        User me = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("현재 로그인한 회원 정보를 찾지 못했습니다."));
 
         User friend = userRepository.findById(request.getFriendId())
@@ -133,11 +133,11 @@ public class ChatService {
 
     // 로그인 유저가 참여중인 채팅방 리스트 목록
     @Transactional(readOnly = true)
-    public List<ChatRoomListDto> getMyChatRooms(String email){
-        User loginUser = userRepository.findByEmail(email)
+    public List<ChatRoomListDto> getMyChatRooms(Long userId){
+        User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인한 회원정보를 찾지 못했습니다."));
 
-        List<ChattingRoom> rooms = chattingRoomRepository.findAllWithParticipantsByUserEmail(loginUser.getEmail());
+        List<ChattingRoom> rooms = chattingRoomRepository.findAllWithParticipantsByUserId(loginUser.getId());
 
         if(rooms.isEmpty()){
             return List.of();
@@ -156,7 +156,7 @@ public class ChatService {
 
                     return new ChatRoomListDto(
                             room.getId(),
-                            resolveRoomName(room, loginUser.getEmail()),
+                            resolveRoomName(room, loginUser.getId()),
                             last != null ? last.getMessage() : null,
                             last != null ? last.getCreatedAt() : null
                     );
@@ -169,11 +169,11 @@ public class ChatService {
     }
 
     // 방이름을 직접 조회유저에 맞게 생성
-    private String resolveRoomName(ChattingRoom room, String myEmail) {
+    private String resolveRoomName(ChattingRoom room, Long myUserId) {
         return room.getParticipants().stream()
                 .map(ChatParticipant::getUser)
                 .filter(Objects::nonNull)
-                .filter(participant -> !participant.getEmail().equals(myEmail))
+                .filter(participant -> !participant.getId().equals(myUserId))
                 .findFirst()
                 .map(other -> other.getMyDrugStore() != null
                         ? other.getMyDrugStore().getDutyName()

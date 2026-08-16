@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CreateDrugStoreRequest {
-    String email;
+    Long userId;
     SearchDrugStoreDto drugStore;
 }

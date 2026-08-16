@@ -23,7 +23,7 @@ public class ShareYaksokController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> saveSharedYaksok(@RequestBody ShareYaksokRequest request) {
         try {
-            shareYaksokService.saveSharedYaksok(request.getUserEmail(), request.getYaksokId());
+            shareYaksokService.saveSharedYaksok(request.getUserId(), request.getYaksokId());
             return ResponseEntity.ok(ApiResponse.success("공유 약속을 저장하였습니다."));
         } catch (Exception e) {
             log.error("공유 약속 저장 실패 : {}", e.getMessage(), e);
@@ -33,9 +33,9 @@ public class ShareYaksokController {
 
     // 저장한 공유 약속 목록
     @GetMapping
-    public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(@RequestParam String userEmail) {
+    public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(@RequestParam Long userId) {
         try {
-            List<YaksokDto> list = shareYaksokService.getSharedYaksokList(userEmail);
+            List<YaksokDto> list = shareYaksokService.getSharedYaksokList(userId);
             return ResponseEntity.ok(ApiResponse.success("공유 약속 목록을 가져왔습니다.", list));
         } catch (Exception e) {
             log.error("공유 약속 목록 조회 실패 : {}", e.getMessage(), e);
@@ -47,9 +47,9 @@ public class ShareYaksokController {
     @DeleteMapping("/{yaksokId}")
     public ResponseEntity<ApiResponse<Void>> deleteSharedYaksok(
             @PathVariable Long yaksokId,
-            @RequestParam String userEmail) {
+            @RequestParam Long userId) {
         try {
-            shareYaksokService.deleteSharedYaksok(userEmail, yaksokId);
+            shareYaksokService.deleteSharedYaksok(userId, yaksokId);
             return ResponseEntity.ok(ApiResponse.success("공유 목록에서 제거하였습니다."));
         } catch (Exception e) {
             log.error("공유 약속 삭제 실패 : {}", e.getMessage(), e);
