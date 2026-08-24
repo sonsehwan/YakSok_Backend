@@ -1,6 +1,9 @@
 package com.sehwan.YakSok.user.service;
 
 
+import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
+import com.sehwan.YakSok.drugstore.entity.DrugStore;
+import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
 import com.sehwan.YakSok.user.dto.request.LoginRequest;
 import com.sehwan.YakSok.user.dto.request.ModifyInfoRequest;
 import com.sehwan.YakSok.user.dto.request.ModifyPasswordRequest;
@@ -20,10 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final DrugStoreRepository drugStoreRepository;
 
     @Transactional
     public void signUp(UserRequest dto) {
-        // 1. 이메일 중복 체크
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
@@ -32,10 +35,37 @@ public class UserService {
             throw  new RuntimeException("이미 존재하는 닉네임입니다.");
         }
 
-        // 3. DTO를 엔티티로 변환하여 저장
-        User user = dto.toEntity();
-        System.out.println("디버깅: DB 저장 직전!");
-        userRepository.save(user);
+        if(!dto.getRole().equals("DRUGSTORE")) {
+            User user = dto.toEntity();
+            userRepository.save(user);
+        }else{
+            SearchDrugStoreDto drugStore = dto.getDrugStore();
+            String hpid = drugStore.getHpid();
+
+            if(drugStoreRepository.existsByHpid(hpid)){
+                if (userRepository.existsByMyDrugStore_Hpid(hpid)) {
+                    throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
+                }
+
+                DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
+                        .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
+
+                User user = dto.toEntity();
+
+                user.setMyDrugStore(drugStoreEntity);
+
+                userRepository.save(user);
+            }else{
+                DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
+                        .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
+
+                User user = dto.toEntity();
+
+                user.setMyDrugStore(drugStoreEntity);
+
+                userRepository.save(user);
+            }
+        }
     }
 
     @Transactional

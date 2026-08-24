@@ -28,6 +28,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByMyDrugStore_HpidAndIdNot(String hpid, Long id);
 
+    boolean existsByMyDrugStore_Hpid(String hpid);
+
     Optional<User> findByNickname(String nickname);
 
     // 여러 이메일의 사용자를 한 번에 조회 (채팅 메시지의 닉네임 매핑용)

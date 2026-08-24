@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
 import lombok.*;
@@ -16,15 +17,9 @@ public class UserRequest {
 
     private String email;
     private String password;
-
     private String nickname;
-    private String gender;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd")
-    private LocalDate birthdate;
-
+    private SearchDrugStoreDto drugStore;
     private String fcmToken;
-
     private String role;
 
     /**
@@ -40,8 +35,9 @@ public class UserRequest {
                 .email(email)
                 .password(password)
                 .nickname(nickname)
-                .gender(gender)
-                .birthdate(birthdate)
+                .gender(null)
+                .birthdate(null)
+                .myDrugStore(null)
                 .fcmToken(fcmToken)
                 .role(userRole)
                 .penaltyEnable(false) // 초기 가입 시 기본값
