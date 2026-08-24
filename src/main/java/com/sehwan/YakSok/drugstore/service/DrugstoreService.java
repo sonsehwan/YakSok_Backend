@@ -189,7 +189,7 @@ public class DrugstoreService {
     }
 
     @Transactional
-    public UserResponse createDrugStore(Long userId, SearchDrugStoreDto drugStore) {
+    public UserResponse modifyDrugStore(Long userId, SearchDrugStoreDto drugStore) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
