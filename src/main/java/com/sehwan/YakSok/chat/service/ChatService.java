@@ -8,6 +8,7 @@ import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.entity.ChatMessage;
 import com.sehwan.YakSok.chat.entity.ChatParticipant;
 import com.sehwan.YakSok.chat.entity.ChattingRoom;
+import com.sehwan.YakSok.chat.repository.ChatParticipantRepository;
 import com.sehwan.YakSok.chat.repository.ChatRepository;
 import com.sehwan.YakSok.chat.repository.ChattingRoomRepository;
 import com.sehwan.YakSok.user.entity.User;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ public class ChatService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
+    private final ChatParticipantRepository chatParticipantRepository;
 
     // ------------------------------------채팅 메시지 관련 로직------------------------------------------------------------
 
@@ -36,6 +39,11 @@ public class ChatService {
     @Transactional
     public ChatMessageDto saveMessage(ChatMessageDto message){
         ChatMessage saved = chatRepository.save(message.toEntity());
+
+        // 메시지가 오면 방을 삭제(숨김)했던 참여자에게도 방을 다시 노출시킨다.
+        List<ChatParticipant> hiddenParticipants = chatParticipantRepository
+                .findByChattingRoomIdAndHiddenTrue(Long.valueOf(saved.getRoomId()));
+        hiddenParticipants.forEach(p -> p.setHidden(false));
 
         String nickname = userRepository.findByEmail(saved.getSender())
                 .map(User::getNickname)
@@ -45,10 +53,14 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessageDto> getChatMessages(String roomId){
-        List<ChatMessage> list = chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+    public List<ChatMessageDto> getChatMessages(Long userId, String roomId){
+        ChatParticipant participant = chatParticipantRepository.findByChattingRoomIdAndUserId(Long.valueOf(roomId), userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방에 참여하고 있지 않습니다."));
 
-        // 메시지마다 유저를 조회하면 N번 쿼리가 나가므로 한 번에 가져온다
+        List<ChatMessage> list = participant.getJoinedAt() != null
+                ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(roomId, participant.getJoinedAt())
+                : chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+
         Set<String> senders = list.stream()
                 .map(ChatMessage::getSender)
                 .collect(Collectors.toSet());
@@ -179,5 +191,16 @@ public class ChatService {
                         ? other.getMyDrugStore().getDutyName()
                         : other.getNickname())
                 .orElse(room.getRoomName());
+    }
+
+    @Transactional
+    public List<ChatRoomListDto> deleteChattingRoom(Long userId, Long roomId) {
+        ChatParticipant chatParticipant = chatParticipantRepository.findByChattingRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 연결된 채팅방 관계가 없습니다."));
+
+        chatParticipant.setHidden(true);
+        chatParticipant.setJoinedAt(LocalDateTime.now());
+
+        return getMyChatRooms(userId);
     }
 }

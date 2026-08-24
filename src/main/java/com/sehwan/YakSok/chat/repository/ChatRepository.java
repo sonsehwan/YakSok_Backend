@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface ChatRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findByRoomIdOrderByCreatedAtAsc(String roomId);
+
+    List<ChatMessage> findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(String roomId, LocalDateTime after);
 
     @Query("SELECT m FROM ChatMessage m WHERE m.id IN (" +
             "   SELECT MAX(m2.id) FROM ChatMessage m2 WHERE m2.roomId IN :roomIds GROUP BY m2.roomId" +

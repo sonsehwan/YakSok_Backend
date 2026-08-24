@@ -23,7 +23,7 @@ public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long
             "LEFT JOIN FETCH p.user u " +
             "LEFT JOIN FETCH u.myDrugStore " +
             "WHERE c.id IN (" +
-            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId" +
+            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId AND cp.hidden = false" +
             ")")
     List<ChattingRoom> findAllWithParticipantsByUserId(@Param("userId") Long userId);
 

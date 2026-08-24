@@ -4,6 +4,7 @@ package com.sehwan.YakSok.chat.controller;
 import com.google.protobuf.Api;
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
+import com.sehwan.YakSok.chat.dto.request.DeleteChattingRoomRequest;
 import com.sehwan.YakSok.chat.dto.request.FriendChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomListDto;
 import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
@@ -61,8 +62,25 @@ public class ChatRoomController {
 
     // 채팅 메시지 리스트 반환
     @GetMapping("/{roomId}/messages")
-    public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(@PathVariable String roomId) {
-        List<ChatMessageDto> messages = chatService.getChatMessages(roomId);
+    public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(
+            @RequestParam Long userId,
+            @PathVariable String roomId) {
+        List<ChatMessageDto> messages = chatService.getChatMessages(userId, roomId);
         return ResponseEntity.ok(ApiResponse.success("과거 메시지 조회 성공", messages));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> deleteRoom(
+            @ModelAttribute DeleteChattingRoomRequest request)
+    {
+        try{
+            Long userId = request.getUserId();
+            Long roomId = request.getRoomId();
+            List<ChatRoomListDto> list = chatService.deleteChattingRoom(userId, roomId);
+
+            return ResponseEntity.ok(ApiResponse.success("채팅방 삭제 성공",list));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "채팅방 삭제 실패", e.getMessage()));
+        }
     }
 }

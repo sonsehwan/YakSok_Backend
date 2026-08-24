@@ -36,6 +36,10 @@ public class ChatParticipant {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private boolean hidden = false;
+
+    private LocalDateTime joinedAt;
+
     public ChatParticipant(User user, ChattingRoom chattingRoom) {
         this.user = user;
         this.chattingRoom = chattingRoom;
