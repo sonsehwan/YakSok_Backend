@@ -40,31 +40,25 @@ public class UserService {
             userRepository.save(user);
         }else{
             SearchDrugStoreDto drugStore = dto.getDrugStore();
+
+            if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
+                throw new RuntimeException("약국 정보가 올바르지 않습니다.");
+            }
+
             String hpid = drugStore.getHpid();
 
-            if(drugStoreRepository.existsByHpid(hpid)){
-                if (userRepository.existsByMyDrugStore_Hpid(hpid)) {
-                    throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
-                }
-
-                DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
-                        .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
-
-                User user = dto.toEntity();
-
-                user.setMyDrugStore(drugStoreEntity);
-
-                userRepository.save(user);
-            }else{
-                DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
-                        .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
-
-                User user = dto.toEntity();
-
-                user.setMyDrugStore(drugStoreEntity);
-
-                userRepository.save(user);
+            if (userRepository.existsByMyDrugStore_Hpid(hpid)) {
+                throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
             }
+
+            DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
+                    .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
+
+            User user = dto.toEntity();
+
+            user.setMyDrugStore(drugStoreEntity);
+
+            userRepository.save(user);
         }
     }
 
