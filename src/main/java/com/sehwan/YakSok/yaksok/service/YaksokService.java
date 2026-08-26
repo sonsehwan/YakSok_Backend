@@ -222,8 +222,10 @@ public class YaksokService {
         Yaksok yaksok = notification.getYaksok();
         List<ShareYaksok> shares = shareYaksokRepository.findAllByYaksokId(yaksok.getId());
 
-        String title = "💊 "+ yaksok.getUser().getNickname() + "님의 '" + "복약 완료";
-        String body = notification.getDate()+ " "+ notification.getTime() + "의" + yaksok.getTitle() + "' 복약을 완료했어요.";
+        String date = notification.getTimeCategory().substring(5);
+
+        String title = "💊 "+ yaksok.getUser().getNickname() + "님의 " + "복약 완료";
+        String body = yaksok.getTitle() + "의" + notification.getTimeCategory()+ " "+ date +  "' 복약을 완료했어요.";
 
         for(ShareYaksok share : shares){
             String token = share.getReceiver().getFcmToken();
