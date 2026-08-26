@@ -6,12 +6,10 @@ import com.sehwan.YakSok.yaksok.dto.PillRequest;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import com.sehwan.YakSok.yaksok.dto.YaksokDto;
 import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
-import com.sehwan.YakSok.yaksok.entity.Notification;
-import com.sehwan.YakSok.yaksok.entity.Pill;
-import com.sehwan.YakSok.yaksok.entity.Yaksok;
-import com.sehwan.YakSok.yaksok.entity.YaksokStatus;
+import com.sehwan.YakSok.yaksok.entity.*;
 import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
 import com.sehwan.YakSok.yaksok.repository.PillRepository;
+import com.sehwan.YakSok.yaksok.repository.ShareYaksokRepository;
 import com.sehwan.YakSok.yaksok.repository.YaksokRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +30,8 @@ public class YaksokService {
     private final YaksokRepository yaksokRepository;
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final ShareYaksokRepository shareYaksokRepository;
+    private final FcmService fcmService;
 
     @Transactional
     public SaveYaksokResponse saveYaksok(YaksokRequest request){
@@ -212,6 +212,23 @@ public class YaksokService {
 
         notification.setTaken(isTaken);
         updateYaksokCurrentClearNotifications(notification, isTaken);
+
+        if(isTaken){
+            notifyWatchers(notification);
+        }
+    }
+
+    private void notifyWatchers(Notification notification){
+        Yaksok yaksok = notification.getYaksok();
+        List<ShareYaksok> shares = shareYaksokRepository.findAllByYaksokId(yaksok.getId());
+
+        String title = "💊 복약 완료 알림";
+        String body = yaksok.getUser().getNickname() + "님이 '" + yaksok.getTitle() + "' 복약을 완료했어요.";
+
+        for(ShareYaksok share : shares){
+            String token = share.getReceiver().getFcmToken();
+            fcmService.sendMessage(token, title, body, String.valueOf(notification.getId()), FcmMessageType.TAKEN_ALERT);
+        }
     }
 
     @Transactional
