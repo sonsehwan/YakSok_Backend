@@ -38,4 +38,9 @@ public interface ShareYaksokRepository extends JpaRepository<ShareYaksok,Long> {
             "WHERE s.receiver.id = :userId AND u.id = :senderId " +
             "ORDER BY s.savedAt DESC")
     List<ShareYaksok> findAllByReceiverIdAndSenderId(@Param("userId") Long userId, @Param("senderId") Long senderId);
+
+    @Query("SELECT DISTINCT s FROM ShareYaksok s " +
+            "JOIN FETCH s.receiver r " +
+            "WHERE s.yaksok.id = :yaksokId")
+    List<ShareYaksok> findAllByYaksokId(@Param("yaksokId") Long yaksokId);
 }
