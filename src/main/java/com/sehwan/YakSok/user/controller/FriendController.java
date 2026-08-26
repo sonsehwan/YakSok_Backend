@@ -121,4 +121,24 @@ public class FriendController {
 
         return response;
     }
+
+    // 친구 삭제 (내 목록에서만 지우고, 갱신된 친구 목록을 돌려준다.)
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<FriendListDto>> deleteFriend(
+            @RequestParam Long loginUserId,
+            @RequestParam Long friendId){
+        ResponseEntity<ApiResponse<FriendListDto>> response = null;
+        try{
+            log.info("친구를 삭제합니다.");
+
+            FriendListDto list = friendService.deleteFriend(loginUserId, friendId);
+
+            response = ResponseEntity.ok(ApiResponse.success("친구를 삭제하였습니다.", list));
+        } catch (Exception e) {
+            log.error("친구 삭제 실패", e);
+            response =  ResponseEntity.badRequest().body(ApiResponse.error(400, "친구 삭제 실패", e.getMessage()));
+        }
+
+        return response;
+    }
 }

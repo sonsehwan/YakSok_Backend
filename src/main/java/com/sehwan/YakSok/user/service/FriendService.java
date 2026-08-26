@@ -3,10 +3,7 @@ package com.sehwan.YakSok.user.service;
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
 import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
 import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
-import com.sehwan.YakSok.user.entity.FriendRelation;
-import com.sehwan.YakSok.user.entity.FriendRequest;
-import com.sehwan.YakSok.user.entity.FriendRequestStatus;
-import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.entity.*;
 import com.sehwan.YakSok.user.repository.FriendRelationRepository;
 import com.sehwan.YakSok.user.repository.FriendRequestRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
@@ -68,7 +65,12 @@ public class FriendService {
         FriendRequest request = found.get();
 
         if(request.isAccepted()){
-            throw new IllegalStateException("이미 친구인 사용자입니다.");
+            if(friendRelationRepository.existsById(new FriendRelationId(userId, friendId))){
+                throw new IllegalStateException("이미 친구인 사용자입니다.");
+            }
+
+            friendRelationRepository.save(FriendRelation.create(user, friend));
+            return;
         }
 
         if(request.isPending()){
@@ -150,5 +152,32 @@ public class FriendService {
     public FriendListDto getFriendList(Long loginUserId){
         List<FriendRelation> relations = friendRelationRepository.findByUserId(loginUserId);
         return FriendListDto.from(relations);
+    }
+
+    @Transactional
+    public FriendListDto deleteFriend(Long loginUserId, Long friendId){
+        if(loginUserId.equals(friendId)){
+            throw new IllegalArgumentException("자기 자신은 친구 삭제 대상이 아닙니다.");
+        }
+
+        FriendRelationId myRelationId = new FriendRelationId(loginUserId, friendId);
+
+        if(!friendRelationRepository.existsById(myRelationId)){
+            throw new IllegalArgumentException(("이미 친구 관계가 아닙니다."));
+        }
+
+        friendRelationRepository.deleteById(myRelationId);
+
+        FriendRelationId reverseRelationId = new FriendRelationId(friendId, loginUserId);
+
+        if(!friendRelationRepository.existsById(reverseRelationId)){
+            Long lowId = Math.min(loginUserId, friendId);
+            Long highId = Math.max(loginUserId, friendId);
+
+            friendRequestRepository.findByUserLowIdAndUserHighId(lowId, highId)
+                    .ifPresent(friendRequestRepository::delete);
+        }
+
+        return getFriendList(loginUserId);
     }
 }
