@@ -3,6 +3,7 @@ package com.sehwan.YakSok.yaksok.scheduler;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.yaksok.entity.Notification;
 import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
+import com.sehwan.YakSok.yaksok.service.FcmMessageType;
 import com.sehwan.YakSok.yaksok.service.FcmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class NotificationScheduler {
                 String body = noti.getTitle() + " 약속을 지킬 시간이에요.";
 
                 if(token != null){
-                    fcmService.sendMessage(token, title, body, String.valueOf(noti.getId()));
+                    fcmService.sendMessage(token, title, body, String.valueOf(noti.getId()), FcmMessageType.REMINDER);
                 }else{
                     log.warn("유저 {} 의 토큰이 없어 알림을 보내지 못했습니다.", user.getEmail());
                 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class FcmService {
-    public void sendMessage(String targetToken, String title, String body, String notificationId){
+    public void sendMessage(String targetToken, String title, String body, String notificationId, FcmMessageType type){
         if(targetToken == null || targetToken.trim().isEmpty()){
             log.warn("FCM 토큰이 비어 있어 알림을 전송할 수 없습니다.(title: {})", title);
             return;
@@ -28,6 +28,7 @@ public class FcmService {
                 .putData("title", title)
                 .putData("body", body)
                 .putData("notificationId", notificationId)
+                .putData("type", type.name())
                 .build();
 
         try{
