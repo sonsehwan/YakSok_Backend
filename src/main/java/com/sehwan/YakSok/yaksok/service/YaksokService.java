@@ -225,7 +225,7 @@ public class YaksokService {
         String date = notification.getDate().substring(5);
 
         String title = "💊 "+ yaksok.getUser().getNickname() + "님의 " + "복약 완료";
-        String body = yaksok.getTitle() + "의" + notification.getTimeCategory()+ " "+ date +  "' 복약을 완료했어요.";
+        String body = yaksok.getTitle() + "의 " + notification.getTimeCategory()+ " "+ date +  "' 복약을 완료했어요.";
 
         for(ShareYaksok share : shares){
             String token = share.getReceiver().getFcmToken();
