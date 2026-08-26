@@ -222,7 +222,7 @@ public class YaksokService {
         Yaksok yaksok = notification.getYaksok();
         List<ShareYaksok> shares = shareYaksokRepository.findAllByYaksokId(yaksok.getId());
 
-        String date = notification.getTimeCategory().substring(5);
+        String date = notification.getDate().substring(5);
 
         String title = "💊 "+ yaksok.getUser().getNickname() + "님의 " + "복약 완료";
         String body = yaksok.getTitle() + "의" + notification.getTimeCategory()+ " "+ date +  "' 복약을 완료했어요.";
