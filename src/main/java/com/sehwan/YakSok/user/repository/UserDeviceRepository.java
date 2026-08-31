@@ -4,6 +4,7 @@ import com.sehwan.YakSok.user.entity.UserDevice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,6 @@ public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
     void deleteByUserIdAndToken(Long userId, String token);
 
     void deleteByToken(String token);
+
+    List<UserDevice> findAllByUserIdIn(Collection<Long> userIds);
 }
