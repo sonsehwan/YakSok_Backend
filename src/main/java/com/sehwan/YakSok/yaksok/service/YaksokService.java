@@ -1,5 +1,7 @@
 package com.sehwan.YakSok.yaksok.service;
 
+import com.sehwan.YakSok.fcm.FcmMessageType;
+import com.sehwan.YakSok.fcm.FcmService;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserDevice;
 import com.sehwan.YakSok.user.repository.UserDeviceRepository;
