@@ -1,4 +1,4 @@
-package com.sehwan.YakSok.yaksok.service;
+package com.sehwan.YakSok.fcm;
 
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
@@ -6,34 +6,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class FcmService {
-    public List<String> sendMessage(
-            List<String> targetTokens,
-            String title,
-            String body,
-            String notificationId,
-            FcmMessageType type
-    ){
+
+    public List<String> sendData(List<String> targetTokens, Map<String, String> data){
         if (targetTokens == null || targetTokens.isEmpty()) {
-            log.warn("전송할 FCM 토큰이 없습니다. (title: {})", title);
-            return List.of();  // 빈 리스트 반환
+            log.warn("전송할 FCM 토큰이 없습니다. (type: {})", data.get("type"));
+            return List.of();
         }
 
-        // 우선순위를 HIGH로 설정해야 화면이 꺼져있거나 앱이 백그라운드일 때도 즉각 알림이 수신됩니다.
         AndroidConfig androidConfig = AndroidConfig.builder()
                 .setPriority(AndroidConfig.Priority.HIGH)
                 .build();
 
         MulticastMessage message = MulticastMessage.builder()
                 .addAllTokens(targetTokens)
-                .setAndroidConfig(androidConfig) // 안드로이드 강제 깨우기 설정 추가
-                .putData("title", title)
-                .putData("body", body)
-                .putData("notificationId", notificationId)
-                .putData("type", type.name())
+                .setAndroidConfig(androidConfig)
+                .putAllData(data)
                 .build();
 
         List<String> invalidTokens = new ArrayList<>();
@@ -58,5 +50,20 @@ public class FcmService {
             log.error("FCM 알림 전송 실패. {}", e.getMessage(), e);
         }
         return invalidTokens;
+    }
+
+    public List<String> sendMessage(
+            List<String> targetTokens,
+            String title,
+            String body,
+            String notificationId,
+            FcmMessageType type
+    ){
+        return sendData(targetTokens, Map.of(
+                "title", title,
+                "body", body,
+                "notification_id", notificationId,
+                "type", type.name()
+        ));
     }
 }
