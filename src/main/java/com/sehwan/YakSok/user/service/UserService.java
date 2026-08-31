@@ -10,11 +10,15 @@ import com.sehwan.YakSok.user.dto.request.ModifyPasswordRequest;
 import com.sehwan.YakSok.user.dto.request.UserRequest;
 import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.entity.UserDevice;
+import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -24,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final DrugStoreRepository drugStoreRepository;
+    private final UserDeviceRepository userDeviceRepository;
 
     @Transactional
     public void signUp(UserRequest dto) {
@@ -112,11 +117,33 @@ public class UserService {
 
     @Transactional
     public void updateToken(Long userId, String token) {
-        log.info("토큰 업데이트 실행");
+
+        if(token == null || token.isBlank()){
+            throw new IllegalArgumentException("등록할 FCM 토큰이 비어 있습니다.");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        log.info("전달받은 토큰: {}", token);
-        user.setFcmToken(token);
-        log.info("토큰 업데이트 완료");
+
+        userDeviceRepository.findByToken(token).ifPresentOrElse(
+                device -> {
+                    device.setUser(user);
+                    device.setUpdatedAt(LocalDateTime.now());
+                },
+                () -> userDeviceRepository.save(
+                        UserDevice.builder().user(user).token(token).build()
+                )
+        );
+        log.info("기기 토큰 등록 완료. userId = {}", userId);
+    }
+
+    @Transactional
+    public void deleteToken(Long userId, String token) {
+        if(token == null || token.isBlank()){
+            throw new IllegalArgumentException("삭제할 FCM 토큰이 비어 있습니다.");
+        }
+
+        userDeviceRepository.deleteByUserIdAndToken(userId, token);
+
+        log.info("기기 토큰 삭제 완료. userId = {}", userId);
     }
 }

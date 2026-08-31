@@ -19,7 +19,6 @@ public class UserRequest {
     private String password;
     private String nickname;
     private SearchDrugStoreDto drugStore;
-    private String fcmToken;
     private String role;
 
     /**
@@ -38,7 +37,6 @@ public class UserRequest {
                 .gender(null)
                 .birthdate(null)
                 .myDrugStore(null)
-                .fcmToken(fcmToken)
                 .role(userRole)
                 .penaltyEnable(false) // 초기 가입 시 기본값
                 .isLocked(false)      // 초기 가입 시 기본값

@@ -163,7 +163,7 @@ public class FriendService {
         FriendRelationId myRelationId = new FriendRelationId(loginUserId, friendId);
 
         if(!friendRelationRepository.existsById(myRelationId)){
-            throw new IllegalArgumentException(("이미 친구 관계가 아닙니다."));
+            throw new IllegalArgumentException("이미 친구 관계가 아닙니다.");
         }
 
         friendRelationRepository.deleteById(myRelationId);
