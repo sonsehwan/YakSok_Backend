@@ -84,4 +84,14 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/{id}/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> deleteFcmToken(@PathVariable Long id, @RequestBody FirebaseTokenRequest dto){
+        try{
+            userService.deleteToken(id, dto.getFcmToken());
+            return ResponseEntity.ok(ApiResponse.success("FCM토큰 삭제 성공"));
+        }catch (RuntimeException e){
+            log.error("토큰 삭제 실패");
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "토큰 삭제 실패", e.getMessage()));
+        }
+    }
 }
