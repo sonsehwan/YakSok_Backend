@@ -1,6 +1,8 @@
 package com.sehwan.YakSok.yaksok.service;
 
 import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.entity.UserDevice;
+import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.yaksok.dto.PillRequest;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
@@ -31,6 +33,7 @@ public class YaksokService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ShareYaksokRepository shareYaksokRepository;
+    private final UserDeviceRepository userDeviceRepository;
     private final FcmService fcmService;
 
     @Transactional
@@ -228,8 +231,15 @@ public class YaksokService {
         String body = yaksok.getTitle() + "의 " + date + " " + notification.getTimeCategory() + "' 복약을 완료했어요.";
 
         for(ShareYaksok share : shares){
-            String token = share.getReceiver().getFcmToken();
-            fcmService.sendMessage(token, title, body, String.valueOf(notification.getId()), FcmMessageType.TAKEN_ALERT);
+            List<String> tokens = userDeviceRepository.findAllByUserId(share.getReceiver().getId()).stream()
+                            .map(UserDevice::getToken).toList();
+
+            if(tokens.isEmpty()) continue;
+
+            List<String> invalid = fcmService.sendMessage(
+                    tokens, title, body, String.valueOf(notification.getId()), FcmMessageType.TAKEN_ALERT);
+
+            invalid.forEach(userDeviceRepository::deleteByToken);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.sehwan.YakSok.yaksok.scheduler;
 
 import com.sehwan.YakSok.user.entity.User;
+import com.sehwan.YakSok.user.entity.UserDevice;
+import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.yaksok.entity.Notification;
 import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
 import com.sehwan.YakSok.yaksok.service.FcmMessageType;
@@ -24,6 +26,7 @@ import java.util.Locale;
 public class NotificationScheduler {
     private final FcmService fcmService;
     private final NotificationRepository notificationRepository;
+    private final UserDeviceRepository userDeviceRepository;
 
     @Scheduled(cron = "0 * * * * *")
     @Transactional
@@ -48,16 +51,20 @@ public class NotificationScheduler {
 
             for(Notification noti : notifications){
                 User user = noti.getYaksok().getUser();
-                String token = user.getFcmToken();
+                List<String> tokens = userDeviceRepository.findAllByUserId(user.getId())
+                        .stream().map(UserDevice::getToken).toList();
 
                 String title = "💊 약 복용 시간입니다!";
-                String body = noti.getTitle() + " 약속을 지킬 시간이에요.";
+                String body = noti.getTitle() + "을 지킬 시간이에요.";
 
-                if(token != null){
-                    fcmService.sendMessage(token, title, body, String.valueOf(noti.getId()), FcmMessageType.REMINDER);
-                }else{
-                    log.warn("유저 {} 의 토큰이 없어 알림을 보내지 못했습니다.", user.getEmail());
+                if(tokens.isEmpty()){
+                    log.warn("유저 {} 의 등록된 기기가 없어 알림을 보내지 못했습니다.", user.getEmail());
+                    continue;
                 }
+
+                List<String> invalid = fcmService.sendMessage(
+                        tokens, title, body, String.valueOf(noti.getId()), FcmMessageType.REMINDER);
+                invalid.forEach(userDeviceRepository::deleteByToken);
             }
         } catch (Exception e) {
             log.error("알림 스케줄러 실행 중 오류 발생: {}", e.getMessage(), e);

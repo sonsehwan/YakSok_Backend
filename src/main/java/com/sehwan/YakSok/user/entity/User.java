@@ -43,10 +43,6 @@ public class User {
 
     private LocalDate birthdate;
 
-    // 5. 알림 및 상태 관리 필드
-    @Column(length = 255)
-    private String fcmToken;
-
     //벌금 여부
     @Builder.Default
     private Boolean penaltyEnable = false;
