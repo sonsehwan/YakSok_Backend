@@ -1,23 +1,19 @@
 package com.sehwan.YakSok.yaksok.service;
 
-import com.sehwan.YakSok.fcm.FcmMessageType;
-import com.sehwan.YakSok.fcm.FcmService;
 import com.sehwan.YakSok.user.entity.User;
-import com.sehwan.YakSok.user.entity.UserDevice;
-import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import com.sehwan.YakSok.yaksok.dto.PillRequest;
 import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import com.sehwan.YakSok.yaksok.dto.YaksokDto;
 import com.sehwan.YakSok.yaksok.dto.YaksokRequest;
 import com.sehwan.YakSok.yaksok.entity.*;
+import com.sehwan.YakSok.yaksok.event.NotificationStatusChangedEvent;
 import com.sehwan.YakSok.yaksok.repository.NotificationRepository;
-import com.sehwan.YakSok.yaksok.repository.PillRepository;
-import com.sehwan.YakSok.yaksok.repository.ShareYaksokRepository;
 import com.sehwan.YakSok.yaksok.repository.YaksokRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,13 +26,10 @@ import java.util.List;
 @Slf4j
 public class YaksokService {
 
-    private final PillRepository pillRepository;
     private final YaksokRepository yaksokRepository;
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final ShareYaksokRepository shareYaksokRepository;
-    private final UserDeviceRepository userDeviceRepository;
-    private final FcmService fcmService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public SaveYaksokResponse saveYaksok(YaksokRequest request){
@@ -218,31 +211,17 @@ public class YaksokService {
         notification.setTaken(isTaken);
         updateYaksokCurrentClearNotifications(notification, isTaken);
 
-        if(isTaken){
-            notifyWatchers(notification);
-        }
-    }
-
-    private void notifyWatchers(Notification notification){
         Yaksok yaksok = notification.getYaksok();
-        List<ShareYaksok> shares = shareYaksokRepository.findAllByYaksokId(yaksok.getId());
-
-        String date = notification.getDate().substring(5);
-
-        String title = "💊 "+ yaksok.getUser().getNickname() + "님의 " + "복약 완료";
-        String body = yaksok.getTitle() + "의 " + date + " " + notification.getTimeCategory() + "' 복약을 완료했어요.";
-
-        for(ShareYaksok share : shares){
-            List<String> tokens = userDeviceRepository.findAllByUserId(share.getReceiver().getId()).stream()
-                            .map(UserDevice::getToken).toList();
-
-            if(tokens.isEmpty()) continue;
-
-            List<String> invalid = fcmService.sendMessage(
-                    tokens, title, body, String.valueOf(notification.getId()), FcmMessageType.TAKEN_ALERT);
-
-            invalid.forEach(userDeviceRepository::deleteByToken);
-        }
+        eventPublisher.publishEvent(new NotificationStatusChangedEvent(
+                notification.getId(),
+                yaksok.getId(),
+                yaksok.getUser().getId(),
+                yaksok.getUser().getNickname(),
+                yaksok.getTitle(),
+                notification.getTimeCategory(),
+                notification.getDate(),
+                isTaken
+        ));
     }
 
     @Transactional
