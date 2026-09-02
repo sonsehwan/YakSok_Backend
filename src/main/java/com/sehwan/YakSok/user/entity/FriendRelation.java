@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -37,6 +39,7 @@ public class FriendRelation {
                     name = "fk_friend_relation_user"
             )
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @MapsId("friendId")
@@ -48,6 +51,7 @@ public class FriendRelation {
                     name = "fk_friend_relation_friend"
             )
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User friend;
 
     @Column(name = "created_at", nullable = false)

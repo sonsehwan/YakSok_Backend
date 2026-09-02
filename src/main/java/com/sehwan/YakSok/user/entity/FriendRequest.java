@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -46,6 +48,7 @@ public class FriendRequest {
                     name = "fk_friend_request_requester"
             )
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User requester; // 친구 요청을 보낸 사람
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -56,6 +59,7 @@ public class FriendRequest {
                     name = "fk_friend_request_receiver"
             )
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver; // 친구 요청을 받은 사람
 
     @Column(name = "user_low_id", nullable = false)

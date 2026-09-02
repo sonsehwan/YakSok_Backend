@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +27,7 @@ public class ChatParticipant {
     // 약국이 참여자일 경우 이 필드는 DB에 null로 저장됨
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     // 4. 소속 채팅방
