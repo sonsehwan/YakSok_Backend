@@ -2,6 +2,7 @@ package com.sehwan.YakSok.user.service;
 
 
 import com.sehwan.YakSok.auth.JwtProvider;
+import com.sehwan.YakSok.auth.dto.response.TokenResponse;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
@@ -104,7 +106,7 @@ public class UserService {
     }
 
     @Transactional
-    public String reissueAccessToken(String refreshToken){
+    public TokenResponse reissueAccessToken(String refreshToken){
         RefreshToken saved = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(()-> new IllegalArgumentException("유효하지 않는 리프레쉬 토큰입니다."));
 
@@ -113,7 +115,15 @@ public class UserService {
             throw new IllegalArgumentException("만료된 리프레쉬 토큰입니다.");
         }
 
-        return jwtProvider.createAccessToken(saved.getUser().getId());
+        String newAccessToken = jwtProvider.createAccessToken(saved.getUser().getId());
+        String newRefreshToken = UUID.randomUUID().toString();
+
+        long plusDays = ChronoUnit.DAYS.between(saved.getExpiresAt().toLocalDate(),LocalDateTime.now().toLocalDate());
+
+        saved.setToken(newRefreshToken);
+        saved.setExpiresAt(LocalDateTime.now().plusDays(plusDays));
+
+        return new TokenResponse(newAccessToken, newRefreshToken);
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.auth.controller;
 
 import com.sehwan.YakSok.auth.dto.request.RefreshTokenRequest;
+import com.sehwan.YakSok.auth.dto.response.TokenResponse;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,9 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<String>> refreshToken(@RequestBody RefreshTokenRequest dto) {
+    public ResponseEntity<ApiResponse<TokenResponse>> refreshToken(@RequestBody RefreshTokenRequest dto) {
         try{
-            String newAccessToken = userService.reissueAccessToken(dto.getRefreshToken());
+            TokenResponse newAccessToken = userService.reissueAccessToken(dto.getRefreshToken());
             return ResponseEntity.ok(ApiResponse.success("토큰 재발급 성공", newAccessToken));
         }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
