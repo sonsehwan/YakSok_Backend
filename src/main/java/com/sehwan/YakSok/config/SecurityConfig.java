@@ -1,6 +1,8 @@
-
 package com.sehwan.YakSok.config;
 
+import com.sehwan.YakSok.auth.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,11 +10,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -21,33 +28,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 // 2. HTTP 기본 인증 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/**").permitAll()
-                );
-
-//                // 3. 경로별 권한 설정
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/users/signup").permitAll()
-//                        .requestMatchers("/api/users/login").permitAll()
-//                        .requestMatchers("/api/users/info").permitAll()
-//                        .requestMatchers("/api/users/password").permitAll()
-//                        .requestMatchers("/api/medicine/search").permitAll()
-//                        .requestMatchers("/api/medicine/search/pill").permitAll()
-//                        .requestMatchers("/api/users/**").permitAll()
-//                        .requestMatchers("/api/users").permitAll()
-//
-//                        .requestMatchers("/api/yaksok").permitAll()
-//                        .requestMatchers("/api/yaksok/**").permitAll()
-//                        .requestMatchers("/api/medicine/**").permitAll()
-//                        .requestMatchers("/api/drugstore/**").permitAll()
-//                        .requestMatchers("/api/chat/room/").permitAll()
-//                        .requestMatchers("/api/chat/room").permitAll()
-//                        .requestMatchers("/ws-stomp/**").permitAll()
-//
-//                        .requestMatchers("/error").permitAll()
-//
-//                        .anyRequest().authenticated()
-//                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -55,5 +40,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증이 필요합니다.");
     }
 }
