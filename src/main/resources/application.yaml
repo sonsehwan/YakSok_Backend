@@ -3,6 +3,10 @@ logging:
     com.sehwan.YakSok: INFO
     org.hibernate.SQL: DEBUG
 
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-validity: 3600000
+
 api:
   medicine:
     service-key: ${MEDICINE_API_KEY}
