@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.user.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -8,8 +9,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@Getter
+@Setter
 @Table(name = "refresh_token",
         uniqueConstraints = @UniqueConstraint(name = "uk_refresh_tokens_token", columnNames = {"token"}))
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshToken {
 
     @Id

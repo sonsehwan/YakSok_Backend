@@ -2,6 +2,7 @@ package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.request.*;
+import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,9 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest dto) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest dto) {
         try {
-            UserResponse loginUser = userService.login(dto);
+            LoginResponse loginUser = userService.login(dto);
             return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "LOGIN_FAIL", e.getMessage()));
@@ -88,7 +89,7 @@ public class UserController {
     @DeleteMapping("/{id}/fcm-token")
     public ResponseEntity<ApiResponse<Void>> deleteFcmToken(@PathVariable Long id, @RequestBody FirebaseTokenRequest dto){
         try{
-            userService.deleteToken(id, dto.getFcmToken());
+            userService.deleteFcmToken(id, dto.getFcmToken());
             return ResponseEntity.ok(ApiResponse.success("FCM토큰 삭제 성공"));
         }catch (RuntimeException e){
             log.error("토큰 삭제 실패");

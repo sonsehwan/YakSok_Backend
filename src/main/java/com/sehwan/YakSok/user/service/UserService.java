@@ -1,6 +1,7 @@
 package com.sehwan.YakSok.user.service;
 
 
+import com.sehwan.YakSok.auth.JwtProvider;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
@@ -8,9 +9,12 @@ import com.sehwan.YakSok.user.dto.request.LoginRequest;
 import com.sehwan.YakSok.user.dto.request.ModifyInfoRequest;
 import com.sehwan.YakSok.user.dto.request.ModifyPasswordRequest;
 import com.sehwan.YakSok.user.dto.request.UserRequest;
+import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.user.dto.response.UserResponse;
+import com.sehwan.YakSok.user.entity.RefreshToken;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserDevice;
+import com.sehwan.YakSok.user.repository.RefreshTokenRepository;
 import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -30,7 +35,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final DrugStoreRepository drugStoreRepository;
     private final UserDeviceRepository userDeviceRepository;
+    private final RefreshTokenRepository  refreshTokenRepository;
+
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public void signUp(UserRequest dto) {
@@ -74,7 +82,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse login(LoginRequest dto){
+    public LoginResponse login(LoginRequest dto){
 
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
@@ -82,9 +90,35 @@ public class UserService {
         if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
-        System.out.println("로그인 성공");
 
-        return new UserResponse(user);
+        String accessToken = jwtProvider.createAccessToken(user.getId());
+        String refreshToken = UUID.randomUUID().toString();
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                .user(user)
+                .token(refreshToken)
+                .expiresAt(LocalDateTime.now().plusWeeks(2))
+                .build());
+
+        return new LoginResponse(new UserResponse(user), accessToken, refreshToken);
+    }
+
+    @Transactional
+    public String reissueAccessToken(String refreshToken){
+        RefreshToken saved = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(()-> new IllegalArgumentException("유효하지 않는 리프레쉬 토큰입니다."));
+
+        if(saved.getExpiresAt().isBefore(LocalDateTime.now())){
+            refreshTokenRepository.deleteByToken(refreshToken);
+            throw new IllegalArgumentException("만료된 리프레쉬 토큰입니다.");
+        }
+
+        return jwtProvider.createAccessToken(saved.getUser().getId());
+    }
+
+    @Transactional
+    public void logout(String refreshToken){
+        refreshTokenRepository.deleteByToken(refreshToken);
     }
 
     @Transactional
@@ -143,7 +177,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteToken(Long userId, String token) {
+    public void deleteFcmToken(Long userId, String token) {
         if(token == null || token.isBlank()){
             throw new IllegalArgumentException("삭제할 FCM 토큰이 비어 있습니다.");
         }
