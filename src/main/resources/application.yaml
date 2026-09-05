@@ -5,11 +5,11 @@ logging:
 
 api:
   medicine:
-    service-key: "5b0016030bacdf44ef216c32ac7961609fb29b0513dd411049f655aa5a2a63a0"
+    service-key: ${MEDICINE_API_KEY}
     url: "https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService03/getMdcinGrnIdntfcInfoList03"
 
   drugstore:
-    service-key: "5b0016030bacdf44ef216c32ac7961609fb29b0513dd411049f655aa5a2a63a0"
+    service-key: ${DRUGSTORE_API_KEY}
     url: "https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService"
 
 spring:
@@ -20,7 +20,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/yaksok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: "@25Dldh25"
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:

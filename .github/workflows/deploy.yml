@@ -79,5 +79,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 최신 jar 파일을 찾아 백그라운드에서 실행
+            export JWT_SECRET='${{ secrets.JWT_SECRET }}'
+            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+            export MEDICINE_API_KEY='${{ secrets.MEDICINE_API_KEY }}'
+            export DRUGSTORE_API_KEY='${{ secrets.DRUGSTORE_API_KEY }}'
             nohup java -Xms512m -Xmx512m -jar /home/ubuntu/app/*.jar --server.port=8080 > /home/ubuntu/app/nohup.out 2>&1 &
