@@ -15,6 +15,7 @@ import com.sehwan.YakSok.user.repository.UserDeviceRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final DrugStoreRepository drugStoreRepository;
     private final UserDeviceRepository userDeviceRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void signUp(UserRequest dto) {
@@ -41,7 +43,7 @@ public class UserService {
         }
 
         if(!dto.getRole().equals("DRUGSTORE")) {
-            User user = dto.toEntity();
+            User user = buildUserwithEncodedPassword(dto);
             userRepository.save(user);
         }else{
             SearchDrugStoreDto drugStore = dto.getDrugStore();
@@ -59,12 +61,16 @@ public class UserService {
             DrugStore drugStoreEntity = drugStoreRepository.findByHpid(hpid)
                     .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
 
-            User user = dto.toEntity();
-
+            User user = buildUserwithEncodedPassword(dto);
             user.setMyDrugStore(drugStoreEntity);
-
             userRepository.save(user);
         }
+    }
+
+    private User buildUserwithEncodedPassword(UserRequest dto) {
+        User user = dto.toEntity();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
     }
 
     @Transactional
@@ -73,7 +79,7 @@ public class UserService {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-        if(!user.getPassword().equals(dto.getPassword())){
+        if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
         System.out.println("로그인 성공");
@@ -100,11 +106,11 @@ public class UserService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if(!user.getPassword().equals(dto.getCurrentPassword())){
+        if(!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        user.setPassword(dto.getNewPassword());
+        user.setPassword(passwordEncoder.encode(dto.getCurrentPassword()));
     }
 
     @Transactional

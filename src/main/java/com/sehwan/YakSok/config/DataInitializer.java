@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class DataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRelationRepository friendRelationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -48,8 +50,8 @@ public class DataInitializer implements ApplicationRunner {
         List<User> users = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
             users.add(User.builder()
-                    .email("test" + i + "@yaksok.com")
-                    .password("1234")
+                    .email("user" + i + "@naver.com")
+                    .password(passwordEncoder.encode("user1234@"))
                     .nickname("테스트유저" + i)
                     .gender(i % 2 == 0 ? "여성" : "남성")
                     .birthdate(LocalDate.of(1995, 1, i))
