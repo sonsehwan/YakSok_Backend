@@ -1,7 +1,6 @@
 package com.sehwan.YakSok.chat.controller;
 
 
-import com.google.protobuf.Api;
 import com.sehwan.YakSok.chat.dto.ChatMessageDto;
 import com.sehwan.YakSok.chat.dto.request.ChatRoomRequest;
 import com.sehwan.YakSok.chat.dto.request.DeleteChattingRoomRequest;
@@ -12,6 +11,7 @@ import com.sehwan.YakSok.chat.service.ChatService;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class ChatRoomController {
     // 로그인한 유저가 참여 중인 채팅방 목록
     @GetMapping
     public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> getMyRooms(
-            @RequestParam Long userId
+            @AuthenticationPrincipal Long userId
     ){
         try{
             List<ChatRoomListDto> rooms = chatService.getMyChatRooms(userId);
@@ -38,9 +38,10 @@ public class ChatRoomController {
 
     // 앱에서 "채팅하기" 버튼을 눌렀을 때 호출하는 API
     @PostMapping
-    public ResponseEntity<ApiResponse<ChatRoomResponse>> enterChatRoom(@RequestBody ChatRoomRequest request) {
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> enterChatRoom(@RequestBody ChatRoomRequest request,
+                                                                        @AuthenticationPrincipal Long userId) {
         try {
-            ChatRoomResponse response = chatService.getOrCreateRoom(request);
+            ChatRoomResponse response = chatService.getOrCreateRoom(request, userId);
             return ResponseEntity.ok(ApiResponse.success("채팅방 연결에 성공하였습니다.",response));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "CHAT_ROOM_FAIL", e.getMessage()));
@@ -50,10 +51,11 @@ public class ChatRoomController {
     // 친구와 채팅방 생성
     @PostMapping("/friend")
     public ResponseEntity<ApiResponse<ChatRoomResponse>> enterFriendChatRoom(
-            @RequestBody FriendChatRoomRequest request
+            @RequestBody FriendChatRoomRequest request,
+            @AuthenticationPrincipal Long userId
     ){
         try{
-            ChatRoomResponse response = chatService.getOrCreateFriendRoom(request);
+            ChatRoomResponse response = chatService.getOrCreateFriendRoom(request, userId);
             return ResponseEntity.ok(ApiResponse.success("채팅방 연결에 성공하였습니다.", response));
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "채팅방 연결 실패", e.getMessage()));
@@ -63,7 +65,7 @@ public class ChatRoomController {
     // 채팅 메시지 리스트 반환
     @GetMapping("/{roomId}/messages")
     public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable String roomId) {
         List<ChatMessageDto> messages = chatService.getChatMessages(userId, roomId);
         return ResponseEntity.ok(ApiResponse.success("과거 메시지 조회 성공", messages));
@@ -71,10 +73,10 @@ public class ChatRoomController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> deleteRoom(
-            @ModelAttribute DeleteChattingRoomRequest request)
+            @ModelAttribute DeleteChattingRoomRequest request,
+            @AuthenticationPrincipal Long userId)
     {
         try{
-            Long userId = request.getUserId();
             Long roomId = request.getRoomId();
             List<ChatRoomListDto> list = chatService.deleteChattingRoom(userId, roomId);
 

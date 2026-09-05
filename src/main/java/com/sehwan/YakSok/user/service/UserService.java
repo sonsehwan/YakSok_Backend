@@ -118,10 +118,8 @@ public class UserService {
         String newAccessToken = jwtProvider.createAccessToken(saved.getUser().getId());
         String newRefreshToken = UUID.randomUUID().toString();
 
-        long plusDays = ChronoUnit.DAYS.between(saved.getExpiresAt().toLocalDate(),LocalDateTime.now().toLocalDate());
-
         saved.setToken(newRefreshToken);
-        saved.setExpiresAt(LocalDateTime.now().plusDays(plusDays));
+        saved.setExpiresAt(LocalDateTime.now().plusWeeks(2));
 
         return new TokenResponse(newAccessToken, newRefreshToken);
     }
@@ -132,8 +130,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse modifyInfo(ModifyInfoRequest dto){
-        User user = userRepository.findById(dto.getUserId())
+    public UserResponse modifyInfo(ModifyInfoRequest dto, Long userId){
+        User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!user.getNickname().equals(dto.getNickname()) && userRepository.existsByNickname(dto.getNickname())){
@@ -146,8 +144,8 @@ public class UserService {
     }
 
     @Transactional
-    public void modifyPassword(ModifyPasswordRequest dto){
-        User user = userRepository.findById(dto.getUserId())
+    public void modifyPassword(ModifyPasswordRequest dto, Long userId){
+        User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){

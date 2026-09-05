@@ -8,6 +8,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FriendChatRoomRequest {
-    private Long userId;
     private Long friendId;
 }

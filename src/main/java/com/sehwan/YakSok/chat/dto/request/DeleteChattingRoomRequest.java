@@ -10,6 +10,5 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeleteChattingRoomRequest {
-    private Long userId;
     private Long roomId;
 }

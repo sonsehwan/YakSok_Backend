@@ -78,9 +78,9 @@ public class ChatService {
 
     // 채팅방이 있으면 가져오고 없으면 생성하여 유저들 참가시키기
     @Transactional
-    public ChatRoomResponse getOrCreateRoom(ChatRoomRequest request){
+    public ChatRoomResponse getOrCreateRoom(ChatRoomRequest request, Long userId){
 
-        User clientUser = userRepository.findById(request.getUserId())
+        User clientUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("현재 로그인한 회원 정보를 찾지 못했습니다."));
 
         User pharmacyUser = userRepository.findByMyDrugStore_Hpid(request.getHpid())
@@ -112,9 +112,9 @@ public class ChatService {
 
     // 친구와의 1:1 채팅방이 있으면 가져오고 없으면 생성한다.
     @Transactional
-    public ChatRoomResponse getOrCreateFriendRoom(FriendChatRoomRequest request){
+    public ChatRoomResponse getOrCreateFriendRoom(FriendChatRoomRequest request, Long userId){
 
-        User me = userRepository.findById(request.getUserId())
+        User me = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("현재 로그인한 회원 정보를 찾지 못했습니다."));
 
         User friend = userRepository.findById(request.getFriendId())

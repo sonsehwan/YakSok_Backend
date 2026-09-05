@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FriendRequestAnswerDto {
-    private Long loginUserId;
     private Boolean answer;
 }

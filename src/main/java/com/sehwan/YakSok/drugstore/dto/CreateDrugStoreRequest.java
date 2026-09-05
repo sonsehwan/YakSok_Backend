@@ -8,6 +8,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CreateDrugStoreRequest {
-    Long userId;
     SearchDrugStoreDto drugStore;
 }

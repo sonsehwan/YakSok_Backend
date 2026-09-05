@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShareYaksokRequest {
-    private Long userId;        // 저장하는 사람
     private Long yaksokId;      // 공유받은 약속
 }

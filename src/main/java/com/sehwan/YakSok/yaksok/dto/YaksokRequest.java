@@ -14,9 +14,6 @@ import java.util.List;
 public class YaksokRequest {
 
     @NotNull
-    private Long userId;
-
-    @NotNull
     private String title;
 
     @NotNull

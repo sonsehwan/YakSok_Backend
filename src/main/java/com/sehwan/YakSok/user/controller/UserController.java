@@ -8,6 +8,7 @@ import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,9 +46,10 @@ public class UserController {
 
     //내 정보 수정
     @PatchMapping("/info")
-    public ResponseEntity<ApiResponse<UserResponse>> modifyInfo(@RequestBody ModifyInfoRequest dto) {
+    public ResponseEntity<ApiResponse<UserResponse>> modifyInfo(@RequestBody ModifyInfoRequest dto,
+                                                                 @AuthenticationPrincipal Long userId) {
         try{
-            UserResponse modifyUser = userService.modifyInfo(dto);
+            UserResponse modifyUser = userService.modifyInfo(dto, userId);
             return ResponseEntity.ok(ApiResponse.success("수정 성공", modifyUser));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_INFO_FAIL", e.getMessage()));
@@ -55,19 +57,20 @@ public class UserController {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<ApiResponse<Void>> modifyPassword(@RequestBody ModifyPasswordRequest dto) {
+    public ResponseEntity<ApiResponse<Void>> modifyPassword(@RequestBody ModifyPasswordRequest dto,
+                                                              @AuthenticationPrincipal Long userId) {
         try{
-            userService.modifyPassword(dto);
+            userService.modifyPassword(dto, userId);
             return ResponseEntity.ok(ApiResponse.success("비밀번호 수정 성공"));
         }catch(RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_PW_FAIL", e.getMessage()));
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal Long userId) {
         try {
-            userService.deleteUser(id);
+            userService.deleteUser(userId);
             return ResponseEntity.ok(ApiResponse.success("회원 탈퇴(삭제)가 성공적으로 처리되었습니다."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_DELETE_USER", e.getMessage()));
@@ -75,10 +78,10 @@ public class UserController {
     }
 
     //Firebase 토큰 저장
-    @PatchMapping("/{id}/fcm-token")
-    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@PathVariable Long id, @RequestBody FirebaseTokenRequest dto){
+    @PatchMapping("/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> updateFcmToken(@AuthenticationPrincipal Long userId, @RequestBody FirebaseTokenRequest dto){
         try{
-            userService.updateToken(id, dto.getFcmToken());
+            userService.updateToken(userId, dto.getFcmToken());
             return ResponseEntity.ok().body(ApiResponse.success("FCM토큰 업데이트 성공"));
         }catch (RuntimeException e){
             log.error("토큰 업데이트 실패");
@@ -86,10 +89,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}/fcm-token")
-    public ResponseEntity<ApiResponse<Void>> deleteFcmToken(@PathVariable Long id, @RequestBody FirebaseTokenRequest dto){
+    @DeleteMapping("/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> deleteFcmToken(@AuthenticationPrincipal Long userId, @RequestBody FirebaseTokenRequest dto){
         try{
-            userService.deleteFcmToken(id, dto.getFcmToken());
+            userService.deleteFcmToken(userId, dto.getFcmToken());
             return ResponseEntity.ok(ApiResponse.success("FCM토큰 삭제 성공"));
         }catch (RuntimeException e){
             log.error("토큰 삭제 실패");

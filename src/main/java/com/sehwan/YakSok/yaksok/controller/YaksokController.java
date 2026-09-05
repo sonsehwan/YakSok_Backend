@@ -13,6 +13,7 @@ import com.sehwan.YakSok.yaksok.dto.SaveYaksokResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +28,10 @@ public class YaksokController {
 
     // 약속 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<SaveYaksokResponse>> saveYaksok(@RequestBody YaksokRequest request) {
+    public ResponseEntity<ApiResponse<SaveYaksokResponse>> saveYaksok(@RequestBody YaksokRequest request,
+                                                                       @AuthenticationPrincipal Long userId) {
         try{
-            SaveYaksokResponse response  = yaksokService.saveYaksok(request);
+            SaveYaksokResponse response  = yaksokService.saveYaksok(request, userId);
             return ResponseEntity.ok(ApiResponse.success("약속 저장에 성공하였습니다.", response));
         }catch(Exception e){
             log.error("에러 발생 : {}", e.getMessage(), e);
@@ -41,9 +43,10 @@ public class YaksokController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SaveYaksokResponse>> updateYaksok(
             @PathVariable Long id,
-            @RequestBody YaksokRequest request){
+            @RequestBody YaksokRequest request,
+            @AuthenticationPrincipal Long userId){
         try {
-            SaveYaksokResponse response = yaksokService.updateYaksok(id, request);
+            SaveYaksokResponse response = yaksokService.updateYaksok(id, request, userId);
             return ResponseEntity.ok(ApiResponse.success("약속이 성공적으로 수정되었습니다.", response));
         } catch (Exception e) {
             log.error("수정 중 에러 발생 : {}", e.getMessage(), e);
@@ -55,24 +58,25 @@ public class YaksokController {
     @PatchMapping("/notifications/{notificationId}/status")
     public ResponseEntity<ApiResponse<Void>> updateNotificationStatus(
             @PathVariable Long notificationId,
-            @RequestParam boolean isTaken) {
+            @RequestParam boolean isTaken,
+            @AuthenticationPrincipal Long userId) {
 
-        yaksokService.updateNotificationStatus(notificationId, isTaken);
+        yaksokService.updateNotificationStatus(notificationId, isTaken, userId);
         return ResponseEntity.ok(ApiResponse.success("알림 상태가 성공적으로 변경되었습니다."));
     }
 
     // 알림 목록 가져오기
-    @GetMapping("{userId}/notifications")
+    @GetMapping("/notifications")
     public ResponseEntity<ApiResponse<List<Notification>>> getNotifications(
-            @PathVariable Long userId
+            @AuthenticationPrincipal Long userId
             ){
         List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success("성공적으로 알림 리스트를 가져왔습니다.", notifications));
     }
 
     // 약속 목록 가져오기
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<ApiResponse<List<YaksokDto>>> getYaksokList(@PathVariable Long userId){
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<YaksokDto>>> getYaksokList(@AuthenticationPrincipal Long userId){
         try {
             List<YaksokDto> yaksokList = yaksokService.getYaksokListById(userId);
             return ResponseEntity.ok(ApiResponse.success("약속 목록을 성공적으로 가져왔습니다.", yaksokList));
@@ -83,9 +87,10 @@ public class YaksokController {
     }
 
     @GetMapping("/{yaksokId}")
-    public ResponseEntity<ApiResponse<YaksokDto>> getYaksok(@PathVariable Long yaksokId){
+    public ResponseEntity<ApiResponse<YaksokDto>> getYaksok(@PathVariable Long yaksokId,
+                                                             @AuthenticationPrincipal Long userId){
         try{
-            YaksokDto yaksok = yaksokService.getYaksok(yaksokId);
+            YaksokDto yaksok = yaksokService.getYaksok(yaksokId, userId);
             return ResponseEntity.ok(ApiResponse.success("약속을 성공적으로 가져왔습니다.", yaksok));
         }catch (Exception e){
             log.error("에러 발생 : {}", e.getMessage(), e);
@@ -95,9 +100,10 @@ public class YaksokController {
 
     // 약속 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteYaksok(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteYaksok(@PathVariable Long id,
+                                                           @AuthenticationPrincipal Long userId) {
         try {
-            yaksokService.deleteYaksok(id);
+            yaksokService.deleteYaksok(id, userId);
             return ResponseEntity.ok(ApiResponse.success("약속이 성공적으로 삭제되었습니다."));
         } catch (Exception e) {
             log.error("삭제 중 에러 발생 : {}", e.getMessage());

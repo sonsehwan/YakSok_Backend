@@ -9,6 +9,7 @@ import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +26,8 @@ public class DrugstoreController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> createDrugStore(@RequestBody CreateDrugStoreRequest request){
-        Long userId = request.getUserId();
+    public ResponseEntity<ApiResponse<UserResponse>> createDrugStore(@RequestBody CreateDrugStoreRequest request,
+                                                                      @AuthenticationPrincipal Long userId){
         SearchDrugStoreDto drugStore = request.getDrugStore();
 
         UserResponse response = drugstoreService.modifyDrugStore(userId, drugStore);

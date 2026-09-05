@@ -32,12 +32,12 @@ public class YaksokService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public SaveYaksokResponse saveYaksok(YaksokRequest request){
+    public SaveYaksokResponse saveYaksok(YaksokRequest request, Long userId){
         String timeMorning = (request.isTakeMorning() && (request.getTimeMorning() == null ||  request.getTimeMorning().trim().isEmpty()) ? "오전 08:00" : request.getTimeMorning());
         String timeLunch = (request.isTakeLunch() && (request.getTimeLunch() == null ||  request.getTimeLunch().trim().isEmpty()) ? "오후 12:00" : request.getTimeLunch());
         String timeDinner = (request.isTakeDinner() && (request.getTimeDinner() == null ||  request.getTimeDinner().trim().isEmpty()) ? "오후 06:00" : request.getTimeDinner());
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         Yaksok yaksok = Yaksok.builder()
@@ -80,17 +80,25 @@ public class YaksokService {
 
     // 단일 약속
     @Transactional
-    public YaksokDto getYaksok(Long yaksokId) {
+    public YaksokDto getYaksok(Long yaksokId, Long userId) {
         Yaksok yaksok = yaksokRepository.findByIdWithPills(yaksokId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + yaksokId));
+
+        if (!yaksok.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 약속만 조회할 수 있습니다.");
+        }
 
         return YaksokDto.from(yaksok);
     }
 
     @Transactional
-    public SaveYaksokResponse updateYaksok(Long yaksokId, YaksokRequest request) {
+    public SaveYaksokResponse updateYaksok(Long yaksokId, YaksokRequest request, Long userId) {
         Yaksok yaksok = yaksokRepository.findById(yaksokId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 약속을 찾을 수 없습니다. id=" + yaksokId));
+
+        if (!yaksok.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 약속만 수정할 수 있습니다.");
+        }
 
         // 알림 재생성이 필요한 '일정/시간' 변경 여부 확인
         boolean isScheduleChanged =
@@ -200,9 +208,13 @@ public class YaksokService {
     }
 
     @Transactional
-    public void updateNotificationStatus(Long notificationId, boolean isTaken) {
+    public void updateNotificationStatus(Long notificationId, boolean isTaken, Long userId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다. id=" + notificationId));
+
+        if (!notification.getYaksok().getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 알림만 처리할 수 있습니다.");
+        }
 
         if(isTaken == notification.isTaken()){
             return;
@@ -261,9 +273,13 @@ public class YaksokService {
     }
 
     @Transactional
-    public void deleteYaksok(Long id) {
+    public void deleteYaksok(Long id, Long userId) {
         Yaksok yaksok = yaksokRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + id));
+
+        if (!yaksok.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 약속만 삭제할 수 있습니다.");
+        }
 
         // JPA의 Cascade 설정 덕분에 yaksok을 삭제하면 연관된 Pill, Notification도 자동 삭제됩니다.
         yaksokRepository.delete(yaksok);

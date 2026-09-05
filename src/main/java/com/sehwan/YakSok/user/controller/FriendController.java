@@ -10,6 +10,7 @@ import com.sehwan.YakSok.user.service.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,13 +31,13 @@ public class FriendController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<UserSearchResultDto>> searchUser(
             @RequestParam String nickname,
-            @RequestParam Long loginUserId){
+            @AuthenticationPrincipal Long userId){
         ResponseEntity<ApiResponse<UserSearchResultDto>> response = null;
 
         try{
             log.info("닉네임으로 사용자를 검색합니다.");
 
-            UserSearchResultDto user = friendService.searchUserByNickname(nickname, loginUserId);
+            UserSearchResultDto user = friendService.searchUserByNickname(nickname, userId);
 
             response = ResponseEntity.ok(ApiResponse.success("사용자를 찾았습니다.", user));
         }catch(Exception e){
@@ -47,11 +48,12 @@ public class FriendController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<ApiResponse<Void>> createFriendRequest(@RequestBody FriendRequestCreateDto request){
+    public ResponseEntity<ApiResponse<Void>> createFriendRequest(@RequestBody FriendRequestCreateDto request,
+                                                                  @AuthenticationPrincipal Long userId){
         try{
             log.info("친구 요청 생성 시작");
 
-            friendService.createFriendRequest(request.getUserId(), request.getFriendId());
+            friendService.createFriendRequest(userId, request.getFriendId());
 
             return ResponseEntity.ok(ApiResponse.success("친구요청에 성공하였습니다."));
         }catch(Exception e){
@@ -63,17 +65,18 @@ public class FriendController {
     @PatchMapping("/request/{requestId}/answer")
     public ResponseEntity<ApiResponse<Void>> answerFriendRequest(
             @PathVariable Long requestId,
-            @RequestBody FriendRequestAnswerDto request){
+            @RequestBody FriendRequestAnswerDto request,
+            @AuthenticationPrincipal Long userId){
         ResponseEntity<ApiResponse<Void>> response = null;
         try{
             log.info("친구요청 응답 전달 받음");
 
             if(request.getAnswer()){
-                friendService.acceptFriendRequest(requestId,request.getLoginUserId());
+                friendService.acceptFriendRequest(requestId, userId);
 
                 response = ResponseEntity.ok(ApiResponse.success(requestId +"의 친구 요청을 승락하였습니다."));
             } else {
-                friendService.rejectFriendRequest(requestId,request.getLoginUserId());
+                friendService.rejectFriendRequest(requestId, userId);
 
                 response = ResponseEntity.ok(ApiResponse.success(requestId +"의 친구 요청을 거절하였습니다."));
             }
@@ -86,13 +89,13 @@ public class FriendController {
     }
 
     @GetMapping("/request/received")
-    public ResponseEntity<ApiResponse<List<ReceivedFriendRequestDto>>>  getReceivedFriendRequests(@RequestParam Long loginUserId){
+    public ResponseEntity<ApiResponse<List<ReceivedFriendRequestDto>>>  getReceivedFriendRequests(@AuthenticationPrincipal Long userId){
         ResponseEntity<ApiResponse<List<ReceivedFriendRequestDto>>> response = null;
 
         try {
             log.info("받은 친구 요청 목록을 가져옵니다.");
 
-            List<ReceivedFriendRequestDto> requests = friendService.getReceivedFriendRequests(loginUserId);
+            List<ReceivedFriendRequestDto> requests = friendService.getReceivedFriendRequests(userId);
 
             response = ResponseEntity.ok(ApiResponse.success("성공적으로 받은 친구 요청 목록을 가져왔습니다.", requests));
         }catch(Exception e){
@@ -106,12 +109,12 @@ public class FriendController {
      *  친구 관계 관련 API
      */
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<FriendListDto>> getFriendList(@RequestParam Long loginUserId){
+    public ResponseEntity<ApiResponse<FriendListDto>> getFriendList(@AuthenticationPrincipal Long userId){
         ResponseEntity<ApiResponse<FriendListDto>> response = null;
         try{
             log.info("친구 리스트를 가져옵니다.");
 
-            FriendListDto list = friendService.getFriendList(loginUserId);
+            FriendListDto list = friendService.getFriendList(userId);
 
             response = ResponseEntity.ok(ApiResponse.success("성공적으로 친구 리스트를 가져왔습니다.", list));
         } catch (Exception e) {
@@ -125,13 +128,13 @@ public class FriendController {
     // 친구 삭제 (내 목록에서만 지우고, 갱신된 친구 목록을 돌려준다.)
     @DeleteMapping
     public ResponseEntity<ApiResponse<FriendListDto>> deleteFriend(
-            @RequestParam Long loginUserId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam Long friendId){
         ResponseEntity<ApiResponse<FriendListDto>> response = null;
         try{
             log.info("친구를 삭제합니다.");
 
-            FriendListDto list = friendService.deleteFriend(loginUserId, friendId);
+            FriendListDto list = friendService.deleteFriend(userId, friendId);
 
             response = ResponseEntity.ok(ApiResponse.success("친구를 삭제하였습니다.", list));
         } catch (Exception e) {

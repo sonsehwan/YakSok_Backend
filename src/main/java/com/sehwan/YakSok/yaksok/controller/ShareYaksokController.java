@@ -8,6 +8,7 @@ import com.sehwan.YakSok.yaksok.service.ShareYaksokService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +23,10 @@ public class ShareYaksokController {
 
     // 채팅에서 공유받은 약속 상세의 "저장" 버튼
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> saveSharedYaksok(@RequestBody ShareYaksokRequest request) {
+    public ResponseEntity<ApiResponse<Void>> saveSharedYaksok(@RequestBody ShareYaksokRequest request,
+                                                               @AuthenticationPrincipal Long userId) {
         try {
-            shareYaksokService.saveSharedYaksok(request.getUserId(), request.getYaksokId());
+            shareYaksokService.saveSharedYaksok(userId, request.getYaksokId());
             return ResponseEntity.ok(ApiResponse.success("공유 약속을 저장하였습니다."));
         } catch (Exception e) {
             log.error("공유 약속 저장 실패 : {}", e.getMessage(), e);
@@ -34,7 +36,7 @@ public class ShareYaksokController {
 
     // 해당 id 유저에게 공유한 유저 목록
     @GetMapping("/sender")
-    public ResponseEntity<ApiResponse<List<SharedUser>>> getSharedUserList(@RequestParam Long userId) {
+    public ResponseEntity<ApiResponse<List<SharedUser>>> getSharedUserList(@AuthenticationPrincipal Long userId) {
         try {
             List<SharedUser> list = shareYaksokService.getSharedUserList(userId);
             return ResponseEntity.ok(ApiResponse.success("공유자 목록을 성공적으로 가져왔습니다.", list));
@@ -47,7 +49,7 @@ public class ShareYaksokController {
     // 저장한 공유 약속 목록
     @GetMapping
     public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) Long senderId) {
         try {
             List<YaksokDto> list = shareYaksokService.getSharedYaksokList(userId, senderId);
@@ -62,7 +64,7 @@ public class ShareYaksokController {
     @DeleteMapping("/{yaksokId}")
     public ResponseEntity<ApiResponse<Void>> deleteSharedYaksok(
             @PathVariable Long yaksokId,
-            @RequestParam Long userId) {
+            @AuthenticationPrincipal Long userId) {
         try {
             shareYaksokService.deleteSharedYaksok(userId, yaksokId);
             return ResponseEntity.ok(ApiResponse.success("공유 목록에서 제거하였습니다."));
