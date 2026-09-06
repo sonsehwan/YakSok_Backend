@@ -37,7 +37,7 @@ public class DrugstoreService {
     @Qualifier("drugstoreRestClient")
     private final RestClient drugstoreRestClient;
 
-    @Value("${api.medicine.service-key}")
+    @Value("${api.drugstore.service-key}")
     private String serviceKey;
 
     @Transactional
