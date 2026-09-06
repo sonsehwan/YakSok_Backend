@@ -74,7 +74,7 @@ public class DrugstoreService {
             log.error("{}", uri);
             log.error("ASCII URI = {}", uri.toASCIIString());
 
-            String responseJson = RestClient.create()
+            String responseJson = drugstoreRestClient
                     .get()
                     .uri(uri)
                     .retrieve()
