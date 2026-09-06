@@ -30,7 +30,19 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers(
+                                "/api/users/signup",
+                                "/api/users/login",
+                                "/api/auth/refresh",
+                                "/api/auth/logout",
+                                "/api/medicine/search",
+                                "/api/medicine/search/pill",
+                                "/api/drugstore/closelist",
+                                "/api/drugstore/searchlist",
+                                "/ws-stomp/**",
+                                "/error"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
