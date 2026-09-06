@@ -66,7 +66,7 @@ public class ChatRoomController {
     @GetMapping("/{roomId}/messages")
     public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getPreviousMessages(
             @AuthenticationPrincipal Long userId,
-            @PathVariable String roomId) {
+            @PathVariable Long roomId) {
         List<ChatMessageDto> messages = chatService.getChatMessages(userId, roomId);
         return ResponseEntity.ok(ApiResponse.success("과거 메시지 조회 성공", messages));
     }

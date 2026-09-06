@@ -53,13 +53,13 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessageDto> getChatMessages(Long userId, String roomId){
-        ChatParticipant participant = chatParticipantRepository.findByChattingRoomIdAndUserId(Long.valueOf(roomId), userId)
+    public List<ChatMessageDto> getChatMessages(Long userId, Long roomId){
+        ChatParticipant participant = chatParticipantRepository.findByChattingRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채팅방에 참여하고 있지 않습니다."));
 
         List<ChatMessage> list = participant.getJoinedAt() != null
-                ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(roomId, participant.getJoinedAt())
-                : chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+                ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(String.valueOf(roomId), participant.getJoinedAt())
+                : chatRepository.findByRoomIdOrderByCreatedAtAsc(String.valueOf(roomId));
 
         Set<String> senders = list.stream()
                 .map(ChatMessage::getSender)
