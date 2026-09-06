@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.medicine.controller;
 
+import com.sehwan.YakSok.common.exception.ExternalApiException;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.medicine.dto.response.SimpleMedicine;
 import com.sehwan.YakSok.medicine.service.MedicineService;
@@ -42,6 +43,8 @@ public class MedicineController {
             }
 
             return ResponseEntity.ok(ApiResponse.success("약 검색 결과입니다.", medicineList));
+        }catch (ExternalApiException e){
+            throw e; // 공공데이터 API 장애는 GlobalExceptionHandler가 503으로 처리
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "약 검색 실패", e.getMessage()));
         }
@@ -63,6 +66,8 @@ public class MedicineController {
             }
 
             return ResponseEntity.ok(ApiResponse.success("약 검색 결과입니다.", pill));
+        }catch (ExternalApiException e){
+            throw e; // 공공데이터 API 장애는 GlobalExceptionHandler가 503으로 처리
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "약 검색 실패", e.getMessage()));
         }

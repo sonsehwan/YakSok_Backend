@@ -1,5 +1,6 @@
 package com.sehwan.YakSok.medicine.service;
 
+import com.sehwan.YakSok.common.exception.ExternalApiException;
 import com.sehwan.YakSok.medicine.dto.response.SimpleMedicine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -119,7 +120,7 @@ public class MedicineService {
         } catch (Exception e) {
             System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
             e.printStackTrace();
-            return new ArrayList<>();
+            throw new ExternalApiException("공공데이터(의약품) 목록 API 통신 실패", e);
         }
     }
 
@@ -196,10 +197,12 @@ public class MedicineService {
                     (String) firstItem.get("ITEM_IMAGE")
             );
 
+        } catch (ExternalApiException e) {
+            throw e;
         } catch (Exception e) {
             System.err.println("공공데이터 API 통신 중 에러 발생: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            throw new ExternalApiException("공공데이터(의약품) 단일 검색 API 통신 실패", e);
         }
     }
 
@@ -283,9 +286,11 @@ public class MedicineService {
                     (String) firstItem.get("ITEM_IMAGE")
             );
 
+        } catch (ExternalApiException e) {
+            throw e;
         } catch (Exception e) {
             System.err.println("재검색 통신 중 에러 발생: " + e.getMessage());
-            return null;
+            throw new ExternalApiException("공공데이터(의약품) 재검색 API 통신 실패", e);
         }
     }
 }

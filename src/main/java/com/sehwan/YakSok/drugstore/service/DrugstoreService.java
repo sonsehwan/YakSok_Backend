@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sehwan.YakSok.common.exception.ExternalApiException;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
@@ -84,8 +85,7 @@ public class DrugstoreService {
             log.info(responseJson);
 
             if (responseJson == null || responseJson.isBlank()) {
-                log.error("공공 API 응답이 비어있습니다.");
-                return new ArrayList<>();
+                throw new ExternalApiException("공공데이터(약국) 검색 응답이 비어있음", null);
             }
 
             ObjectMapper mapper = new ObjectMapper();
@@ -121,12 +121,14 @@ public class DrugstoreService {
 
             log.error("예상하지 못한 itemNode 구조 = {}", itemNode.toPrettyString());
 
+        } catch (ExternalApiException e) {
+            throw e;
         } catch (JsonProcessingException e) {
             log.error("JSON 파싱 에러: {}", e.getMessage());
-            e.printStackTrace();
+            throw new ExternalApiException("공공데이터(약국) 검색 응답 파싱 실패", e);
         } catch (Exception e) {
             log.error("약국 검색 API 통신 에러: {}", e.getMessage());
-            e.printStackTrace();
+            throw new ExternalApiException("공공데이터(약국) 검색 API 통신 실패", e);
         }
 
         return new ArrayList<>();
@@ -152,8 +154,7 @@ public class DrugstoreService {
             log.info("====================================");
 
             if (responseJson == null || responseJson.isEmpty()) {
-                log.error("공공데이터 API 응답이 null이거나 비어있습니다.");
-                return new ArrayList<>();
+                throw new ExternalApiException("공공데이터(약국) 주변 조회 응답이 비어있음", null);
             }
 
             ObjectMapper mapper = new ObjectMapper();
@@ -178,12 +179,14 @@ public class DrugstoreService {
                 return list;
             }
 
+        } catch (ExternalApiException e) {
+            throw e;
         } catch (JsonProcessingException e) {
             log.error("응답 데이터를 DrugStore 객체로 변환하는 중 에러 발생: {}", e.getMessage());
-            e.printStackTrace();
+            throw new ExternalApiException("공공데이터(약국) 주변 조회 응답 파싱 실패", e);
         } catch (Exception e) {
             log.error("약국 API 통신 중 에러 발생: {}", e.getMessage());
-            e.printStackTrace();
+            throw new ExternalApiException("공공데이터(약국) 주변 조회 API 통신 실패", e);
         }
         return new ArrayList<>();
     }
