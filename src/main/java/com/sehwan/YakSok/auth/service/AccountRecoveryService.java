@@ -3,11 +3,11 @@ package com.sehwan.YakSok.auth.service;
 import com.sehwan.YakSok.auth.EmailVerificationStore;
 import com.sehwan.YakSok.auth.EmailVerificationStore.Purpose;
 import com.sehwan.YakSok.mail.MailService;
+import com.sehwan.YakSok.mail.MailTemplate;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.repository.RefreshTokenRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountRecoveryService {
@@ -43,16 +42,9 @@ public class AccountRecoveryService {
                 .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 아닙니다."));
 
         String code = verificationStore.issue(Purpose.FIND_ID, email);
-        mailService.sendText(email,
+        mailService.sendHtmlAsync(email,
                 "[약속] 아이디 찾기 인증코드",
-                """
-                안녕하세요, 약속입니다.
-
-                아이디 찾기 인증코드는 [%s] 입니다.
-                5분 이내에 입력해주세요.
-
-                본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.
-                """.formatted(code));
+                MailTemplate.verificationCode("아이디 찾기", code));
     }
 
     public String verifyFindId(String email, String code) {
@@ -73,16 +65,9 @@ public class AccountRecoveryService {
         }
 
         String code = verificationStore.issue(Purpose.RESET_PW, email);
-        mailService.sendText(email,
+        mailService.sendHtmlAsync(email,
                 "[약속] 비밀번호 재설정 인증코드",
-                """
-                안녕하세요, 약속입니다.
-
-                비밀번호 재설정 인증코드는 [%s] 입니다.
-                5분 이내에 입력해주세요.
-
-                본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.
-                """.formatted(code));
+                MailTemplate.verificationCode("비밀번호 재설정", code));
     }
 
     @Transactional
@@ -100,14 +85,9 @@ public class AccountRecoveryService {
 
         // 메일 발송이 실패하면 트랜잭션이 롤백되어 비밀번호 변경이 취소된다
         // (사용자가 임시 비밀번호를 못 받았는데 기존 비밀번호가 바뀌는 상황 방지).
-        mailService.sendText(email,
+        mailService.sendHtml(email,
                 "[약속] 임시 비밀번호가 발급되었습니다",
-                """
-                안녕하세요, 약속입니다.
-
-                임시 비밀번호는 [%s] 입니다.
-                로그인 후 반드시 새 비밀번호로 변경해주세요.
-                """.formatted(tempPassword));
+                MailTemplate.tempPassword(tempPassword));
 
         refreshTokenRepository.deleteByUser_Id(user.getId());
     }
