@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .findFirst()
                 .orElse("입력값이 올바르지 않습니다.");
-        return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_FAIL", message));
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, "INVALID_INPUT", message));
     }
 
     @ExceptionHandler(ExternalApiException.class)

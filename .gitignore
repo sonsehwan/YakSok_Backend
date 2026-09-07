@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 src/main/resources/firebase-service-account.json
+src/main/resources/application-local.yaml
 
 ### STS ###
 .apt_generated
