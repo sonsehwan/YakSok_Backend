@@ -48,6 +48,10 @@ public class UserService {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
+        if (userRepository.existsByLoginId(dto.getLoginId())) {
+            throw new RuntimeException("이미 사용 중인 아이디입니다.");
+        }
+
         if(userRepository.existsByNickname(dto.getNickname())) {
             throw  new RuntimeException("이미 존재하는 닉네임입니다.");
         }
@@ -86,7 +90,7 @@ public class UserService {
     @Transactional
     public LoginResponse login(LoginRequest dto){
 
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findByLoginId(dto.getLoginId())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
         if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())){

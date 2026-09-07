@@ -5,6 +5,7 @@ import com.sehwan.YakSok.user.dto.request.*;
 import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class UserController {
 
     //회원가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserRequest dto) {
+    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody UserRequest dto) {
         try {
             userService.signUp(dto);
 

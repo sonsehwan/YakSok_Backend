@@ -51,6 +51,7 @@ public class DataInitializer implements ApplicationRunner {
         for (int i = 1; i <= 4; i++) {
             users.add(User.builder()
                     .email("user" + i + "@naver.com")
+                    .loginId("testuser" + i)
                     .password(passwordEncoder.encode("user1234@"))
                     .nickname("테스트유저" + i)
                     .gender(i % 2 == 0 ? "여성" : "남성")

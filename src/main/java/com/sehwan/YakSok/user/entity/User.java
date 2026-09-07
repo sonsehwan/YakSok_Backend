@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false, length = 100, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true, length = 20)
+    private String loginId;
+
     // 3. 비밀번호: 필수
     @Column(nullable = false, length = 255)
     private String password;

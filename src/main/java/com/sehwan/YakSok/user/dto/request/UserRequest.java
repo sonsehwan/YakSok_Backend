@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,16 +18,24 @@ import java.time.LocalDate;
 @Builder
 public class UserRequest {
 
+    @NotBlank(message = "이메일을 입력해주세요.")
+    @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
+
+    @NotBlank(message = "아이디를 입력해주세요.")
+    @Pattern(regexp = "^[a-z0-9]{8,20}$",
+            message = "아이디는 영문 소문자·숫자 조합 8~20자여야 합니다.")
+    private String loginId;
+
     private String password;
+
+    @NotBlank(message = "닉네임을 입력해주세요.")
+    @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$",
+            message = "닉네임은 2~10자의 영문·한글·숫자만 사용 가능합니다.")
     private String nickname;
     private SearchDrugStoreDto drugStore;
     private String role;
 
-    /**
-     * DTO를 User 엔티티로 변환하는 메서드
-     * 서비스 계층에서 DB에 저장할 때 사용됩니다.
-     */
     public User toEntity() {
         UserRole userRole = this.role != null && this.role.equals("DRUGSTORE")
                 ? UserRole.DRUGSTORE
@@ -32,14 +43,15 @@ public class UserRequest {
 
         return User.builder()
                 .email(email)
+                .loginId(loginId)
                 .password(password)
                 .nickname(nickname)
                 .gender(null)
                 .birthdate(null)
                 .myDrugStore(null)
                 .role(userRole)
-                .penaltyEnable(false) // 초기 가입 시 기본값
-                .isLocked(false)      // 초기 가입 시 기본값
+                .penaltyEnable(false)
+                .isLocked(false)
                 .myDrugStore(null)
                 .build();
     }
