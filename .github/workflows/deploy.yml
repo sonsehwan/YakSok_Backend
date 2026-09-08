@@ -9,76 +9,73 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      # 0. 소스코드 체크아웃
+      - uses: actions/checkout@v4
 
-      # 1. JDK 설정
+      # 1. JDK 설정 + Gradle 캐시
+      #    cache: 'gradle' 로 ~/.gradle/caches 를 저장/복원 → 의존성 재다운로드 생략
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      # 1.5 Firebase 서비스 계정 키 생성
+      # 1.5 Firebase 서비스 계정 키 생성 (빌드 시 jar 에 포함되므로 빌드 전에 실행)
       - name: Create Firebase Service Account JSON
         run: |
           mkdir -p src/main/resources
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > src/main/resources/firebase-service-account.json
 
-      # 2. Gradle 빌드 (테스트 제외로 속도 향상)
-      # chmod +x ./gradlew : 리눅스 환경에서 Gradle 실행 파일(gradlew)에 실행 권한을 부여합니다.
-      #
+      # 2. Gradle 빌드 (실행용 jar만 생성)
+      #    - clean 제거: CI 는 매번 새 러너라 지울 결과물이 없음
+      #    - build → bootJar: check/검증 태스크 생략
+      #    - --build-cache: 변경된 부분만 재컴파일
       - name: Build with Gradle
         run: |
-          chmod +x ./gradlew 
-          ./gradlew clean build -x test
+          chmod +x ./gradlew
+          ./gradlew bootJar -x test --build-cache
 
-      # 3. [SSH] 기존 서버 종료 및 파일 물리적 삭제 강화
-      - name: Stop Old Server & Clean
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            echo "--- 기존 프로세스 정리 시작 ---"
-            # 1. 'YakSok'이 들어간 자바 프로세스만 찾아 PID 추출 (grep -v grep으로 자기 자신 제외)
-            PIDS=$(ps -ef | grep 'YakSok' | grep 'java' | grep -v 'grep' | awk '{print $2}')
-            
-            if [ -z "$PIDS" ]; then
-              echo "실행 중인 YakSok 프로세스가 없습니다."
-            else
-              echo "다음 PID를 종료합니다: $PIDS"
-              sudo kill -9 $PIDS
-            fi
-            
-            echo "--- 파일 및 로그 초기화 ---"
-            # 안전하게 폴더가 있는지 확인 후 삭제
-            sudo rm -rf /home/ubuntu/app/*.jar
-            sudo rm -f /home/ubuntu/app/nohup.out
-            sudo rm -f /home/ubuntu/YakSok-0.0.1-SNAPSHOT.jar
-            
-            echo "--- 정리 완료 ---"
-            ls -al /home/ubuntu/app/
-
-      # 4. [SCP] 빌드된 새 jar 파일을 깨끗해진 EC2 폴더로 전송
-      - name: Deploy to EC2
-        uses: appleboy/scp-action@master
+      # 3. [SCP] 빌드된 새 jar 를 EC2 임시 폴더(app/new)로 전송
+      #    옛 서버가 아직 살아있으므로 옛 jar 와 섞이지 않도록 별도 폴더에 대피
+      - name: Copy jar to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           source: "build/libs/*.jar"
-          target: "/home/ubuntu/app"
+          target: "/home/ubuntu/app/new"
           strip_components: 2
 
-      # 5. [SSH] 새로 전송된 최신 서버 실행
-      - name: Start New Server
-        uses: appleboy/ssh-action@master
+      # 4. [SSH] 옛 서버 종료 → 새 jar 교체 → 새 서버 실행 (연결 1회)
+      - name: Restart server on EC2
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            set -e
+
+            echo "--- 기존 프로세스 정리 ---"
+            PIDS=$(pgrep -f 'java .*YakSok' || true)
+            if [ -n "$PIDS" ]; then
+              echo "종료할 PID: $PIDS"
+              sudo kill -9 $PIDS
+            else
+              echo "실행 중인 YakSok 프로세스가 없습니다."
+            fi
+
+            echo "--- 새 jar 배치 ---"
+            mkdir -p /home/ubuntu/app
+            rm -f /home/ubuntu/app/*.jar /home/ubuntu/app/nohup.out
+            rm -f /home/ubuntu/YakSok-0.0.1-SNAPSHOT.jar
+            mv /home/ubuntu/app/new/*.jar /home/ubuntu/app/
+            rmdir /home/ubuntu/app/new 2>/dev/null || true
+            ls -al /home/ubuntu/app/
+
+            echo "--- 새 서버 실행 ---"
             export JWT_SECRET='${{ secrets.JWT_SECRET }}'
             export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
             export MEDICINE_API_KEY='${{ secrets.MEDICINE_API_KEY }}'
