@@ -24,7 +24,7 @@ public class Yaksok {
     private Long id;
 
     @Column(nullable = false)
-    private String title; // 약속 이름
+    private String title;
 
     @Column(nullable = false)
     private String startDate; // 복약 시작일
