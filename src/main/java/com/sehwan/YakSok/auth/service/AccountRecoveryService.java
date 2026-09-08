@@ -2,6 +2,7 @@ package com.sehwan.YakSok.auth.service;
 
 import com.sehwan.YakSok.auth.EmailVerificationStore;
 import com.sehwan.YakSok.auth.EmailVerificationStore.Purpose;
+import com.sehwan.YakSok.auth.PasswordResetTokenStore;
 import com.sehwan.YakSok.mail.MailService;
 import com.sehwan.YakSok.mail.MailTemplate;
 import com.sehwan.YakSok.user.entity.User;
@@ -12,28 +13,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class AccountRecoveryService {
 
-    private static final String TEMP_PW_LOWER = "abcdefghijklmnopqrstuvwxyz";
-    private static final String TEMP_PW_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String TEMP_PW_DIGIT = "0123456789";
-    private static final String TEMP_PW_SPECIAL = "!@#$%^&*";
-    private static final int TEMP_PW_LENGTH = 12;
-
     private final UserRepository userRepository;
     private final EmailVerificationStore verificationStore;
+    private final PasswordResetTokenStore passwordResetTokenStore;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
-
-    private final SecureRandom random = new SecureRandom();
 
     // --- 아이디 찾기 ---
 
@@ -70,8 +59,7 @@ public class AccountRecoveryService {
                 MailTemplate.verificationCode("비밀번호 재설정", code));
     }
 
-    @Transactional
-    public void verifyResetPw(String loginId, String email, String code) {
+    public String verifyResetPw(String loginId, String email, String code) {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 이메일이 일치하지 않습니다."));
         if (!user.getEmail().equals(email)) {
@@ -80,38 +68,17 @@ public class AccountRecoveryService {
 
         verificationStore.verify(Purpose.RESET_PW, email, code);
 
-        String tempPassword = generateTempPassword();
-        user.setPassword(passwordEncoder.encode(tempPassword));
-
-        // 메일 발송이 실패하면 트랜잭션이 롤백되어 비밀번호 변경이 취소된다
-        // (사용자가 임시 비밀번호를 못 받았는데 기존 비밀번호가 바뀌는 상황 방지).
-        mailService.sendHtml(email,
-                "[약속] 임시 비밀번호가 발급되었습니다",
-                MailTemplate.tempPassword(tempPassword));
-
-        refreshTokenRepository.deleteByUser_Id(user.getId());
+        return passwordResetTokenStore.issue(user.getId());
     }
 
-    private String generateTempPassword() {
-        List<Character> chars = new ArrayList<>();
-        chars.add(pick(TEMP_PW_LOWER));
-        chars.add(pick(TEMP_PW_UPPER));
-        chars.add(pick(TEMP_PW_DIGIT));
-        chars.add(pick(TEMP_PW_SPECIAL));
+    @Transactional
+    public void confirmResetPw(String resetToken, String newPassword) {
+        Long userId = passwordResetTokenStore.consume(resetToken);
 
-        String all = TEMP_PW_LOWER + TEMP_PW_UPPER + TEMP_PW_DIGIT + TEMP_PW_SPECIAL;
-        while (chars.size() < TEMP_PW_LENGTH) {
-            chars.add(pick(all));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        Collections.shuffle(chars, random);
-
-        StringBuilder sb = new StringBuilder(TEMP_PW_LENGTH);
-        chars.forEach(sb::append);
-        return sb.toString();
-    }
-
-    private char pick(String pool) {
-        return pool.charAt(random.nextInt(pool.length()));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        refreshTokenRepository.deleteByUser_Id(userId);
     }
 }

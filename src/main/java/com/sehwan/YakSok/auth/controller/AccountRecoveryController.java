@@ -2,9 +2,11 @@ package com.sehwan.YakSok.auth.controller;
 
 import com.sehwan.YakSok.auth.dto.request.FindIdSendCodeRequest;
 import com.sehwan.YakSok.auth.dto.request.FindIdVerifyRequest;
+import com.sehwan.YakSok.auth.dto.request.ResetPwConfirmRequest;
 import com.sehwan.YakSok.auth.dto.request.ResetPwSendCodeRequest;
 import com.sehwan.YakSok.auth.dto.request.ResetPwVerifyRequest;
 import com.sehwan.YakSok.auth.dto.response.FindIdResponse;
+import com.sehwan.YakSok.auth.dto.response.ResetPwVerifyResponse;
 import com.sehwan.YakSok.auth.service.AccountRecoveryService;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -53,10 +55,20 @@ public class AccountRecoveryController {
     }
 
     @PostMapping("/reset-password/verify")
-    public ResponseEntity<ApiResponse<Void>> verifyResetPw(@Valid @RequestBody ResetPwVerifyRequest dto) {
+    public ResponseEntity<ApiResponse<ResetPwVerifyResponse>> verifyResetPw(@Valid @RequestBody ResetPwVerifyRequest dto) {
         try {
-            accountRecoveryService.verifyResetPw(dto.getLoginId(), dto.getEmail(), dto.getCode());
-            return ResponseEntity.ok(ApiResponse.success("임시 비밀번호를 이메일로 발송했습니다."));
+            String resetToken = accountRecoveryService.verifyResetPw(dto.getLoginId(), dto.getEmail(), dto.getCode());
+            return ResponseEntity.ok(ApiResponse.success("인증 성공", new ResetPwVerifyResponse(resetToken)));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "RESET_PW_FAIL", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password/confirm")
+    public ResponseEntity<ApiResponse<Void>> confirmResetPw(@Valid @RequestBody ResetPwConfirmRequest dto) {
+        try {
+            accountRecoveryService.confirmResetPw(dto.getResetToken(), dto.getNewPassword());
+            return ResponseEntity.ok(ApiResponse.success("비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요."));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "RESET_PW_FAIL", e.getMessage()));
         }

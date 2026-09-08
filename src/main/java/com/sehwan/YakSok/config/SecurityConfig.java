@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/api/auth/find-id/verify",
                                 "/api/auth/reset-password/send-code",
                                 "/api/auth/reset-password/verify",
+                                "/api/auth/reset-password/confirm",
                                 "/api/medicine/search",
                                 "/api/medicine/search/pill",
                                 "/api/drugstore/closelist",
