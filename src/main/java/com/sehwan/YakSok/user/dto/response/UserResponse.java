@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.LocalDate;
-
 @Getter
 @ToString
 @Builder
@@ -22,16 +20,6 @@ public class UserResponse {
 
     private String nickname;
 
-    private String gender;
-
-    private LocalDate birthdate;
-
-    @Builder.Default
-    private Boolean penaltyEnable = false;
-
-    @Builder.Default
-    private Boolean isLocked = false;
-
     private UserRole role;
 
     private DrugStore myDrugStore; // 일반 유저는 null
@@ -40,8 +28,6 @@ public class UserResponse {
         this.id = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
-        this.gender = user.getGender();
-        this.birthdate = user.getBirthdate();
         this.role = user.getRole();
         this.myDrugStore = user.getMyDrugStore();
     }

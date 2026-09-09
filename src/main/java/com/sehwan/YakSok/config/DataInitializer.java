@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,11 +53,7 @@ public class DataInitializer implements ApplicationRunner {
                     .loginId("testuser" + i)
                     .password(passwordEncoder.encode("user1234@"))
                     .nickname("테스트유저" + i)
-                    .gender(i % 2 == 0 ? "여성" : "남성")
-                    .birthdate(LocalDate.of(1995, 1, i))
                     .role(UserRole.NORMAL)
-                    .penaltyEnable(false)
-                    .isLocked(false)
                     .build());
         }
         userRepository.saveAll(users);

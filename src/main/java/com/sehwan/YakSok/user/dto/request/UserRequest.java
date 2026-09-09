@@ -1,6 +1,5 @@
 package com.sehwan.YakSok.user.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
@@ -8,8 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -46,12 +43,7 @@ public class UserRequest {
                 .loginId(loginId)
                 .password(password)
                 .nickname(nickname)
-                .gender(null)
-                .birthdate(null)
-                .myDrugStore(null)
                 .role(userRole)
-                .penaltyEnable(false)
-                .isLocked(false)
                 .myDrugStore(null)
                 .build();
     }

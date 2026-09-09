@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,18 +40,6 @@ public class User {
     @Column(unique = true, length = 50)
     private String nickname;
 
-    @Column(length = 10)
-    private String gender;
-
-    private LocalDate birthdate;
-
-    //벌금 여부
-    @Builder.Default
-    private Boolean penaltyEnable = false;
-
-    @Builder.Default
-    private Boolean isLocked = false;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
@@ -80,11 +67,7 @@ public class User {
                 .id(id)
                 .email(email)
                 .nickname(nickname)
-                .gender(gender)
-                .birthdate(birthdate)
                 .role(role)
-                .penaltyEnable(penaltyEnable) // 초기 가입 시 기본값
-                .isLocked(isLocked)      // 초기 가입 시 기본값
                 .myDrugStore(myDrugStore)
                 .build();
     }
