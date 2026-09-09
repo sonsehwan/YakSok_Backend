@@ -36,6 +36,19 @@ public class ChatRoomController {
         }
     }
 
+    // 약국 사장의 상담 채팅방 목록 (개인 채팅과 조회 축이 달라 경로를 나눈다)
+    @GetMapping("/consult")
+    public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> getConsultRooms(
+            @AuthenticationPrincipal Long userId
+    ){
+        try{
+            List<ChatRoomListDto> rooms = chatService.getConsultRooms(userId);
+            return ResponseEntity.ok(ApiResponse.success("상담 채팅방 목록 조회 성공", rooms));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "상담 채팅방 목록 조회 실패", e.getMessage()));
+        }
+    }
+
     // 앱에서 "채팅하기" 버튼을 눌렀을 때 호출하는 API
     @PostMapping
     public ResponseEntity<ApiResponse<ChatRoomResponse>> enterChatRoom(@RequestBody ChatRoomRequest request,

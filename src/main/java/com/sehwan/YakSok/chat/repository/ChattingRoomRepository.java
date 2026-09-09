@@ -1,7 +1,6 @@
 package com.sehwan.YakSok.chat.repository;
 
 import com.sehwan.YakSok.chat.entity.ChattingRoom;
-import com.sehwan.YakSok.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,21 +12,50 @@ import java.util.Optional;
 @Repository
 public interface ChattingRoomRepository extends JpaRepository<ChattingRoom, Long> {
 
-    @Query("SELECT  c FROM  ChattingRoom  c JOIN  c.participants p1 JOIN c.participants p2 WHERE p1.user = :user1 AND p2.user = :user2")
-    Optional<ChattingRoom> findExistingRoom(@Param("user1") User user1, @Param("user2") User user2);
+    // 친구 1:1 방: 두 참여자가 모두 USER이고 각각 user id가 일치
+    @Query("SELECT c FROM ChattingRoom c " +
+            "JOIN c.participants p1 " +
+            "JOIN c.participants p2 " +
+            "WHERE c.roomType = com.sehwan.YakSok.chat.entity.RoomType.DIRECT " +
+            "  AND p1.user.id = :userId1 " +
+            "  AND p2.user.id = :userId2")
+    Optional<ChattingRoom> findDirectRoom(@Param("userId1") Long userId1,
+                                          @Param("userId2") Long userId2);
 
-    // 내가 참여 중인 방을 참여자, 참여자의 유저, 약국 정보까지 한 번에 가져온다.
-    // 서브쿼리로 방을 먼저 고르고 바깥에서 fetch 하기 때문에 참여자 목록이 잘리지 않는다.
+    // 약국 상담방: 한쪽은 고객(USER), 다른 한쪽은 해당 약국(DRUGSTORE)
+    @Query("SELECT c FROM ChattingRoom c " +
+            "JOIN c.participants pu " +
+            "JOIN c.participants pd " +
+            "WHERE c.roomType = com.sehwan.YakSok.chat.entity.RoomType.PHARMACY_CONSULT " +
+            "  AND pu.user.id = :customerUserId " +
+            "  AND pd.drugStore.hpid = :hpid")
+    Optional<ChattingRoom> findConsultRoom(@Param("customerUserId") Long customerUserId,
+                                           @Param("hpid") String hpid);
+
+    // 내가 '유저 자격'으로 참여 중인 방 (친구방 + 내가 고객인 상담방).
+    // 참여자 렌더링에서 약국명을 쓰므로 p.drugStore 까지 fetch 해야 N+1이 안 난다.
     @Query("SELECT DISTINCT c FROM ChattingRoom c " +
             "JOIN FETCH c.participants p " +
-            "LEFT JOIN FETCH p.user u " +
-            "LEFT JOIN FETCH u.myDrugStore " +
+            "LEFT JOIN FETCH p.user " +
+            "LEFT JOIN FETCH p.drugStore " +
             "WHERE c.id IN (" +
-            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId AND cp.hidden = false" +
+            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp " +
+            "   WHERE cp.user.id = :userId AND cp.hidden = false" +
             ")")
-    List<ChattingRoom> findAllWithParticipantsByUserId(@Param("userId") Long userId);
+    List<ChattingRoom> findAllAsUserByUserId(@Param("userId") Long userId);
 
-    // 내가 참여 중인 방 번호만 조회: 약속 공유 검증에 사용
+    // 약국 사장의 상담함: 참여자에 그 약국이 있는 방
+    @Query("SELECT DISTINCT c FROM ChattingRoom c " +
+            "JOIN FETCH c.participants p " +
+            "LEFT JOIN FETCH p.user " +
+            "LEFT JOIN FETCH p.drugStore " +
+            "WHERE c.id IN (" +
+            "   SELECT cp.chattingRoom.id FROM ChatParticipant cp " +
+            "   WHERE cp.drugStore.hpid = :hpid AND cp.hidden = false" +
+            ")")
+    List<ChattingRoom> findAllConsultByDrugStoreHpid(@Param("hpid") String hpid);
+
+    // 약속 공유 검증: 내가 유저 자격으로 참여한 방 번호 (ShareYaksokService)
     @Query("SELECT cp.chattingRoom.id FROM ChatParticipant cp WHERE cp.user.id = :userId")
     List<Long> findRoomIdByUserId(@Param("userId") Long userId);
 }

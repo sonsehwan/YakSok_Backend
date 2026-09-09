@@ -2,6 +2,7 @@ package com.sehwan.YakSok.chat.repository;
 
 import com.sehwan.YakSok.chat.entity.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -26,4 +27,9 @@ public interface ChatRepository extends JpaRepository<ChatMessage, Long> {
             "AND m.type = com.sehwan.YakSok.chat.entity.MessageType.SHARE_YAKSOK " +
             "AND m.roomId IN :roomIds")
     long countSharedInRooms(@Param("yaksokId") Long yaksokId, @Param("roomIds") List<String> roomIds);
+
+    // 방과 함께 메시지도 삭제한다 (참여자 0명이 된 방 정리). 파생 삭제는 행마다 select+delete 하므로 벌크 쿼리로.
+    @Modifying
+    @Query("DELETE FROM ChatMessage m WHERE m.roomId = :roomId")
+    void deleteAllByRoomId(@Param("roomId") String roomId);
 }

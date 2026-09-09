@@ -3,6 +3,7 @@ package com.sehwan.YakSok.user.service;
 
 import com.sehwan.YakSok.auth.JwtProvider;
 import com.sehwan.YakSok.auth.dto.response.TokenResponse;
+import com.sehwan.YakSok.chat.service.ChatService;
 import com.sehwan.YakSok.drugstore.dto.SearchDrugStoreDto;
 import com.sehwan.YakSok.drugstore.entity.DrugStore;
 import com.sehwan.YakSok.drugstore.repository.DrugStoreRepository;
@@ -41,6 +42,7 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final ChatService chatService;
 
     @Transactional
     public void signUp(UserRequest dto) {
@@ -163,6 +165,9 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다. id=" + userId));
+
+        // 채팅방 정리: 참여자에서 빼고, 그 방에 남은 참여자가 없으면 방/메시지까지 삭제
+        chatService.handleUserWithdrawal(userId);
 
         userRepository.delete(user);
     }

@@ -24,6 +24,10 @@ public class ChattingRoom {
 
     private String roomName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private RoomType roomType;
+
     // 채팅방에 속한 참여자 목록 (유저와 약국이 섞여서 들어갑니다)
     @OneToMany(mappedBy = "chattingRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatParticipant> participants = new ArrayList<>();

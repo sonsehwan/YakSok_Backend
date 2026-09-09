@@ -22,7 +22,14 @@ public class ChatMessage {
 
     private String roomId;
 
-    private String sender;
+    // 이 방에서 발신자를 대표하는 ChatParticipant의 id.
+    // 하드 FK를 걸지 않는다 — 참여자가 방을 나가도(행 삭제) 지난 메시지는 남아야 하기 때문.
+    @Column(nullable = false)
+    private Long senderParticipantId;
+
+    // 보낼 당시의 발신자 이름 스냅샷. 닉네임/약국명이 바뀌거나 탈퇴해도 과거 말풍선은 그대로.
+    @Column(nullable = false)
+    private String senderName;
 
     @Column(nullable = false, length = 1000)
     private String message;
