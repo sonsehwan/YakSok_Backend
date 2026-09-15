@@ -194,6 +194,16 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponse updateNotificationSetting(Long userId, boolean enabled) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        user.setNotificationEnabled(enabled);
+
+        return new UserResponse(user);
+    }
+
+    @Transactional
     public void deleteFcmToken(Long userId, String token) {
         if(token == null || token.isBlank()){
             throw new IllegalArgumentException("삭제할 FCM 토큰이 비어 있습니다.");

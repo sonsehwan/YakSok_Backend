@@ -23,13 +23,11 @@ public class ChatParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 참여자가 개인 유저일 때만 채워진다. 약국 참여자면 null.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    // 참여자가 약국일 때만 채워진다. 개인 참여자면 null.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "drug_store_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)

@@ -52,6 +52,10 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private boolean notificationEnabled = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @Builder.Default // 이 설정을 해두면 객체 생성할 때 값을 설정하지 않아도 자동으로 초기값으로 적용된다.
@@ -69,6 +73,7 @@ public class User {
                 .nickname(nickname)
                 .role(role)
                 .myDrugStore(myDrugStore)
+                .notificationEnabled(notificationEnabled)
                 .build();
     }
 }

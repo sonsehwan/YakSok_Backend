@@ -90,6 +90,18 @@ public class UserController {
         }
     }
 
+    //알림 수신 여부 설정
+    @PatchMapping("/notification-setting")
+    public ResponseEntity<ApiResponse<UserResponse>> updateNotificationSetting(@AuthenticationPrincipal Long userId,
+                                                                                 @RequestBody NotificationSettingRequest dto) {
+        try {
+            UserResponse updated = userService.updateNotificationSetting(userId, dto.isEnabled());
+            return ResponseEntity.ok(ApiResponse.success("알림 설정 변경 성공", updated));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "MODIFY_NOTIFICATION_SETTING_FAIL", e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/fcm-token")
     public ResponseEntity<ApiResponse<Void>> deleteFcmToken(@AuthenticationPrincipal Long userId, @RequestBody FirebaseTokenRequest dto){
         try{

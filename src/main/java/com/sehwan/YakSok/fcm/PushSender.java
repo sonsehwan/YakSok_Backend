@@ -1,7 +1,9 @@
 package com.sehwan.YakSok.fcm;
 
+import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserDevice;
 import com.sehwan.YakSok.user.repository.UserDeviceRepository;
+import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,21 @@ import java.util.Map;
 public class PushSender {
 
     private final UserDeviceRepository userDeviceRepository;
+    private final UserRepository userRepository;
     private final FcmService fcmService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendData(Collection<Long> userIds, Map<String, String> data){
         if(userIds == null || userIds.isEmpty()) return;
 
-        List<String> tokens = userDeviceRepository.findAllByUserIdIn(userIds)
+        List<Long> notifiableUserIds = userRepository.findAllById(userIds).stream()
+                .filter(User::isNotificationEnabled)
+                .map(User::getId)
+                .toList();
+
+        if (notifiableUserIds.isEmpty()) return;
+
+        List<String> tokens = userDeviceRepository.findAllByUserIdIn(notifiableUserIds)
                 .stream()
                 .map(UserDevice::getToken)
                 .distinct()
