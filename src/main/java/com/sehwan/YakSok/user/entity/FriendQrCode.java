@@ -18,11 +18,18 @@ public class FriendQrCode {
 
     private static final int TTL_MINUTES = 5;
 
+    // Spring Boot 4.0.3(Hibernate 7 계열)에서 @MapsId 파생 식별자를 쓰면 리포지토리 빈을
+    // 초기화하는 단계에서 hasIdClass() 오판으로 죽는 프레임워크 버그가 있어, 파생 식별자 대신
+    // 명시적 스칼라 PK + 읽기전용 @JoinColumn(같은 물리 컬럼을 공유)으로 우회한다.
     @Id
+    @Column(name = "user_id")
+    private Long userId;
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
     @JoinColumn(
             name = "user_id",
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_friend_qr_code_user")
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -35,6 +42,7 @@ public class FriendQrCode {
     private LocalDateTime expiresAt;
 
     private FriendQrCode(User user) {
+        this.userId = user.getId();
         this.user = user;
         reissue();
     }
