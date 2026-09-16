@@ -150,7 +150,7 @@ public class FriendService {
     // 내 QR 코드 발급/재발급. "내 QR 보여주기" 화면을 열 때마다 호출해 매번 새로 발급한다(10분 후 만료).
     @Transactional
     public FriendQrCodeDto issueQrCode(Long userId){
-        FriendQrCode qrCode = friendQrCodeRepository.findById(userId)
+        FriendQrCode qrCode = friendQrCodeRepository.findByUser_Id(userId)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
