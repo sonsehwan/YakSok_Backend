@@ -4,7 +4,9 @@ import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.request.FriendRequestAnswerDto;
 import com.sehwan.YakSok.user.dto.request.FriendRequestCreateDto;
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
+import com.sehwan.YakSok.user.dto.response.FriendQrCodeDto;
 import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
+import com.sehwan.YakSok.user.dto.response.UserProfileDto;
 import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
 import com.sehwan.YakSok.user.service.FriendService;
 import lombok.RequiredArgsConstructor;
@@ -103,6 +105,38 @@ public class FriendController {
             response = ResponseEntity.badRequest().body(ApiResponse.error(400, "받은 친구 목록 가져오기 실패", e.getMessage()));
         }
         return response;
+    }
+
+    // 내 QR 코드 발급/재발급 ("내 QR 보여주기" 화면을 열 때마다 호출, 10분 후 만료)
+    @PostMapping("/qr-code")
+    public ResponseEntity<ApiResponse<FriendQrCodeDto>> issueQrCode(@AuthenticationPrincipal Long userId){
+        try{
+            log.info("QR 코드를 발급합니다.");
+
+            FriendQrCodeDto qrCode = friendService.issueQrCode(userId);
+
+            return ResponseEntity.ok(ApiResponse.success("QR 코드를 발급했습니다.", qrCode));
+        }catch(Exception e){
+            log.error("QR 코드 발급 실패", e);
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "QR 코드 발급 실패", e.getMessage()));
+        }
+    }
+
+    // QR 코드로 알아낸 사용자의 프로필 + 나와의 관계 상태 조회
+    @GetMapping("/profile/{code}")
+    public ResponseEntity<ApiResponse<UserProfileDto>> getUserProfile(
+            @PathVariable String code,
+            @AuthenticationPrincipal Long loginUserId){
+        try{
+            log.info("QR 코드로 사용자 프로필을 조회합니다.");
+
+            UserProfileDto profile = friendService.getUserProfileByQrCode(code, loginUserId);
+
+            return ResponseEntity.ok(ApiResponse.success("프로필을 조회했습니다.", profile));
+        }catch(Exception e){
+            log.error("프로필 조회 실패", e);
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "프로필 조회 실패", e.getMessage()));
+        }
     }
 
     /**

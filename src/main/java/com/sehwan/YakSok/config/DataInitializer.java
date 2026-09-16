@@ -58,7 +58,6 @@ public class DataInitializer implements ApplicationRunner {
         }
         userRepository.saveAll(users);
 
-        // 모든 쌍을 서로 친구로 연결 (수락된 친구 요청 + 양방향 친구 관계)
         for (int a = 0; a < users.size(); a++) {
             for (int b = a + 1; b < users.size(); b++) {
                 User u1 = users.get(a);

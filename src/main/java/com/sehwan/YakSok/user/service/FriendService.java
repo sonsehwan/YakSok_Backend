@@ -1,9 +1,12 @@
 package com.sehwan.YakSok.user.service;
 
 import com.sehwan.YakSok.user.dto.response.FriendListDto;
+import com.sehwan.YakSok.user.dto.response.FriendQrCodeDto;
 import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
+import com.sehwan.YakSok.user.dto.response.UserProfileDto;
 import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
 import com.sehwan.YakSok.user.entity.*;
+import com.sehwan.YakSok.user.repository.FriendQrCodeRepository;
 import com.sehwan.YakSok.user.repository.FriendRelationRepository;
 import com.sehwan.YakSok.user.repository.FriendRequestRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
@@ -21,6 +24,7 @@ public class FriendService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRelationRepository friendRelationRepository;
+    private final FriendQrCodeRepository friendQrCodeRepository;
 
     /**
      *  친구 요청
@@ -141,6 +145,54 @@ public class FriendService {
         return requests.stream()
                 .map(ReceivedFriendRequestDto::from)
                 .toList();
+    }
+
+    // 내 QR 코드 발급/재발급. "내 QR 보여주기" 화면을 열 때마다 호출해 매번 새로 발급한다(10분 후 만료).
+    @Transactional
+    public FriendQrCodeDto issueQrCode(Long userId){
+        FriendQrCode qrCode = friendQrCodeRepository.findById(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                    return FriendQrCode.create(user);
+                });
+
+        qrCode.reissue();
+        friendQrCodeRepository.save(qrCode);
+
+        return FriendQrCodeDto.of(qrCode.getCode());
+    }
+
+    // QR 코드로 알아낸 사용자의 프로필 + 나와의 관계 상태
+    @Transactional(readOnly = true)
+    public UserProfileDto getUserProfileByQrCode(String code, Long loginUserId){
+        FriendQrCode qrCode = friendQrCodeRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 코드입니다."));
+
+        if(qrCode.isExpired()){
+            throw new IllegalStateException("만료된 코드입니다. 상대방에게 QR을 다시 보여달라고 요청하세요.");
+        }
+
+        User user = qrCode.getUser();
+        Long userId = user.getId();
+
+        if(userId.equals(loginUserId)){
+            return UserProfileDto.of(user, RelationStatus.SELF, null);
+        }
+
+        if(friendRelationRepository.existsById(new FriendRelationId(loginUserId, userId))){
+            return UserProfileDto.of(user, RelationStatus.FRIEND, null);
+        }
+
+        Long lowId = Math.min(loginUserId, userId);
+        Long highId = Math.max(loginUserId, userId);
+
+        return friendRequestRepository.findByUserLowIdAndUserHighId(lowId, highId)
+                .filter(FriendRequest::isPending)
+                .map(request -> request.isRequestedBy(loginUserId)
+                        ? UserProfileDto.of(user, RelationStatus.SENT, null)
+                        : UserProfileDto.of(user, RelationStatus.RECEIVED, request.getId()))
+                .orElseGet(() -> UserProfileDto.of(user, RelationStatus.NONE, null));
     }
 
     /**
