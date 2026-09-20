@@ -49,7 +49,7 @@ public class DataInitializer implements ApplicationRunner {
         User user = User.builder()
                 .email("sahwan45@naver.com")
                 .loginId("sahwan45")
-                .password("@25Dldh25")
+                .password("@thstpghks1020")
                 .nickname("손세환")
                 .role(UserRole.NORMAL)
                 .build();
