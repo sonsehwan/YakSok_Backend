@@ -46,6 +46,14 @@ public class DataInitializer implements ApplicationRunner {
             return;
         }
 
+        User user = User.builder()
+                .email("sahwan45@naver.com")
+                .loginId("sahwan45")
+                .password("@25Dldh25")
+                .nickname("손세환")
+                .role(UserRole.NORMAL)
+                .build();
+
         List<User> users = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
             users.add(User.builder()
