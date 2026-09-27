@@ -73,7 +73,7 @@ public class YaksokService {
 
         yaksok.setTotalNotifications(notifications.size());
 
-        SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok, notifications);
+        SaveYaksokResponse response = new SaveYaksokResponse(savedYaksok);
 
         return response;
     }
@@ -159,7 +159,7 @@ public class YaksokService {
             }
         }
 
-        return new SaveYaksokResponse(yaksok, currentNotifications);
+        return new SaveYaksokResponse(yaksok);
     }
 
     @Transactional
