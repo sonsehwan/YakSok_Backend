@@ -50,6 +50,19 @@ public class ShareYaksokService {
         shareYaksokRepository.save(ShareYaksok.create(receiver, yaksok));
     }
 
+    // 공유받은 약속 상세 (채팅 "확인하기" 미리보기 + 이미 저장한 목록 상세 겸용)
+    @Transactional
+    public YaksokDto getSharedYaksokDetail(Long userId, Long yaksokId) {
+        Yaksok yaksok = yaksokRepository.findByIdWithPills(yaksokId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + yaksokId));
+
+        if (!shareYaksokRepository.existsByReceiverIdAndYaksokId(userId, yaksokId)) {
+            validateSharedToMe(userId, yaksokId);
+        }
+
+        return YaksokDto.from(yaksok);
+    }
+
     private void validateSharedToMe(Long userId, Long yaksokId){
         List<Long> myRoomIds = chattingRoomRepository.findRoomIdByUserId(userId);
 

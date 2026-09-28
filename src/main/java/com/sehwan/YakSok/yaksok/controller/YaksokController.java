@@ -86,18 +86,6 @@ public class YaksokController {
         }
     }
 
-    @GetMapping("/{yaksokId}")
-    public ResponseEntity<ApiResponse<YaksokDto>> getYaksok(@PathVariable Long yaksokId,
-                                                             @AuthenticationPrincipal Long userId){
-        try{
-            YaksokDto yaksok = yaksokService.getYaksok(yaksokId, userId);
-            return ResponseEntity.ok(ApiResponse.success("약속을 성공적으로 가져왔습니다.", yaksok));
-        }catch (Exception e){
-            log.error("에러 발생 : {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_GET_YAKSOK", e.getMessage()));
-        }
-    }
-
     // 약속 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteYaksok(@PathVariable Long id,

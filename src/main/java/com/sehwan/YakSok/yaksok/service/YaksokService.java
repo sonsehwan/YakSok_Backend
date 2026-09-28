@@ -78,19 +78,6 @@ public class YaksokService {
         return response;
     }
 
-    // 단일 약속
-    @Transactional
-    public YaksokDto getYaksok(Long yaksokId, Long userId) {
-        Yaksok yaksok = yaksokRepository.findByIdWithPills(yaksokId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 약속이 존재하지 않습니다. id=" + yaksokId));
-
-        if (!yaksok.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("본인의 약속만 조회할 수 있습니다.");
-        }
-
-        return YaksokDto.from(yaksok);
-    }
-
     @Transactional
     public SaveYaksokResponse updateYaksok(Long yaksokId, YaksokRequest request, Long userId) {
         Yaksok yaksok = yaksokRepository.findById(yaksokId)

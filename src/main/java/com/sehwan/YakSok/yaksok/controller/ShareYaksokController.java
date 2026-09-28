@@ -46,6 +46,20 @@ public class ShareYaksokController {
         }
     }
 
+    // 공유받은 약속 상세 (채팅 "확인하기" 미리보기 + 이미 저장한 목록 상세 겸용)
+    @GetMapping("/{yaksokId}")
+    public ResponseEntity<ApiResponse<YaksokDto>> getSharedYaksokDetail(
+            @PathVariable Long yaksokId,
+            @AuthenticationPrincipal Long userId) {
+        try {
+            YaksokDto yaksok = shareYaksokService.getSharedYaksokDetail(userId, yaksokId);
+            return ResponseEntity.ok(ApiResponse.success("공유 약속을 성공적으로 가져왔습니다.", yaksok));
+        } catch (Exception e) {
+            log.error("공유 약속 상세 조회 실패 : {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "FAIL_GET_SHARED_YAKSOK_DETAIL", e.getMessage()));
+        }
+    }
+
     // 저장한 공유 약속 목록
     @GetMapping
     public ResponseEntity<ApiResponse<List<YaksokDto>>> getSharedYaksokList(
