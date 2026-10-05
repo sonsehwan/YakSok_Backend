@@ -8,6 +8,7 @@ import com.sehwan.YakSok.chat.dto.response.ChatRoomResponse;
 import com.sehwan.YakSok.chat.entity.ChatMessage;
 import com.sehwan.YakSok.chat.entity.ChatParticipant;
 import com.sehwan.YakSok.chat.entity.ChattingRoom;
+import com.sehwan.YakSok.chat.entity.MessageType;
 import com.sehwan.YakSok.chat.entity.RoomType;
 import com.sehwan.YakSok.chat.repository.ChatParticipantRepository;
 import com.sehwan.YakSok.chat.repository.ChatRepository;
@@ -276,7 +277,7 @@ public class ChatService {
                             room.getId(),
                             mine != null ? mine.getId() : null,
                             resolveRoomName(room, myUserId, myHpid),
-                            last != null ? last.getMessage() : null,
+                            last != null ? previewOf(last) : null,
                             last != null ? last.getCreatedAt() : null
                     );
                 })
@@ -285,6 +286,10 @@ public class ChatService {
                         Comparator.nullsLast(Comparator.reverseOrder())
                 ))
                 .collect(Collectors.toList());
+    }
+
+    private String previewOf(ChatMessage message) {
+        return message.getType() == MessageType.SHARE_YAKSOK ? "약속을 공유했어요" : message.getMessage();
     }
 
     // 나를 제외한 상대 참여자의 이름. myUserId(개인 목록) 또는 myHpid(사장 상담함) 중 하나로 '나'를 가린다.
