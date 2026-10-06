@@ -40,7 +40,7 @@ public class NotificationStatusChangedListener {
         if (e.isTaken() && !watcherIds.isEmpty()) {
             String title = "💊 " + e.ownerNickname() + "님의 복약 완료";
             String body = e.yaksokTitle() + "의 " + e.date().substring(5) + " "
-                    + e.timeCategory() + "' 복약을 완료했어요.";
+                    + e.timeCategory() + " 복약을 완료했어요.";
 
             pushSender.sendMessage(watcherIds, title, body,
                     String.valueOf(e.notificationId()), FcmMessageType.TAKEN_ALERT);
