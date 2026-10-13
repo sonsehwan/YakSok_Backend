@@ -24,6 +24,9 @@ public class UserRequest {
             message = "아이디는 영문 소문자·숫자 조합 8~20자여야 합니다.")
     private String loginId;
 
+    @NotBlank(message = "비밀번호를 입력해주세요.")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[A-Za-z\\d!@#$%^&*()_+]{8,16}$",
+            message = "비밀번호는 8~16자의 영문·숫자·특수문자를 모두 포함해야 합니다.")
     private String password;
 
     @NotBlank(message = "닉네임을 입력해주세요.")
