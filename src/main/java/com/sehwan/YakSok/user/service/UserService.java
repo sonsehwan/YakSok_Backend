@@ -58,7 +58,7 @@ public class UserService {
             throw  new RuntimeException("이미 존재하는 닉네임입니다.");
         }
 
-        if(!dto.getRole().equals("DRUGSTORE")) {
+        if(!"DRUGSTORE".equals(dto.getRole())) {
             User user = buildUserwithEncodedPassword(dto);
             userRepository.save(user);
         }else{
