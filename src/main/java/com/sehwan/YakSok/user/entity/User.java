@@ -15,7 +15,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "users",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"social_type", "social_id"}))
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"social_type", "social_id"}),
+        check = @CheckConstraint(
+                name = "check_users_login_method",
+                constraint = "(login_id IS NOT NULL AND password IS NOT NULL)"
+                        + " OR (social_type IS NOT NULL AND social_id IS NOT NULL)"))
 @Getter
 @Setter
 @NoArgsConstructor
