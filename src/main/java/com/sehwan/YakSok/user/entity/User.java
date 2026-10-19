@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"social_type", "social_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,12 +31,19 @@ public class User {
     @Column(nullable = false, length = 100, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 20)
+    // 카카오로 가입한 회원은 loginId·password가 null (33장). 둘 다 없으면 DB CHECK가 막는다
+    @Column(unique = true, length = 20)
     private String loginId;
 
-    // 3. 비밀번호: 필수
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String password;
+
+    // 소셜 로그인 연동 정보. 일반 가입 회원은 null (연동 해제 = 둘 다 null로)
+    @Column(name = "social_type", length = 20)
+    private String socialType;
+
+    @Column(name = "social_id", length = 100)
+    private String socialId;
 
     @Column(unique = true, length = 50)
     private String nickname;
@@ -72,6 +80,7 @@ public class User {
                 .email(email)
                 .nickname(nickname)
                 .role(role)
+                .socialType(socialType)
                 .myDrugStore(myDrugStore)
                 .notificationEnabled(notificationEnabled)
                 .build();
