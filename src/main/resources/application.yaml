@@ -7,6 +7,10 @@ jwt:
   secret: ${JWT_SECRET}
   access-token-validity: 600000
 
+kakao:
+  # 카카오 토큰이 우리 앱에서 발급된 것인지 검증할 때 비교하는 앱 ID. 비어 있으면 카카오 로그인은 전부 거절된다
+  app-id: ${KAKAO_APP_ID:}
+
 api:
   medicine:
     service-key: ${MEDICINE_API_KEY}

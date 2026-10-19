@@ -84,4 +84,5 @@ jobs:
             export DRUGSTORE_API_KEY='${{ secrets.DRUGSTORE_API_KEY }}'
             export MAIL_USERNAME='${{ secrets.MAIL_USERNAME }}'
             export MAIL_PASSWORD='${{ secrets.MAIL_PASSWORD }}'
+            export KAKAO_APP_ID='${{ secrets.KAKAO_APP_ID }}'
             nohup java -Xms512m -Xmx512m -jar /home/ubuntu/app/*.jar --server.port=8080 > /home/ubuntu/app/nohup.out 2>&1 &
