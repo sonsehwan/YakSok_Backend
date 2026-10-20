@@ -35,6 +35,8 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
+                                "/api/auth/kakao",
+                                "/api/auth/kakao/signup",
                                 "/api/auth/find-id/send-code",
                                 "/api/auth/find-id/verify",
                                 "/api/auth/reset-password/send-code",

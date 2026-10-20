@@ -7,6 +7,9 @@ jwt:
   secret: ${JWT_SECRET}
   access-token-validity: 600000
 
+kakao:
+  app-id: ${KAKAO_APP_ID:}
+
 api:
   medicine:
     service-key: ${MEDICINE_API_KEY}
@@ -46,7 +49,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:

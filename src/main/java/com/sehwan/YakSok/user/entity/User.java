@@ -14,7 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"social_type", "social_id"}),
+        check = @CheckConstraint(
+                name = "check_users_login_method",
+                constraint = "(login_id IS NOT NULL AND password IS NOT NULL)"
+                        + " OR (social_type IS NOT NULL AND social_id IS NOT NULL)"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,12 +36,17 @@ public class User {
     @Column(nullable = false, length = 100, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(unique = true, length = 20)
     private String loginId;
 
-    // 3. 비밀번호: 필수
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String password;
+
+    @Column(name = "social_type", length = 20)
+    private String socialType;
+
+    @Column(name = "social_id", length = 100)
+    private String socialId;
 
     @Column(unique = true, length = 50)
     private String nickname;
@@ -47,7 +58,6 @@ public class User {
     @JoinColumn(name = "drug_store_id")
     private DrugStore myDrugStore; // 일반 유저는 null
 
-    // 6. 가입일자: 생성 시 자동 기록
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -72,6 +82,7 @@ public class User {
                 .email(email)
                 .nickname(nickname)
                 .role(role)
+                .socialType(socialType)
                 .myDrugStore(myDrugStore)
                 .notificationEnabled(notificationEnabled)
                 .build();

@@ -22,6 +22,8 @@ public class UserResponse {
 
     private UserRole role;
 
+    private String socialType; // 일반 가입 회원은 null, 카카오 연동 회원은 "KAKAO"
+
     private DrugStore myDrugStore; // 일반 유저는 null
 
     private boolean notificationEnabled;
@@ -31,6 +33,7 @@ public class UserResponse {
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.role = user.getRole();
+        this.socialType = user.getSocialType();
         this.myDrugStore = user.getMyDrugStore();
         this.notificationEnabled = user.isNotificationEnabled();
     }
