@@ -36,14 +36,12 @@ public class User {
     @Column(nullable = false, length = 100, unique = true)
     private String email;
 
-    // 카카오로 가입한 회원은 loginId·password가 null (33장). 둘 다 없으면 DB CHECK가 막는다
     @Column(unique = true, length = 20)
     private String loginId;
 
     @Column(length = 255)
     private String password;
 
-    // 소셜 로그인 연동 정보. 일반 가입 회원은 null (연동 해제 = 둘 다 null로)
     @Column(name = "social_type", length = 20)
     private String socialType;
 
@@ -60,7 +58,6 @@ public class User {
     @JoinColumn(name = "drug_store_id")
     private DrugStore myDrugStore; // 일반 유저는 null
 
-    // 6. 가입일자: 생성 시 자동 기록
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
