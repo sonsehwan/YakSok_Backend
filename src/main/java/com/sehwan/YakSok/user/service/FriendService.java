@@ -29,11 +29,11 @@ public class FriendService {
     /**
      *  친구 요청
      */
-    // 닉네임으로 친구 추가할 사용자 검색
+    // email으로 친구 추가할 사용자 검색
     @Transactional(readOnly = true)
-    public UserSearchResultDto searchUserByNickname(String nickname, Long loginUserId){
-        User foundUser = userRepository.findByNickname(nickname)
-                .orElseThrow(()-> new IllegalArgumentException("해당 닉네임의 사용자가 없습니다."));
+    public UserSearchResultDto searchUserByEmail(String email, Long loginUserId){
+        User foundUser = userRepository.findByEmail(email)
+                .orElseThrow(()-> new IllegalArgumentException("해당 email의 사용자가 없습니다."));
 
         if(foundUser.getId().equals(loginUserId)){
             throw new IllegalArgumentException("자기 자신은 친구로 추가할 수 없습니다.");

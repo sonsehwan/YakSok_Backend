@@ -32,21 +32,17 @@ public class FriendController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<UserSearchResultDto>> searchUser(
-            @RequestParam String nickname,
+            @RequestParam String email,
             @AuthenticationPrincipal Long userId){
-        ResponseEntity<ApiResponse<UserSearchResultDto>> response = null;
 
         try{
-            log.info("닉네임으로 사용자를 검색합니다.");
+            UserSearchResultDto user = friendService.searchUserByEmail(email, userId);
 
-            UserSearchResultDto user = friendService.searchUserByNickname(nickname, userId);
-
-            response = ResponseEntity.ok(ApiResponse.success("사용자를 찾았습니다.", user));
+            return ResponseEntity.ok(ApiResponse.success("사용자를 찾았습니다.", user));
         }catch(Exception e){
             log.error("사용자 검색 실패", e);
-            response = ResponseEntity.badRequest().body(ApiResponse.error(400, "사용자 검색 실패", e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "사용자 검색 실패", e.getMessage()));
         }
-        return response;
     }
 
     @PostMapping("/request")

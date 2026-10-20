@@ -63,10 +63,6 @@ public class UserService {
             throw new RuntimeException("이미 사용 중인 아이디입니다.");
         }
 
-        if(userRepository.existsByNickname(dto.getNickname())) {
-            throw  new RuntimeException("이미 존재하는 닉네임입니다.");
-        }
-
         User user = buildUserwithEncodedPassword(dto);
         if ("DRUGSTORE".equals(dto.getRole())) {
             user.setMyDrugStore(resolveDrugStore(dto.getDrugStore()));
@@ -144,10 +140,6 @@ public class UserService {
         }
         checkKakaoEmail(profile);
 
-        if (userRepository.existsByNickname(dto.getNickname())) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
-        }
-
         boolean drugStore = "DRUGSTORE".equals(dto.getRole());
         User user = User.builder()
                 .email(profile.email())
@@ -164,7 +156,6 @@ public class UserService {
         return issueLogin(user);
     }
 
-    // 이메일은 필수 동의 + 카카오가 인증한 것이어야 한다. 아니면 남의 이메일을 인증 없이 단 계정이 그 이메일을 선점할 수 있다
     private void checkKakaoEmail(KakaoProfile profile) {
         if (profile.email() == null || !profile.emailVerified()) {
             throw new RuntimeException("인증된 카카오 계정 이메일이 필요합니다. 이메일 제공에 동의해주세요.");
@@ -202,10 +193,6 @@ public class UserService {
     public UserResponse modifyInfo(ModifyInfoRequest dto, Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if(!user.getNickname().equals(dto.getNickname()) && userRepository.existsByNickname(dto.getNickname())){
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
-        }
 
         user.setNickname(dto.getNickname());
 

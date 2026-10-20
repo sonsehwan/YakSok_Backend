@@ -48,7 +48,7 @@ public class User {
     @Column(name = "social_id", length = 100)
     private String socialId;
 
-    @Column(unique = true, length = 50)
+    @Column(length = 50)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
