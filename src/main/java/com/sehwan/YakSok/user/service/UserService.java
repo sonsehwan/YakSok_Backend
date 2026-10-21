@@ -123,11 +123,11 @@ public class UserService {
         KakaoProfile profile = kakaoClient.fetchProfile(dto.getAccessToken());
 
         return userRepository.findBySocialTypeAndSocialId(KAKAO, profile.id())
-                .map(user -> new KakaoLoginResponse(false, issueLogin(user), null))
+                .map(user -> new KakaoLoginResponse(false, issueLogin(user), null, null))
                 .orElseGet(() -> {
                     // 신규 회원: 이메일 검증은 여기서 미리 해서, 가입 화면까지 간 뒤에 막히지 않게 한다
                     checkKakaoEmail(profile);
-                    return new KakaoLoginResponse(true, null, profile.nickname());
+                    return new KakaoLoginResponse(true, null, profile.nickname(), profile.email());
                 });
     }
 
