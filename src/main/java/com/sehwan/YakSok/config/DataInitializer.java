@@ -47,7 +47,7 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         User user = User.builder()
-                .email("sahwan45@naver.com")
+                .email("thstpghks4511@gmail.com")
                 .loginId("sahwan45")
                 .password("@thstpghks1020")
                 .nickname("손세환")
