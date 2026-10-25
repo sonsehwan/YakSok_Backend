@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageDto {
-    private String roomId;
+    private Long roomId;
     private Long senderParticipantId;  // 클라가 방 입장 시 받은 myParticipantId를 그대로 실어 보낸다
     private String senderNickname;     // 서버가 채워 내려준다 (발신자 이름 스냅샷: 개인=닉네임, 약국=약국명)
     private String message;

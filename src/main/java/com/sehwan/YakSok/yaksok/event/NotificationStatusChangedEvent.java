@@ -1,7 +1,7 @@
 package com.sehwan.YakSok.yaksok.event;
 
 public record NotificationStatusChangedEvent(
-        int notificationId,
+        Long notificationId,
         Long yaksokId,
         Long ownerId,
         String ownerNickname,

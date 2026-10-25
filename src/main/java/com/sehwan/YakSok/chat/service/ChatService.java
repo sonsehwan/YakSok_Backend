@@ -46,7 +46,7 @@ public class ChatService {
     // 받은 채팅 저장. 저장 결과를 그대로 브로드캐스트하도록 DTO를 돌려준다.
     @Transactional
     public ChatMessageDto saveMessage(ChatMessageDto message){
-        Long roomId = Long.valueOf(message.getRoomId());
+        Long roomId = message.getRoomId();
 
         // 발신자가 이 방의 실제 참여자인지 확인한다.
         // (클라가 보낸 id라 진짜 사칭 방지는 STOMP 메시지 인증 도입 때 완성된다.)
@@ -70,8 +70,8 @@ public class ChatService {
         ChatParticipant participant = resolveMyParticipant(roomId, userId);
 
         List<ChatMessage> list = participant.getJoinedAt() != null
-                ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(String.valueOf(roomId), participant.getJoinedAt())
-                : chatRepository.findByRoomIdOrderByCreatedAtAsc(String.valueOf(roomId));
+                ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(roomId, participant.getJoinedAt())
+                : chatRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
 
         // 이름은 메시지에 스냅샷돼 있으므로 참여자를 다시 조회할 필요가 없다.
         return list.stream()
@@ -208,7 +208,7 @@ public class ChatService {
             chatParticipantRepository.flush();
 
             if (chatParticipantRepository.countByChattingRoomId(roomId) == 0) {
-                chatRepository.deleteAllByRoomId(String.valueOf(roomId));
+                chatRepository.deleteAllByRoomId(roomId);
                 chattingRoomRepository.deleteById(roomId);
                 log.info("참여자 0명 → 방/메시지 삭제. 방 번호 {}", roomId);
             }
@@ -261,16 +261,16 @@ public class ChatService {
             return List.of();
         }
 
-        List<String> roomIds = rooms.stream()
-                .map(room -> String.valueOf(room.getId()))
+        List<Long> roomIds = rooms.stream()
+                .map(ChattingRoom::getId)
                 .toList();
 
-        Map<String, ChatMessage> lastMessage = chatRepository.findLastMessagesByRoomIds(roomIds).stream()
+        Map<Long, ChatMessage> lastMessage = chatRepository.findLastMessagesByRoomIds(roomIds).stream()
                 .collect(Collectors.toMap(ChatMessage::getRoomId, m -> m));
 
         return rooms.stream()
                 .map(room -> {
-                    ChatMessage last = lastMessage.get(String.valueOf(room.getId()));
+                    ChatMessage last = lastMessage.get(room.getId());
                     ChatParticipant mine = myParticipantOf(room, myUserId, myHpid);
 
                     return new ChatRoomListDto(

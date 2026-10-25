@@ -161,7 +161,7 @@ public class UserService {
             throw new RuntimeException("인증된 카카오 계정 이메일이 필요합니다. 이메일 제공에 동의해주세요.");
         }
         if (userRepository.existsByEmail(profile.email())) {
-            throw new RuntimeException("이미 가입된 이메일입니다. 아이디로 로그인한 뒤 설정에서 카카오를 연결해주세요.");
+            throw new RuntimeException("이미 가입된 이메일입니다. 아이디로 로그인해주세요.");
         }
     }
 

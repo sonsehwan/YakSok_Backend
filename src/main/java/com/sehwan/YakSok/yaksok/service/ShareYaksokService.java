@@ -70,11 +70,7 @@ public class ShareYaksokService {
             throw new IllegalStateException("공유받지 않은 약속입니다.");
         }
 
-        List<String> roomIds = myRoomIds.stream()
-                .map(String::valueOf)
-                .toList();
-
-        if(chatRepository.countSharedInRooms(yaksokId, roomIds)== 0){
+        if(chatRepository.countSharedInRooms(yaksokId, myRoomIds)== 0){
             throw new IllegalStateException("공유받지 않은 약속입니다.");
         }
     }

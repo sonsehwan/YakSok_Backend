@@ -20,7 +20,7 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String roomId;
+    private Long roomId;
 
     // 이 방에서 발신자를 대표하는 ChatParticipant의 id.
     // 하드 FK를 걸지 않는다 — 참여자가 방을 나가도(행 삭제) 지난 메시지는 남아야 하기 때문.
