@@ -84,6 +84,13 @@ public class ChatRoomController {
         return ResponseEntity.ok(ApiResponse.success("과거 메시지 조회 성공", messages));
     }
 
+    @PostMapping("/{roomId}/read")
+    public ResponseEntity<ApiResponse<Long>> markRead(
+            @AuthenticationPrincipal Long userId, @PathVariable Long roomId) {
+        Long lastReadMessageId = chatService.markRead(userId, roomId);
+        return ResponseEntity.ok(ApiResponse.success("읽음 처리 성공", lastReadMessageId));
+    }
+
     @DeleteMapping
     public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> deleteRoom(
             @ModelAttribute DeleteChattingRoomRequest request,

@@ -32,4 +32,18 @@ public interface ChatRepository extends JpaRepository<ChatMessage, Long> {
     @Modifying
     @Query("DELETE FROM ChatMessage m WHERE m.roomId = :roomId")
     void deleteAllByRoomId(@Param("roomId") Long roomId);
+
+    @Query("select max(m.id) from ChatMessage m where m.roomId = :roomId")
+    Long findMaxIdByRoomId(@Param("roomId") Long roomId);
+
+    @Query("""
+        SELECT m.roomId, COUNT(m)
+        FROM ChatMessage m, ChatParticipant p
+        WHERE p.id IN :participantIds
+          AND m.roomId = p.chattingRoom.id
+          AND m.id > COALESCE(p.lastReadMessageId, 0)
+          AND m.senderParticipantId <> p.id
+        GROUP BY m.roomId
+        """)
+    List<Object[]> countUnreadByParticipantIds(@Param("participantIds") List<Long> participantIds);
 }

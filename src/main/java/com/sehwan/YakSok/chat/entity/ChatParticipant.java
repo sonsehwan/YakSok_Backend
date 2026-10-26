@@ -44,6 +44,8 @@ public class ChatParticipant {
     @JoinColumn(name = "chatting_room_id", nullable = false)
     private ChattingRoom chattingRoom;
 
+    private Long lastReadMessageId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

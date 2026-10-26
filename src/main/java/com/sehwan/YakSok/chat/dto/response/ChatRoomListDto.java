@@ -16,4 +16,5 @@ public class ChatRoomListDto {
     private String roomName;
     private String lastMessage;
     private LocalDateTime lastMessageAt;
+    private int unreadCount;        // 내가 보낸 것을 제외한, 책갈피 이후 메시지 수
 }

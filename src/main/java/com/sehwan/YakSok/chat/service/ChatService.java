@@ -67,7 +67,7 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ChatMessageDto> getChatMessages(Long userId, Long roomId){
-        ChatParticipant participant = resolveMyParticipant(roomId, userId);
+        ChatParticipant participant = findMyParticipant(roomId, userId);
 
         List<ChatMessage> list = participant.getJoinedAt() != null
                 ? chatRepository.findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(roomId, participant.getJoinedAt())
@@ -79,6 +79,16 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public Long markRead(Long userId, Long roomId){
+        ChatParticipant me = findMyParticipant(roomId, userId);
+        Long before = me.getLastReadMessageId();
+        Long maxId = chatRepository.findMaxIdByRoomId(roomId);
+        if(maxId != null){
+            me.setLastReadMessageId(maxId);
+        }
+        return before;
+    }
 
     // ------------------------------------채팅방 관련 로직------------------------------------------------------------
 
@@ -193,6 +203,8 @@ public class ChatService {
         chatParticipant.setHidden(true);
         chatParticipant.setJoinedAt(LocalDateTime.now());
 
+        chatParticipant.setLastReadMessageId(chatRepository.findMaxIdByRoomId(roomId));
+
         return getMyChatRooms(userId);
     }
 
@@ -228,7 +240,7 @@ public class ChatService {
 
     // roomId만 있을 때 호출자의 참여자를 찾는다. USER(userId)로 먼저 찾고,
     // 없으면 약국 사장인 경우 그 약국(DRUGSTORE)으로 찾는다.
-    private ChatParticipant resolveMyParticipant(Long roomId, Long userId) {
+    private ChatParticipant findMyParticipant(Long roomId, Long userId) {
         Optional<ChatParticipant> asUser = chatParticipantRepository.findByChattingRoomIdAndUserId(roomId, userId);
         if (asUser.isPresent()) {
             return asUser.get();
@@ -268,6 +280,13 @@ public class ChatService {
         Map<Long, ChatMessage> lastMessage = chatRepository.findLastMessagesByRoomIds(roomIds).stream()
                 .collect(Collectors.toMap(ChatMessage::getRoomId, m -> m));
 
+        List<Long> pids = rooms.stream()
+                .map(r -> myParticipantOf(r, myUserId, myHpid))
+                .filter(Objects::nonNull).map(ChatParticipant::getId).toList();
+
+        Map<Long, Long> unread = chatRepository.countUnreadByParticipantIds(pids).stream()
+                .collect(Collectors.toMap(r -> (Long) r[0], r-> (Long) r[1]));
+
         return rooms.stream()
                 .map(room -> {
                     ChatMessage last = lastMessage.get(room.getId());
@@ -278,7 +297,8 @@ public class ChatService {
                             mine != null ? mine.getId() : null,
                             resolveRoomName(room, myUserId, myHpid),
                             last != null ? previewOf(last) : null,
-                            last != null ? last.getCreatedAt() : null
+                            last != null ? last.getCreatedAt() : null,
+                            unread.getOrDefault(room.getId(), 0L).intValue()
                     );
                 })
                 .sorted(Comparator.comparing(
