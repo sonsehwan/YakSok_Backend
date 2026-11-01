@@ -13,7 +13,7 @@ public class EmailVerificationStore {
     public enum Purpose { FIND_ID, RESET_PW }
 
     private static final int CODE_LENGTH = 6;
-    private static final long TTL_MINUTES = 5;
+    private static final long TTL_MINUTES = 1;
     private static final long RESEND_BLOCK_SECONDS = 60;
     private static final int MAX_ATTEMPTS = 5;
 
