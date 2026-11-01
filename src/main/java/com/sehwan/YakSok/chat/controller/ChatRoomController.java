@@ -92,7 +92,7 @@ public class ChatRoomController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> deleteRoom(
+    public ResponseEntity<ApiResponse<List<ChatRoomListDto>>> deleteChattingRoom(
             @ModelAttribute DeleteChattingRoomRequest request,
             @AuthenticationPrincipal Long userId)
     {

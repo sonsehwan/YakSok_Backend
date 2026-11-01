@@ -197,15 +197,21 @@ public class ChatService {
 
     @Transactional
     public List<ChatRoomListDto> deleteChattingRoom(Long userId, Long roomId) {
-        ChatParticipant chatParticipant = chatParticipantRepository.findByChattingRoomIdAndUserId(roomId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 연결된 채팅방 관계가 없습니다."));
+        User loginUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 회원정보를 찾지 못했습니다."));
+
+        ChatParticipant chatParticipant = findMyParticipant(roomId, userId);
 
         chatParticipant.setHidden(true);
         chatParticipant.setJoinedAt(LocalDateTime.now());
 
         chatParticipant.setLastReadMessageId(chatRepository.findMaxIdByRoomId(roomId));
 
-        return getMyChatRooms(userId);
+        return chatParticipant.isDrugStore()
+                ? getConsultRooms(userId)
+                : getMyChatRooms(userId);
+
+
     }
 
     // 회원 탈퇴 시 채팅방 정리. 유저 삭제 직전에 UserService에서 호출한다.
