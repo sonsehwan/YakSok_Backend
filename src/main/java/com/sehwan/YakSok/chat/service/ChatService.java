@@ -282,12 +282,13 @@ public class ChatService {
 
         List<Long> pids = rooms.stream()
                 .map(r -> myParticipantOf(r, myUserId, myHpid))
-                .filter(Objects::nonNull).map(ChatParticipant::getId).toList();
+                .map(ChatParticipant::getId).toList();
 
         Map<Long, Long> unread = chatRepository.countUnreadByParticipantIds(pids).stream()
                 .collect(Collectors.toMap(r -> (Long) r[0], r-> (Long) r[1]));
 
         return rooms.stream()
+                .filter(room -> lastMessage.containsKey(room.getId()))
                 .map(room -> {
                     ChatMessage last = lastMessage.get(room.getId());
                     ChatParticipant mine = myParticipantOf(room, myUserId, myHpid);
@@ -296,8 +297,8 @@ public class ChatService {
                             room.getId(),
                             mine != null ? mine.getId() : null,
                             resolveRoomName(room, myUserId, myHpid),
-                            last != null ? previewOf(last) : null,
-                            last != null ? last.getCreatedAt() : null,
+                            previewOf(last),
+                            last.getCreatedAt(),
                             unread.getOrDefault(room.getId(), 0L).intValue()
                     );
                 })
