@@ -1,10 +1,10 @@
 package com.sehwan.YakSok.auth.controller;
 
-import com.sehwan.YakSok.auth.dto.request.KakaoLoginRequest;
-import com.sehwan.YakSok.auth.dto.request.KakaoSignUpRequest;
-import com.sehwan.YakSok.auth.dto.request.RefreshTokenRequest;
+import com.sehwan.YakSok.auth.dto.request.*;
 import com.sehwan.YakSok.auth.dto.response.KakaoLoginResponse;
+import com.sehwan.YakSok.auth.dto.response.SignUpVerifyResponse;
 import com.sehwan.YakSok.auth.dto.response.TokenResponse;
+import com.sehwan.YakSok.auth.service.SignUpVerificationService;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.user.service.UserService;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthController {
 
     private final UserService userService;
+    private final SignUpVerificationService signUpVerificationService;
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenResponse>> refreshToken(@RequestBody RefreshTokenRequest dto) {
@@ -32,6 +33,26 @@ public class AuthController {
         }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(401, "REFRESH_FAIL", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/signup/send-code")
+    public ResponseEntity<ApiResponse<Void>> sendCode(@Valid @RequestBody SignUpSendCodeRequest request) {
+        try{
+            signUpVerificationService.sendCode(request.getEmail());
+            return ResponseEntity.ok(ApiResponse.success("인증코드 전송 성공"));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_VERIFY_FAIL", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/signup/verify")
+    public ResponseEntity<ApiResponse<SignUpVerifyResponse>> verifySignUp(@Valid @RequestBody SignUpVerifyRequest dto) {
+        try {
+            String token = signUpVerificationService.verifyCode(dto.getEmail(), dto.getCode());
+            return ResponseEntity.ok(ApiResponse.success("인증 성공", new SignUpVerifyResponse(token)));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_VERIFY_FAIL", e.getMessage()));
         }
     }
 

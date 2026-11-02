@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class EmailVerificationStore {
 
-    public enum Purpose { FIND_ID, RESET_PW }
+    public enum Purpose { FIND_ID, RESET_PW, SIGN_UP }
 
     private static final int CODE_LENGTH = 6;
     private static final long TTL_MINUTES = 1;

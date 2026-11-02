@@ -33,6 +33,10 @@ public class UserRequest {
     @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,10}$",
             message = "닉네임은 2~10자의 영문·한글·숫자만 사용 가능합니다.")
     private String nickname;
+
+    @NotBlank(message = "이메일 인증이 필요합니다.")
+    private String emailVerifyToken;
+
     private SearchDrugStoreDto drugStore;
     private String role;
 

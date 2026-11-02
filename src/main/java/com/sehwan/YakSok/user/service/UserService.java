@@ -4,6 +4,7 @@ package com.sehwan.YakSok.user.service;
 import com.sehwan.YakSok.auth.JwtProvider;
 import com.sehwan.YakSok.auth.KakaoClient;
 import com.sehwan.YakSok.auth.KakaoClient.KakaoProfile;
+import com.sehwan.YakSok.auth.SignUpTokenStore;
 import com.sehwan.YakSok.auth.dto.request.KakaoLoginRequest;
 import com.sehwan.YakSok.auth.dto.request.KakaoSignUpRequest;
 import com.sehwan.YakSok.auth.dto.response.KakaoLoginResponse;
@@ -50,6 +51,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final ChatService chatService;
     private final KakaoClient kakaoClient;
+    private final SignUpTokenStore signUpTokenStore;
 
     private static final String KAKAO = "KAKAO";
 
@@ -67,6 +69,9 @@ public class UserService {
         if ("DRUGSTORE".equals(dto.getRole())) {
             user.setMyDrugStore(resolveDrugStore(dto.getDrugStore()));
         }
+
+        // 중복·약국 검증을 모두 통과한 뒤에 소비: 앞 단계에서 실패해도 토큰이 살아 있어 재인증이 필요 없다
+        signUpTokenStore.consume(dto.getEmailVerifyToken(), dto.getEmail());
         userRepository.save(user);
     }
 
