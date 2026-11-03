@@ -25,6 +25,8 @@ public class UserResponse {
 
     private String socialType; // 일반 가입 회원은 null, 카카오 연동 회원은 "KAKAO"
 
+    private boolean hasPassword; // 카카오 연동 회원과 카카오 전용 회원을 앱이 구분(비밀번호 변경 메뉴)
+
     private DrugStore myDrugStore; // 일반 유저는 null
 
     private boolean notificationEnabled;
@@ -35,6 +37,7 @@ public class UserResponse {
         this.nickname = user.getNickname();
         this.role = user.getRole();
         this.socialType = user.getSocialType();
+        this.hasPassword = user.getPassword() != null;
         this.myDrugStore = user.getMyDrugStore();
         this.notificationEnabled = user.isNotificationEnabled();
     }

@@ -83,6 +83,7 @@ public class User {
                 .nickname(nickname)
                 .role(role)
                 .socialType(socialType)
+                .hasPassword(password != null)
                 .myDrugStore(myDrugStore)
                 .notificationEnabled(notificationEnabled)
                 .build();
