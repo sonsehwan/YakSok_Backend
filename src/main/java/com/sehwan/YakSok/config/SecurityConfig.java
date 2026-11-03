@@ -31,8 +31,8 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/users/signup",
-                                "/api/users/login",
+                                "/api/auth/signup",
+                                "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/auth/kakao",

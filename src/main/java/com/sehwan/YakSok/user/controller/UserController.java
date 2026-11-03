@@ -2,7 +2,6 @@ package com.sehwan.YakSok.user.controller;
 
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.request.*;
-import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.user.dto.response.UserResponse;
 import com.sehwan.YakSok.user.service.UserService;
 import jakarta.validation.Valid;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,30 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
-    //회원가입
-    @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody UserRequest dto) {
-        try {
-            userService.signUp(dto);
-
-            return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다."));
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_FAIL", e.getMessage()));
-        }
-    }
-
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest dto) {
-        try {
-            LoginResponse loginUser = userService.login(dto);
-            return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(400, "LOGIN_FAIL", e.getMessage()));
-        }
-    }
 
     //내 정보 수정
     @PatchMapping("/info")

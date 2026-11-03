@@ -7,7 +7,9 @@ import com.sehwan.YakSok.auth.dto.response.TokenResponse;
 import com.sehwan.YakSok.auth.service.SignUpVerificationService;
 import com.sehwan.YakSok.common.response.ApiResponse;
 import com.sehwan.YakSok.user.dto.response.LoginResponse;
-import com.sehwan.YakSok.user.service.UserService;
+import com.sehwan.YakSok.auth.service.AuthService;
+import com.sehwan.YakSok.user.dto.request.LoginRequest;
+import com.sehwan.YakSok.user.dto.request.UserRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
     private final SignUpVerificationService signUpVerificationService;
+
+    //회원가입
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody UserRequest dto) {
+        try {
+            authService.signUp(dto);
+
+            return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다."));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "SIGNUP_FAIL", e.getMessage()));
+        }
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest dto) {
+        try {
+            LoginResponse loginUser = authService.login(dto);
+            return ResponseEntity.ok(ApiResponse.success("로그인 성공", loginUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "LOGIN_FAIL", e.getMessage()));
+        }
+    }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenResponse>> refreshToken(@RequestBody RefreshTokenRequest dto) {
         try{
-            TokenResponse newAccessToken = userService.reissueAccessToken(dto.getRefreshToken());
+            TokenResponse newAccessToken = authService.reissueAccessToken(dto.getRefreshToken());
             return ResponseEntity.ok(ApiResponse.success("토큰 재발급 성공", newAccessToken));
         }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -58,7 +84,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@RequestBody RefreshTokenRequest dto) {
-        userService.logout(dto.getRefreshToken());
+        authService.logout(dto.getRefreshToken());
         return ResponseEntity.ok(ApiResponse.success("로그아웃 성공"));
     }
 
@@ -66,7 +92,7 @@ public class AuthController {
     @PostMapping("/kakao")
     public ResponseEntity<ApiResponse<KakaoLoginResponse>> kakaoLogin(@Valid @RequestBody KakaoLoginRequest dto) {
         try {
-            return ResponseEntity.ok(ApiResponse.success("카카오 인증 성공", userService.kakaoLogin(dto)));
+            return ResponseEntity.ok(ApiResponse.success("카카오 인증 성공", authService.kakaoLogin(dto)));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "KAKAO_LOGIN_FAIL", e.getMessage()));
         }
@@ -75,7 +101,7 @@ public class AuthController {
     @PostMapping("/kakao/signup")
     public ResponseEntity<ApiResponse<LoginResponse>> kakaoSignUp(@Valid @RequestBody KakaoSignUpRequest dto) {
         try {
-            return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다.", userService.kakaoSignUp(dto)));
+            return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다.", authService.kakaoSignUp(dto)));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "KAKAO_SIGNUP_FAIL", e.getMessage()));
         }
