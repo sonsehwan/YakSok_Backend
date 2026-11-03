@@ -65,28 +65,6 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    // 약국 회원 가입 시 약국 정보를 검증하고 약국 엔티티를 가져온다(없으면 저장). 일반·카카오 가입이 공유한다
-    private DrugStore resolveDrugStore(SearchDrugStoreDto drugStore) {
-        if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
-            throw new RuntimeException("약국 정보가 올바르지 않습니다.");
-        }
-
-        String hpid = drugStore.getHpid();
-
-        if (userRepository.existsByMyDrugStore_Hpid(hpid)) {
-            throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
-        }
-
-        return drugStoreRepository.findByHpid(hpid)
-                .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
-    }
-
-    private User buildUserwithEncodedPassword(UserRequest dto) {
-        User user = dto.toEntity();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return user;
-    }
-
     @Transactional
     public LoginResponse login(LoginRequest dto){
 
@@ -100,18 +78,7 @@ public class AuthService {
         return issueLogin(user);
     }
 
-    private LoginResponse issueLogin(User user) {
-        String accessToken = jwtProvider.createAccessToken(user.getId());
-        String refreshToken = UUID.randomUUID().toString();
 
-        refreshTokenRepository.save(RefreshToken.builder()
-                .user(user)
-                .token(refreshToken)
-                .expiresAt(LocalDateTime.now().plusWeeks(2))
-                .build());
-
-        return new LoginResponse(new UserResponse(user), accessToken, refreshToken);
-    }
 
     @Transactional
     public KakaoLoginResponse kakaoLogin(KakaoLoginRequest dto) {
@@ -151,13 +118,25 @@ public class AuthService {
         return issueLogin(user);
     }
 
-    private void checkKakaoEmail(KakaoProfile profile) {
-        if (profile.email() == null || !profile.emailVerified()) {
-            throw new RuntimeException("인증된 카카오 계정 이메일이 필요합니다. 이메일 제공에 동의해주세요.");
+    @Transactional
+    public UserResponse kakaoInterlock(Long userId, KakaoLoginRequest dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if(user.getSocialType() != null){
+            throw new RuntimeException("이미 연동된 계정입니다.");
         }
-        if (userRepository.existsByEmail(profile.email())) {
-            throw new RuntimeException("이미 가입된 이메일입니다. 아이디로 로그인해주세요.");
+
+        String id = kakaoClient.fetchProfile(dto.getAccessToken()).id();
+
+        if(userRepository.findBySocialTypeAndSocialId(KAKAO, id).isPresent()){
+            throw new RuntimeException("이미 다른 계정에 연결된 카카오입니다.");
         }
+
+        user.setSocialType(KAKAO);
+        user.setSocialId(id);
+
+        return new UserResponse(user);
     }
 
     @Transactional
@@ -182,5 +161,49 @@ public class AuthService {
     @Transactional
     public void logout(String refreshToken){
         refreshTokenRepository.deleteByToken(refreshToken);
+    }
+
+    // 약국 회원 가입 시 약국 정보를 검증하고 약국 엔티티를 가져온다(없으면 저장). 일반·카카오 가입이 공유한다
+    private DrugStore resolveDrugStore(SearchDrugStoreDto drugStore) {
+        if (drugStore == null || drugStore.getHpid() == null || drugStore.getHpid().isBlank()) {
+            throw new RuntimeException("약국 정보가 올바르지 않습니다.");
+        }
+
+        String hpid = drugStore.getHpid();
+
+        if (userRepository.existsByMyDrugStore_Hpid(hpid)) {
+            throw new RuntimeException("이미 다른 사용자가 등록한 약국입니다.");
+        }
+
+        return drugStoreRepository.findByHpid(hpid)
+                .orElseGet(() -> drugStoreRepository.save(drugStore.toEntity()));
+    }
+
+    private User buildUserwithEncodedPassword(UserRequest dto) {
+        User user = dto.toEntity();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
+    }
+
+    private LoginResponse issueLogin(User user) {
+        String accessToken = jwtProvider.createAccessToken(user.getId());
+        String refreshToken = UUID.randomUUID().toString();
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                .user(user)
+                .token(refreshToken)
+                .expiresAt(LocalDateTime.now().plusWeeks(2))
+                .build());
+
+        return new LoginResponse(new UserResponse(user), accessToken, refreshToken);
+    }
+
+    private void checkKakaoEmail(KakaoProfile profile) {
+        if (profile.email() == null || !profile.emailVerified()) {
+            throw new RuntimeException("인증된 카카오 계정 이메일이 필요합니다. 이메일 제공에 동의해주세요");
+        }
+        if (userRepository.existsByEmail(profile.email())) {
+            throw new RuntimeException("아이디로 로그인 후 내 정보에서 카카오를 연결해주세요");
+        }
     }
 }

@@ -10,10 +10,12 @@ import com.sehwan.YakSok.user.dto.response.LoginResponse;
 import com.sehwan.YakSok.auth.service.AuthService;
 import com.sehwan.YakSok.user.dto.request.LoginRequest;
 import com.sehwan.YakSok.user.dto.request.UserRequest;
+import com.sehwan.YakSok.user.dto.response.UserResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -104,6 +106,18 @@ public class AuthController {
             return ResponseEntity.ok(ApiResponse.success("회원가입에 성공하였습니다.", authService.kakaoSignUp(dto)));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "KAKAO_SIGNUP_FAIL", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/kakao/interlock")
+    public ResponseEntity<ApiResponse<UserResponse>> kakaoInterlock(
+            @Valid @RequestBody KakaoLoginRequest dto,
+            @AuthenticationPrincipal Long userId) {
+        try{
+            UserResponse response = authService.kakaoInterlock(userId, dto);
+            return ResponseEntity.ok(ApiResponse.success("카카오 연동 성공", response));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "INTERLOCK_FAIL", e.getMessage()));
         }
     }
 }
