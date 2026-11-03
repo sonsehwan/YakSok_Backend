@@ -140,6 +140,24 @@ public class AuthService {
     }
 
     @Transactional
+    public UserResponse kakaoUnlink(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (user.getSocialType() == null) {
+            throw new RuntimeException("연동된 카카오 계정이 없습니다.");
+        }
+        if (user.getPassword() == null) {
+            throw new RuntimeException("카카오로 가입한 계정은 연동을 해제할 수 없습니다.");
+        }
+
+        user.setSocialType(null);
+        user.setSocialId(null);
+
+        return new UserResponse(user);
+    }
+
+    @Transactional
     public TokenResponse reissueAccessToken(String refreshToken){
         RefreshToken saved = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(()-> new IllegalArgumentException("유효하지 않는 리프레쉬 토큰입니다."));

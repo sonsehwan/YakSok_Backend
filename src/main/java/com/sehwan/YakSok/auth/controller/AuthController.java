@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -118,6 +119,16 @@ public class AuthController {
             return ResponseEntity.ok(ApiResponse.success("카카오 연동 성공", response));
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "INTERLOCK_FAIL", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/kakao/interlock")
+    public ResponseEntity<ApiResponse<UserResponse>> kakaoUnlink(@AuthenticationPrincipal Long userId) {
+        try{
+            UserResponse response = authService.kakaoUnlink(userId);
+            return ResponseEntity.ok(ApiResponse.success("카카오 연동 해제 성공", response));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "UNLINK_FAIL", e.getMessage()));
         }
     }
 }
