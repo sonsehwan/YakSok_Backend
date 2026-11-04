@@ -4,7 +4,8 @@ public record FriendshipChangedEvent(
         Long targetUserId,
         Long actorUserId,
         String actorNickname,
-        Kind kind)
+        Kind kind,
+        Long requestId)
 {
     public enum Kind { REQUESTED, ACCEPTED }
 }
