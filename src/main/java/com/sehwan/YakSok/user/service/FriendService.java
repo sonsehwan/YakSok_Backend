@@ -6,11 +6,13 @@ import com.sehwan.YakSok.user.dto.response.ReceivedFriendRequestDto;
 import com.sehwan.YakSok.user.dto.response.UserProfileDto;
 import com.sehwan.YakSok.user.dto.response.UserSearchResultDto;
 import com.sehwan.YakSok.user.entity.*;
+import com.sehwan.YakSok.user.event.FriendshipChangedEvent;
 import com.sehwan.YakSok.user.repository.FriendQrCodeRepository;
 import com.sehwan.YakSok.user.repository.FriendRelationRepository;
 import com.sehwan.YakSok.user.repository.FriendRequestRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final FriendRelationRepository friendRelationRepository;
     private final FriendQrCodeRepository friendQrCodeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      *  친구 요청
@@ -63,6 +66,7 @@ public class FriendService {
 
         if(found.isEmpty()){
             friendRequestRepository.save(FriendRequest.create(user, friend));
+            publish(friendId, user, FriendshipChangedEvent.Kind.REQUESTED);
             return;
         }
 
@@ -82,11 +86,20 @@ public class FriendService {
                 throw new IllegalStateException("이미 보낸 친구 요청입니다.");
             }
             acceptAndCreateRelation(request);
+            publish(friendId, user, FriendshipChangedEvent.Kind.ACCEPTED);   // 먼저 요청했던 상대에게
             return;
         }
 
         // 거절된 요청은 이전 방향과 무관하게 이번 요청자를 기준으로 다시 시작한다.
         request.restart(user, friend);
+        publish(friendId, user, FriendshipChangedEvent.Kind.REQUESTED);
+    }
+
+    // 커밋 후 리스너가 상대에게 푸시한다. 엔티티 대신 값만 담는다(AFTER_COMMIT에서는 lazy 접근 불가).
+    // isAccepted() 분기(내가 지웠던 관계 재생성)는 상대 목록에 이미 내가 남아 있어 보내지 않는다.
+    private void publish(Long targetUserId, User actor, FriendshipChangedEvent.Kind kind) {
+        eventPublisher.publishEvent(new FriendshipChangedEvent(
+                targetUserId, actor.getId(), actor.getNickname(), kind));
     }
 
     // 친구 요청을 수락하고 양방향 친구 관계를 만든다.
@@ -121,6 +134,8 @@ public class FriendService {
 
         friendRelationRepository.save(requesterRelation);
         friendRelationRepository.save(receiverRelation);
+
+        publish(requester.getId(), receiver, FriendshipChangedEvent.Kind.ACCEPTED);
     }
 
     //친구 요청 거절
