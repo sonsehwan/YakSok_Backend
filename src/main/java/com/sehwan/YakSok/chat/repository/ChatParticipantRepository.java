@@ -28,4 +28,9 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
     List<ChatParticipant> findByUserId(Long userId);
 
     long countByChattingRoomId(Long roomId);
+
+    @Query("SELECT p FROM ChatParticipant p" +
+        "LEFT JOIN FETCH p.user LEFT JOIN FETCH p.drugStore" +
+    "WHERE p.chattingRoom.id = : roomId")
+    List<ChatParticipant> findAllWithRefsByRoomId(@Param("roomId") Long roomId);
 }

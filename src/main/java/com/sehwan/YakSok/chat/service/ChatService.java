@@ -10,6 +10,7 @@ import com.sehwan.YakSok.chat.entity.ChatParticipant;
 import com.sehwan.YakSok.chat.entity.ChattingRoom;
 import com.sehwan.YakSok.chat.entity.MessageType;
 import com.sehwan.YakSok.chat.entity.RoomType;
+import com.sehwan.YakSok.chat.event.ChatMessageSavedEvent;
 import com.sehwan.YakSok.chat.repository.ChatParticipantRepository;
 import com.sehwan.YakSok.chat.repository.ChatRepository;
 import com.sehwan.YakSok.chat.repository.ChattingRoomRepository;
@@ -21,6 +22,7 @@ import com.sehwan.YakSok.user.repository.FriendRelationRepository;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ public class ChatService {
     private final ChatParticipantRepository chatParticipantRepository;
     private final DrugStoreRepository drugStoreRepository;
     private final FriendRelationRepository friendRelationRepository;
+    private final ApplicationEventPublisher eventEventPublisher;
 
     // ------------------------------------채팅 메시지 관련 로직------------------------------------------------------------
 
@@ -61,6 +64,9 @@ public class ChatService {
         // 메시지가 오면 방을 삭제(숨김)했던 참여자에게도 방을 다시 노출시킨다.
         chatParticipantRepository.findByChattingRoomIdAndHiddenTrue(roomId)
                 .forEach(p -> p.setHidden(false));
+
+        eventEventPublisher.publishEvent(new ChatMessageSavedEvent(
+                roomId, sender.getId(), sender.displayName(), previewOf(saved)));
 
         return ChatMessageDto.from(saved);
     }

@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByMyDrugStore_HpidAndIdNot(String hpid, Long id);
 
     boolean existsByMyDrugStore_Hpid(String hpid);
+
+    List<User> findAllByMyDrugStore_Hpid(String hpid);
 }
