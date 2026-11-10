@@ -29,8 +29,6 @@ public class UserResponse {
 
     private DrugStore myDrugStore; // 일반 유저는 null
 
-    private boolean notificationEnabled;
-
     public UserResponse(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
@@ -39,6 +37,5 @@ public class UserResponse {
         this.socialType = user.getSocialType();
         this.hasPassword = user.getPassword() != null;
         this.myDrugStore = user.getMyDrugStore();
-        this.notificationEnabled = user.isNotificationEnabled();
     }
 }
