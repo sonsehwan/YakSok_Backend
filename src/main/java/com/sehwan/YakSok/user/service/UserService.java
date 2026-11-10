@@ -97,4 +97,11 @@ public class UserService {
 
         log.info("기기 토큰 삭제 완료. userId = {}", userId);
     }
+
+    public UserResponse getMe(Long userId) {
+        User user =  userRepository.findById(userId)
+               .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        return user.toDto();
+    }
 }

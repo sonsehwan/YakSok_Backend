@@ -19,6 +19,16 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<UserResponse>> getMe(@AuthenticationPrincipal Long userId){
+        try{
+            UserResponse response = userService.getMe(userId);
+            return ResponseEntity.ok(ApiResponse.success("내 정보 가져오기 성공", response));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(404, "GET_ME_FAIL", e.getMessage()));
+        }
+    }
+
     //내 정보 수정
     @PatchMapping("/info")
     public ResponseEntity<ApiResponse<UserResponse>> modifyInfo(@RequestBody ModifyInfoRequest dto,
