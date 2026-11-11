@@ -5,5 +5,6 @@ public enum FcmMessageType {
     TAKEN_ALERT,
     REFRESH,
     CHAT,
-    FRIENDSHIP
+    FRIENDSHIP,
+    USER_REFRESH
 }

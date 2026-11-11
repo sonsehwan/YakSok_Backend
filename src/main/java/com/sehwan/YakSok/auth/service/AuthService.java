@@ -19,8 +19,10 @@ import com.sehwan.YakSok.user.entity.RefreshToken;
 import com.sehwan.YakSok.user.entity.User;
 import com.sehwan.YakSok.user.entity.UserRole;
 import com.sehwan.YakSok.user.repository.RefreshTokenRepository;
+import com.sehwan.YakSok.user.event.UserInfoChangedEvent;
 import com.sehwan.YakSok.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final KakaoClient kakaoClient;
     private final SignUpTokenStore signUpTokenStore;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String KAKAO = "KAKAO";
 
@@ -136,6 +139,7 @@ public class AuthService {
         user.setSocialType(KAKAO);
         user.setSocialId(id);
 
+        eventPublisher.publishEvent(new UserInfoChangedEvent(userId));
         return new UserResponse(user);
     }
 
@@ -154,6 +158,7 @@ public class AuthService {
         user.setSocialType(null);
         user.setSocialId(null);
 
+        eventPublisher.publishEvent(new UserInfoChangedEvent(userId));
         return new UserResponse(user);
     }
 
